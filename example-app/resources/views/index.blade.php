@@ -15,14 +15,10 @@
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen">
 
-    <header class="bg-[#b91c1c] text-white py-1 px-10 shadow-lg">
-        <div class="container mx-auto flex justify-center">
-            <div class="flex items-center">
-                <img src="{{ asset('images/banner.png') }}" 
-                     alt="DepEd Banner" 
-                     class="w-[1028px] h-auto object-contain">
-            </div>
-        </div>
+    <header class="bg-red-700 p-1 flex justify-center items-center">
+        <img src="{{ asset('images/banner.png') }}" 
+         class="w-full max-w-5xl h-auto block" 
+         alt="DepEd Zamboanga Header">
     </header>
 
     <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-50">
