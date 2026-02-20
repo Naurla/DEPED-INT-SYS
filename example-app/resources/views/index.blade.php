@@ -7,7 +7,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Small adjustment for the scroll-to-top button hover effect */
         .scroll-top-btn:hover {
             background-color: #333;
         }
@@ -15,10 +14,14 @@
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen">
 
-    <header class="bg-red-700 p-1 flex justify-center items-center">
-        <img src="{{ asset('images/banner.png') }}" 
-         class="w-full max-w-5xl h-auto block" 
-         alt="DepEd Zamboanga Header">
+    <header class="bg-[#b91c1c] text-white py-1 px-10 shadow-lg">
+        <div class="container mx-auto flex justify-center">
+            <div class="flex items-center">
+                <img src="{{ asset('images/banner.png') }}" 
+                     alt="DepEd Banner" 
+                     class="w-[1028px] h-auto object-contain">
+            </div>
+        </div>
     </header>
 
     <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-50">
@@ -52,8 +55,8 @@
                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
                     </svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Orders</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Memorandums</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Advisories</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Division Memoranda</a>
                     </div>
                 </div>
 
@@ -68,7 +71,7 @@
                     <input type="text" name="search" placeholder="Search..." 
                         class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-40 lg:w-56 transition-all">
                     <button type="submit" class="absolute right-3 text-gray-400 hover:text-red-700">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </button>
@@ -97,11 +100,11 @@
     </main>
 
     <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300">
-        <div class="container mx-auto px-6 lg:px-20 flex flex-wrap md:flex-nowrap items-start gap-12">
+        <div class="container mx-auto px-6 lg:px-20 flex flex-wrap md:flex-nowrap items-start gap-8">
             
-            <div class="hidden lg:block ">
+            <div class="w-full md:w-1/6 flex justify-start">
                 <img src="{{ asset('images/rnp.png') }}" 
-                     alt="PH Seal" class="w-80 opacity-40">
+                     alt="PH Seal" class="w-[200px] h-auto opacity-100 object-contain">
             </div>
 
             <div class="w-full md:w-1/4">
@@ -114,7 +117,7 @@
             <div class="w-full md:w-1/5">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
                 <p class="text-[13px] leading-relaxed mb-4">
-                    Learn more about the Philippine government, its structure, how government works and the people behind it.
+                    Learn more about the Philippine government and its structure.
                 </p>
                 <ul class="text-[13px] space-y-1">
                     <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
@@ -123,30 +126,18 @@
                 </ul>
             </div>
 
-            <div class="w-full md:w-1/5">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Government Links</h2>
-                <ul class="text-[13px] space-y-1">
-                    <li><a href="#" class="hover:underline">Office of the President</a></li>
-                    <li><a href="#" class="hover:underline">Office of the Vice President</a></li>
-                    <li><a href="#" class="hover:underline">Senate of the Philippines</a></li>
-                    <li><a href="#" class="hover:underline">House of Representatives</a></li>
-                    <li><a href="#" class="hover:underline">Supreme Court</a></li>
-                    <li><a href="#" class="hover:underline">Sandiganbayan</a></li>
-                </ul>
-            </div>
-
             <div class="w-full md:w-1/4">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
-                    <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, Philippines, 7000</p>
+                    <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
                     <p><strong>Email:</strong><br><a href="mailto:zamboanga.city@deped.gov.ph" class="text-blue-700 hover:underline">zamboanga.city@deped.gov.ph</a></p>
-                    <p><strong>Phone:</strong><br>(062) 991-1234 / 991-5567</p>
+                    <p><strong>Phone:</strong><br>(062) 991-1234</p>
                 </div>
             </div>
 
-            <div class="w-full md:w-auto flex flex-col items-center gap-6 ml-auto">
+            <div class="w-full md:w-1/6 flex justify-end">
                 <img src="{{ asset('images/foi.png') }}" 
-                     alt="FOI Logo" class="w-80 opacity-100 ">
+                     alt="FOI Logo" class="w-[200px] h-auto opacity-100 object-contain">
             </div>
 
         </div>
