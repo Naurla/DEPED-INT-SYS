@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DepEd Zamboanga City Division</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .scroll-top-btn:hover {
-            background-color: #333;
-        }
+        .scroll-top-btn:hover { background-color: #333; }
+        [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen">
+<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" x-data="{ loginModal: false }">
 
     <header class="bg-[#b91c1c] text-white py-1 px-10 shadow-lg">
         <div class="container mx-auto flex justify-center">
             <div class="flex items-center">
-                <img src="{{ asset('images/banner.png') }}" 
+                <img src="{{ asset('images/banner1.png') }}" 
                      alt="DepEd Banner" 
                      class="w-[1028px] h-auto object-contain">
             </div>
@@ -62,11 +62,16 @@
 
                 <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
                 <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
-                <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors hidden xl:block">Division Data</a>
-                <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors hidden xl:block">UIS Portal</a>
             </div>
 
-            <div class="px-6 flex items-center">
+            <div class="px-6 flex items-center space-x-4">
+                <button @click="loginModal = true" class="text-gray-600 hover:text-[#b91c1c] transition-colors flex items-center group">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    <span class="ml-1 font-semibold hidden md:inline">Admin</span>
+                </button>
+
                 <form action="#" method="GET" class="relative flex items-center">
                     <input type="text" name="search" placeholder="Search..." 
                         class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-40 lg:w-56 transition-all">
@@ -99,49 +104,74 @@
         </section>
     </main>
 
+    <div 
+        class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4"
+        x-show="loginModal"
+        x-cloak
+        x-transition:enter="transition ease-out duration-300"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+    >
+        <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden" @click.away="loginModal = false">
+            <div class="bg-[#b91c1c] py-4 px-6 flex justify-between items-center">
+                <h3 class="text-white font-bold text-lg uppercase tracking-wide">Admin Login</h3>
+                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <form action="{{ route('admin.login') }}" method="POST" class="p-8">
+                @csrf
+                <div class="mb-5">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
+                    <input type="text" name="username" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                    <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
+                </div>
+
+                <button type="submit" class="w-full bg-[#b91c1c] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">
+                    Sign In
+                </button>
+            </form>
+        </div>
+    </div>
+
     <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300">
         <div class="container mx-auto px-6 lg:px-20 flex flex-wrap md:flex-nowrap items-start gap-8">
-            
             <div class="w-full md:w-1/6 flex justify-start">
-                <img src="{{ asset('images/rnp.png') }}" 
-                     alt="PH Seal" class="w-[200px] h-auto opacity-100 object-contain">
+                <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[200px] h-auto object-contain">
             </div>
-
             <div class="w-full md:w-1/4">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
-                <p class="text-[13px] leading-relaxed">
-                    All content is in the public domain unless otherwise stated.
-                </p>
+                <p class="text-[13px] leading-relaxed">All content is in the public domain unless otherwise stated.</p>
             </div>
-
             <div class="w-full md:w-1/5">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
-                <p class="text-[13px] leading-relaxed mb-4">
-                    Learn more about the Philippine government and its structure.
-                </p>
                 <ul class="text-[13px] space-y-1">
                     <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
                     <li><a href="#" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
                     <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
                 </ul>
             </div>
-
             <div class="w-full md:w-1/4">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
-                    <p><strong>Email:</strong><br><a href="mailto:zamboanga.city@deped.gov.ph" class="text-blue-700 hover:underline">zamboanga.city@deped.gov.ph</a></p>
+                    <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
                     <p><strong>Phone:</strong><br>(062) 991-1234</p>
                 </div>
             </div>
-
             <div class="w-full md:w-1/6 flex justify-end">
-                <img src="{{ asset('images/foi.png') }}" 
-                     alt="FOI Logo" class="w-[200px] h-auto opacity-100 object-contain">
+                <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="w-[200px] h-auto object-contain">
             </div>
-
         </div>
     </footer>
-
 </body>
 </html>
