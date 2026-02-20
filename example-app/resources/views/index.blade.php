@@ -44,8 +44,8 @@
                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
                     </svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">About Option 1</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">About Option 2</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Vision & Mission</a>
+                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Organizational Structure</a>
                     </div>
                 </div>
 
@@ -99,7 +99,42 @@
                 Public Advisory
             </div>
             <div class="p-10 bg-white shadow-sm mb-10">
-                <p class="text-gray-600">Latest updates and announcements will appear here...</p>
+                @if(isset($advisories) && count($advisories) > 0)
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        @foreach($advisories as $advisory)
+                            <div class="group bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                                <a href="{{ asset('storage/' . $advisory->pdf_path) }}" target="_blank" class="block relative overflow-hidden">
+                                    <img src="{{ asset('storage/' . $advisory->image_path) }}" 
+                                         alt="{{ $advisory->title }}" 
+                                         class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500">
+                                    
+                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
+                                        <div class="bg-red-700 text-white px-4 py-2 rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                                            View Full PDF
+                                        </div>
+                                    </div>
+                                </a>
+                                
+                                <div class="p-5">
+                                    <div class="text-xs text-red-600 font-bold uppercase mb-2">Notice</div>
+                                    <h3 class="font-bold text-gray-800 text-lg leading-tight mb-2">
+                                        {{ $advisory->title }}
+                                    </h3>
+                                    <p class="text-gray-500 text-xs italic">
+                                        Posted on {{ $advisory->created_at->format('M d, Y') }}
+                                    </p>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="flex flex-col items-center py-10">
+                        <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" />
+                        </svg>
+                        <p class="text-gray-500 italic">No public advisories have been posted recently.</p>
+                    </div>
+                @endif
             </div>
         </section>
     </main>

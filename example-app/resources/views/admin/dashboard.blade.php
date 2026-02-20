@@ -12,7 +12,7 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true }">
+<body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true, uploadModal: false }">
 
     <aside 
         class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-xl"
@@ -89,40 +89,26 @@
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
                     <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Total Advisories</p>
                     <div class="flex items-center justify-between">
-                        <span class="text-3xl font-bold text-gray-800">142</span>
+                        <span class="text-3xl font-bold text-gray-800">143</span>
                         <div class="p-2 bg-red-50 text-red-600 rounded-lg">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                         </div>
                     </div>
                 </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Pending Memos</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-3xl font-bold text-gray-800">08</span>
-                        <div class="p-2 bg-yellow-50 text-yellow-600 rounded-lg">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </div>
-                    </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Total Users</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-3xl font-bold text-gray-800">1,245</span>
-                        <div class="p-2 bg-blue-50 text-blue-600 rounded-lg">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <div class="mb-8">
+                <h3 class="font-bold text-gray-800 mb-4">Current Public Advisory</h3>
+                <div class="max-w-md bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden group">
+                    <a href="{{ asset('assets/pdfs/advisory_financial_donations.pdf') }}" target="_blank" class="block relative">
+                        <img src="{{ asset('public/images/banner.png') }}" alt="Public Advisory" class="w-full h-auto">
+                        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center">
+                            <span class="text-white font-bold opacity-0 group-hover:opacity-100 bg-red-600 px-4 py-2 rounded-full text-xs">CLICK TO VIEW PDF</span>
                         </div>
-                    </div>
-                </div>
-
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-200">
-                    <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-1">Server Health</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-3xl font-bold text-green-500">99%</span>
-                        <div class="p-2 bg-green-50 text-green-600 rounded-lg">
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        </div>
+                    </a>
+                    <div class="p-4 bg-white">
+                        <p class="text-sm font-bold text-gray-700">Unauthorized Financial Solicitations</p>
+                        <p class="text-xs text-gray-500">Click the image above to read the full memo.</p>
                     </div>
                 </div>
             </div>
@@ -130,8 +116,8 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-bold text-gray-800">Recent Portal Activity</h3>
-                    <button class="bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-800 transition-colors">
-                        + New Issuance
+                    <button @click="uploadModal = true" class="bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-red-800 transition-colors">
+                        + New Public Advisory
                     </button>
                 </div>
                 <div class="overflow-x-auto">
@@ -147,35 +133,68 @@
                         </thead>
                         <tbody class="divide-y divide-gray-100">
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-semibold text-gray-700">Division Memo No. 122 - School Safety</td>
-                                <td class="px-6 py-4 text-gray-500">Admin_Juan</td>
-                                <td class="px-6 py-4 text-gray-500">Oct 25, 2024</td>
+                                <td class="px-6 py-4 font-semibold text-gray-700">
+                                    <div class="flex items-center space-x-2">
+                                        <svg class="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"/></svg>
+                                        <a href="{{ asset('assets/pdfs/advisory_financial_donations.pdf') }}" target="_blank" class="hover:text-red-700 hover:underline">
+                                            Public Advisory: Unauthorized Financial Solicitations
+                                        </a>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-500">DepEd_Central</td>
+                                <td class="px-6 py-4 text-gray-500">Oct 26, 2024</td>
                                 <td class="px-6 py-4">
                                     <span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded-full">PUBLISHED</span>
                                 </td>
                                 <td class="px-6 py-4 flex space-x-2">
-                                    <button class="text-blue-600 hover:underline">Edit</button>
-                                    <button class="text-red-600 hover:underline">Delete</button>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 font-semibold text-gray-700">Public Advisory: Monsoon Rainfall</td>
-                                <td class="px-6 py-4 text-gray-500">System_Auto</td>
-                                <td class="px-6 py-4 text-gray-500">Oct 24, 2024</td>
-                                <td class="px-6 py-4">
-                                    <span class="px-2 py-1 bg-yellow-100 text-yellow-700 text-[10px] font-bold rounded-full">DRAFT</span>
-                                </td>
-                                <td class="px-6 py-4 flex space-x-2">
-                                    <button class="text-blue-600 hover:underline">Edit</button>
-                                    <button class="text-red-600 hover:underline">Delete</button>
+                                    <button class="text-blue-600 hover:underline text-xs font-bold">VIEW</button>
+                                    <button class="text-red-600 hover:underline text-xs font-bold">DELETE</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
-
         </main>
+    </div>
+
+    <div x-show="uploadModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div class="fixed inset-0 bg-black opacity-50" @click="uploadModal = false"></div>
+            
+            <div class="bg-white rounded-xl shadow-xl overflow-hidden z-50 w-full max-w-md transform transition-all">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-[#b91c1c] text-white">
+                    <h3 class="font-bold">Upload Public Advisory</h3>
+                    <button @click="uploadModal = false" class="text-white hover:text-gray-200 text-xl font-bold">&times;</button>
+                </div>
+
+                <form action="/admin/advisories/store" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                    <input type="hidden" name="_token" value="{{ csrf_token() }}">
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Advisory Title</label>
+                        <input type="text" name="title" class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none" required placeholder="Enter title...">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">Banner Image (.png, .jpg)</label>
+                        <input type="file" name="image" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100" required>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-bold text-gray-700 mb-1">PDF File</label>
+                        <input type="file" name="pdf" accept=".pdf" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" required>
+                    </div>
+
+                    <div class="pt-4 flex justify-end space-x-3">
+                        <button type="button" @click="uploadModal = false" class="px-4 py-2 text-sm font-bold text-gray-500 hover:bg-gray-100 rounded-lg transition-colors">Cancel</button>
+                        <button type="submit" class="px-6 py-2 text-sm font-bold bg-[#b91c1c] text-white rounded-lg hover:bg-red-800 shadow-md transition-colors">
+                            Upload Now
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
 </body>
