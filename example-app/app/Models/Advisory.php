@@ -13,6 +13,7 @@ class Advisory extends Model
     protected $fillable = [
         'title',
         'image_path',
-        'pdf_path'
+        'pdf_path',
+        'is_active'
     ];
 }

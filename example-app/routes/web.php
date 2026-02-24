@@ -18,3 +18,10 @@ Route::get('/', function () {
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 Route::get('/admin/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 Route::post('/admin/advisories/store', [AdvisoryController::class, 'store'])->name('advisories.store');
+// Update your existing admin dashboard or add a specific route for management
+Route::get('/admin/advisories', [AdvisoryController::class, 'index'])->name('admin.advisory.index');
+// Update the update route to match your form's URL structure
+Route::put('/admin/advisories/{advisory}', [AdvisoryController::class, 'update'])->name('advisories.update');
+
+// Ensure your delete route is also present
+Route::delete('/admin/advisories/{advisory}', [AdvisoryController::class, 'destroy'])->name('advisories.destroy');
