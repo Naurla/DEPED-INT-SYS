@@ -12,9 +12,19 @@
         [x-cloak] { display: none !important; }
     </style>
 </head>
-<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" x-data="{ loginModal: false }">
+<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
+    x-data="{ 
+        loginModal: false, 
+        activeSlide: 1, 
+        slides: [
+            '{{ asset('images/banner1.png') }}',
+            '{{ asset('images/foi.png') }}',
+            '{{ asset('images/rnp.png') }}'
+        ] 
+    }" 
+    x-init="setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000)">
 
-    <header class="bg-[#b91c1c] text-white py-1 px-10 shadow-lg">
+    <header class="bg-[#a52a2a] text-white py-1 px-10 shadow-lg">
         <div class="container mx-auto flex justify-center">
             <div class="flex items-center">
                 <img src="{{ asset('images/banner1.png') }}" 
@@ -86,16 +96,35 @@
     </nav>
 
     <main class="flex-grow">
-        <div class="container mx-auto mt-6 bg-white shadow-md overflow-hidden">
-            <div class="relative w-full h-[450px] bg-gray-200">
-                <img src="https://via.placeholder.com/1200x450?text=Hero+Banner+Slider+Image" 
-                     alt="Hero Banner" 
-                     class="w-full h-full object-cover">
+        <div class="container mx-auto mt-6 px-4">
+            <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] bg-gray-200 rounded-xl shadow-lg overflow-hidden">
+                <template x-for="(slide, index) in slides" :key="index">
+                    <div x-show="activeSlide === index + 1" 
+                         x-transition:enter="transition opacity duration-1000"
+                         x-transition:enter-start="opacity-0"
+                         x-transition:enter-end="opacity-100"
+                         x-transition:leave="transition opacity duration-1000"
+                         x-transition:leave-start="opacity-100"
+                         x-transition:leave-end="opacity-0"
+                         class="absolute inset-0">
+                        <img :src="slide" 
+                             alt="Hero Banner" 
+                             class="w-full h-full object-cover">
+                    </div>
+                </template>
+
+                <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+                    <template x-for="(slide, index) in slides" :key="index">
+                        <button @click="activeSlide = index + 1" 
+                                :class="activeSlide === index + 1 ? 'bg-red-700 w-6' : 'bg-white/50 w-2'"
+                                class="h-2 rounded-full transition-all duration-300 shadow-sm"></button>
+                    </template>
+                </div>
             </div>
         </div>
 
         <section class="container mx-auto mt-4 text-left">
-            <div class="bg-[#b91c1c] text-white py-3 px-6 text-2xl font-bold uppercase tracking-wide">
+            <div class="bg-[#a52a2a] text-white py-3 px-6 text-2xl font-bold uppercase tracking-wide">
                 Public Advisory
             </div>
             <div class="p-10 bg-white shadow-sm mb-10">
