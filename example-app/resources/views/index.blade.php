@@ -6,10 +6,12 @@
     <title>DepEd Zamboanga City Division</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
         .scroll-top-btn:hover { background-color: #333; }
         [x-cloak] { display: none !important; }
+        /* Custom font class for Cinzel */
+        .font-cinzel { font-family: 'Cinzel', serif; }
     </style>
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
@@ -24,26 +26,51 @@
     }" 
     x-init="setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000)">
 
-    <header class="bg-[#a52a2a] text-white py-1 px-10 shadow-lg">
-        <div class="container mx-auto flex justify-center">
+    <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
+        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+            
+            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
+                
+                <div class="flex items-center gap-4">
+                    <img src="{{ asset('images/deped.png') }}" 
+                         alt="DepEd Logo" 
+                         class="h-16 md:h-20 w-auto drop-shadow-md">
+                    
+                    <img src="{{ asset('images/r9.png') }}" 
+                         alt="Region IX Logo" 
+                         class="h-16 md:h-20 w-auto drop-shadow-md">
+                </div>
+
+                
+
+                <div class="flex flex-col font-cinzel text-white items-start">
+     <span class="text-xs md:text-sm tracking-wider uppercase leading-tight font-black">Republic of the Philippines</span>
+    <span class="text-xs md:text-sm tracking-wider uppercase leading-tight pb-1 font-black">Department Of Education</span>
+    
+    <div class="w-full border-b-[2px] border-white my-1"></div>
+    
+    <h1 class="text-2xl md:text-[25px] uppercase tracking-wide pt-1 font-black">Zamboanga City Division</h1>
+</div>
+            </div>
+
             <div class="flex items-center">
-                <img src="{{ asset('images/banner1.png') }}" 
-                     alt="DepEd Banner" 
-                     class="w-[1028px] h-auto object-contain">
+                <img src="{{ asset('images/ts.png') }}" 
+                     alt="Transparency Seal" 
+                     class="h-16 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
             </div>
         </div>
     </header>
 
     <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-50">
-        <div class="w-full flex items-center text-[14px] text-gray-800">
+        <div class="w-full flex flex-col md:flex-row items-center text-[14px] text-gray-800">
             
-            <div class="py-3 px-10 bg-white border-r border-gray-300">
+            <div class="w-full md:w-auto py-3 px-10 bg-white border-r border-gray-300 text-center md:text-left">
                 <a href="http://www.gov.ph" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">
                     GOVPH
                 </a>
             </div>
 
-            <div class="flex items-center flex-grow">
+            <div class="flex flex-wrap items-center flex-grow justify-center md:justify-start">
                 <a href="/" class="px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">
                     Home
                 </a>
@@ -74,7 +101,7 @@
                 <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
             </div>
 
-            <div class="px-6 flex items-center space-x-4">
+            <div class="px-6 py-2 md:py-0 flex items-center space-x-4">
                 <button @click="loginModal = true" class="text-gray-600 hover:text-[#b91c1c] transition-colors flex items-center group">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -124,7 +151,7 @@
         </div>
 
         <section class="container mx-auto mt-4 text-left">
-            <div class="bg-[#a52a2a] text-white py-3 px-6 text-2xl font-bold uppercase tracking-wide">
+            <div class="bg-[#a52a2a] text-white py-3 px-6 text-2xl font-bold uppercase tracking-wide font-cinzel">
                 Public Advisory
             </div>
             <div class="p-10 bg-white shadow-sm mb-10">
@@ -136,14 +163,12 @@
                                     <img src="{{ asset('storage/' . $advisory->image_path) }}" 
                                          alt="{{ $advisory->title }}" 
                                          class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500">
-                                    
                                     <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
                                         <div class="bg-red-700 text-white px-4 py-2 rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                                             View Full PDF
                                         </div>
                                     </div>
                                 </a>
-                                
                                 <div class="p-5">
                                     <div class="text-xs text-red-600 font-bold uppercase mb-2">Notice</div>
                                     <h3 class="font-bold text-gray-800 text-lg leading-tight mb-2">
@@ -209,8 +234,8 @@
 
     <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300">
         <div class="container mx-auto px-6 lg:px-20 flex flex-wrap md:flex-nowrap items-start gap-8">
-            <div class="w-full md:w-1/6 flex justify-start">
-                <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[200px] h-auto object-contain">
+            <div class="w-full md:w-1/6 flex justify-center md:justify-start">
+                <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[150px] h-auto object-contain">
             </div>
             <div class="w-full md:w-1/4">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
@@ -225,15 +250,15 @@
                 </ul>
             </div>
             <div class="w-full md:w-1/4">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Contact Us</h2>
+                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 font-cinzel">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
                     <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
                     <p><strong>Phone:</strong><br>(062) 991-1234</p>
                 </div>
             </div>
-            <div class="w-full md:w-1/6 flex justify-end">
-                <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="w-[200px] h-auto object-contain">
+            <div class="w-full md:w-1/6 flex justify-center md:justify-end">
+                <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="w-[150px] h-auto object-contain">
             </div>
         </div>
     </footer>
