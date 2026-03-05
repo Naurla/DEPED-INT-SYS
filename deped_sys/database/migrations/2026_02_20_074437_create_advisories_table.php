@@ -16,6 +16,7 @@ return new class extends Migration
         $table->string('title');
         $table->string('image_path'); // Stores: advisories/images/filename.jpg
         $table->string('pdf_path');   // Stores: advisories/pdfs/filename.pdf
+        $table->boolean('is_active')->default(true);
         $table->timestamps();
     });
 }

@@ -28,6 +28,7 @@
         },
         openCreate() {
             this.editMode = false;
+            this.advisoryId = null;
             this.formData.title = '';
             this.uploadModal = true;
         },
@@ -50,25 +51,19 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen">Dashboard</span>
             </a>
-            <a href="#" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Issuances</span>
-            </a>
             <a href="{{ route('admin.advisory.index') }}" class="flex items-center space-x-3 px-4 py-3 bg-red-800 rounded-lg font-bold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen">Public Advisories</span>
             </a>
-            <a href="#" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">User Management</span>
-            </a>
         </nav>
 
         <div class="p-4 border-t border-red-800">
-            <a href="/" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-colors">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Logout</span>
-            </a>
+            <form action="/" method="GET">
+                <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span x-show="sidebarOpen">Logout</span>
+                </button>
+            </form>
         </div>
     </aside>
 
@@ -81,6 +76,25 @@
         </header>
 
         <main class="flex-grow p-8 overflow-y-auto bg-gray-50">
+
+            @if(session('success'))
+                <div class="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-xl shadow-sm">
+                    <p class="font-bold">Success</p>
+                    <p class="text-sm">{{ session('success') }}</p>
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
+                    <p class="font-bold">Error Posting Advisory</p>
+                    <ul class="list-disc ml-5 mt-1 text-sm">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-bold text-gray-800 text-xl">Manage Advisories</h3>
@@ -120,6 +134,7 @@
                                 </td>
                                 <td class="px-6 py-4 text-gray-500">{{ $advisory->created_at->format('M d, Y') }}</td>
                                 <td class="px-6 py-4">
+                                    {{-- Note: Ensure 'is_active' exists in your migration --}}
                                     <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $advisory->is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500' }}">
                                         {{ $advisory->is_active ? 'PUBLISHED' : 'ARCHIVED' }}
                                     </span>
@@ -145,7 +160,14 @@
                     <h3 class="font-bold" x-text="editMode ? 'Edit Advisory' : 'Upload New Advisory'"></h3>
                     <button @click="uploadModal = false" class="text-white hover:text-gray-200 text-xl font-bold">&times;</button>
                 </div>
-                <form :action="editMode ? '/admin/advisories/' + advisoryId : '{{ route('advisories.store') }}'" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+                
+                {{-- Form action changes based on create vs edit --}}
+                <form 
+                    :action="editMode ? '/admin/advisories/' + advisoryId : '{{ route('advisories.store') }}'" 
+                    method="POST" 
+                    enctype="multipart/form-data" 
+                    class="p-6 space-y-4"
+                >
                     @csrf
                     <template x-if="editMode">
                         <input type="hidden" name="_method" value="PUT">
@@ -156,11 +178,11 @@
                         <input type="text" name="title" x-model="formData.title" required class="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1" x-text="editMode ? 'Change Banner (Optional)' : 'Banner Image'"></label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1" x-text="editMode ? 'Change Banner (Optional)' : 'Banner Image (Required)'"></label>
                         <input type="file" name="image" accept="image/*" :required="!editMode" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700">
                     </div>
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1" x-text="editMode ? 'Change PDF (Optional)' : 'PDF File'"></label>
+                        <label class="block text-sm font-bold text-gray-700 mb-1" x-text="editMode ? 'Change PDF (Optional)' : 'PDF File (Required)'"></label>
                         <input type="file" name="pdf" accept=".pdf" :required="!editMode" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700">
                     </div>
                     <div class="pt-4 flex justify-end space-x-3">
@@ -180,7 +202,7 @@
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">Delete this advisory?</h3>
-                <p class="text-gray-500 text-sm mb-6">This action cannot be undone. Associated files will be permanently deleted from the system.</p>
+                <p class="text-gray-500 text-sm mb-6">This action cannot be undone. Associated files will be permanently removed.</p>
                 <div class="flex space-x-3">
                     <button @click="deleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</button>
                     <form :action="'/admin/advisories/' + advisoryId" method="POST" class="flex-1">

@@ -90,6 +90,17 @@
         </header>
 
         <main class="flex-grow p-10 overflow-y-auto bg-gray-50/50">
+            @if ($errors->any())
+                <div class="mb-8 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
+                    <p class="font-black text-sm uppercase tracking-wider mb-2">Upload Failed:</p>
+                    <ul class="list-disc ml-5 text-sm font-medium">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <div class="mb-10">
                 <h2 class="text-3xl font-black text-gray-900 tracking-tight">Welcome back, Admin!</h2>
                 <p class="text-gray-500 mt-1">Manage your website content here.</p>
@@ -206,6 +217,12 @@
                                 <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
                                 <input type="text" name="title" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none">
                             </div>
+                            
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Preview Image (Required)</label>
+                                <input type="file" name="image" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                            </div>
+
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-1">PDF File</label>
                                 <input type="file" name="pdf" accept=".pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
