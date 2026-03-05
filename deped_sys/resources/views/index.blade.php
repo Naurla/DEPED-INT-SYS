@@ -18,13 +18,10 @@
         loginModal: false, 
         mobileMenu: false,
         activeSlide: 1, 
-        slides: [
-            '{{ asset('images/r9.png') }}',
-            '{{ asset('images/foi.png') }}',
-            '{{ asset('images/deped.png') }}'
-        ] 
+        {{-- This now correctly injects a simple array of URL strings --}}
+        slides: {{ $banners->toJson() }}
     }" 
-    x-init="setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000)">
+    x-init="if(slides.length > 0) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
         <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
