@@ -11,6 +11,15 @@
         .scroll-top-btn:hover { background-color: #333; }
         [x-cloak] { display: none !important; }
         .font-cinzel { font-family: 'Cinzel', serif; }
+        
+        /* High-quality hover effect for the large centered card */
+        .advisory-card-large { 
+            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+        .advisory-card-large:hover { 
+            transform: translateY(-10px);
+            box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
@@ -119,39 +128,52 @@
             </div>
         </div>
 
-        <section class="container mx-auto mt-8 text-left px-4">
-            <div class="bg-[#a52a2a] text-white py-3 px-6 text-xl md:text-2xl font-bold uppercase tracking-wide font-cinzel rounded-t-lg">
-                Latest Public Advisory
+        <section class="container mx-auto mt-16 px-4 mb-24">
+            <div class="flex items-end justify-between border-b-4 border-[#a52a2a] pb-4 mb-12">
+                <div>
+                    <h2 class="text-3xl md:text-5xl font-black text-gray-800 uppercase tracking-tight font-cinzel">Public Advisory</h2>
+                    <p class="text-gray-500 text-sm font-bold uppercase tracking-[0.2em] mt-2 italic">Latest Division Announcement</p>
+                </div>
+                <a href="{{ route('admin.advisory.index') }}" class="hidden md:flex items-center gap-2 text-[#a52a2a] hover:text-red-900 font-black text-sm uppercase tracking-widest transition-all group">
+                    View Archive 
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                </a>
             </div>
-            <div class="p-6 md:p-10 bg-white shadow-sm mb-10 rounded-b-lg border border-gray-200 border-t-0 flex justify-center">
+
+            <div class="flex justify-center">
                 @if(isset($latestAdvisory))
-                    <div class="w-full max-w-[320px] group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                        <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block relative overflow-hidden">
-                            <div class="aspect-[3/4] w-full bg-gray-100 overflow-hidden">
+                    <div class="advisory-card-large w-full max-w-[600px] bg-white rounded-[2rem] shadow-2xl overflow-hidden border border-gray-100 group">
+                        <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block relative overflow-hidden bg-gray-50">
+                            <div class="aspect-[3/4] w-full">
                                 <img src="{{ asset('storage/' . $latestAdvisory->image_path) }}" 
                                      alt="{{ $latestAdvisory->title }}" 
-                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000">
                             </div>
-                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <div class="bg-red-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg uppercase tracking-widest">
-                                    Read PDF
+                            
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-[2px]">
+                                <div class="bg-white text-[#a52a2a] px-8 py-4 rounded-full font-black text-sm uppercase tracking-[0.3em] shadow-2xl scale-90 group-hover:scale-100 transition-transform">
+                                    Read Full PDF
                                 </div>
                             </div>
                         </a>
-                        <div class="p-5">
-                            <div class="text-[10px] text-red-600 font-black uppercase mb-1 tracking-widest">Latest Notice</div>
-                            <h3 class="font-bold text-gray-800 text-sm leading-tight mb-2">
+                        
+                        <div class="p-10 text-center">
+                            <div class="inline-block bg-red-50 text-[#a52a2a] text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-6">
+                                New Notice • {{ $latestAdvisory->created_at->format('M d, Y') }}
+                            </div>
+                            <h3 class="font-black text-gray-900 text-2xl md:text-3xl leading-tight mb-6 group-hover:text-[#a52a2a] transition-colors">
                                 {{ $latestAdvisory->title }}
                             </h3>
-                            <p class="text-gray-400 text-[10px] italic">
-                                Posted on {{ $latestAdvisory->created_at->format('M d, Y') }}
-                            </p>
+                            <div class="w-16 h-1 bg-[#a52a2a] mx-auto rounded-full mb-6"></div>
+                            <p class="text-gray-400 text-xs font-bold uppercase tracking-widest">Click the image above to download the official document</p>
                         </div>
                     </div>
                 @else
-                    <div class="flex flex-col items-center py-10">
-                        <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" /></svg>
-                        <p class="text-gray-500 italic">No public advisories have been posted recently.</p>
+                    <div class="flex flex-col items-center py-24 bg-white rounded-3xl w-full border-2 border-dashed border-gray-200">
+                        <svg class="w-20 h-20 text-gray-200 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" /></svg>
+                        <p class="text-gray-400 font-black uppercase tracking-widest">No Recent Advisories Found</p>
                     </div>
                 @endif
             </div>
