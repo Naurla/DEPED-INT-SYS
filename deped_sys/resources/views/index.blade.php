@@ -206,11 +206,11 @@
             <div class="w-full md:w-1/6 flex justify-center md:justify-start">
                 <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[150px] h-auto object-contain">
             </div>
-            <div class="w-full md:w-1/4">
+            <div class="w-full md:w-1/4 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
                 <p class="text-[13px] leading-relaxed">All content is in the public domain unless otherwise stated.</p>
             </div>
-            <div class="w-full md:w-1/5">
+            <div class="w-full md:w-1/5 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
                 <ul class="text-[13px] space-y-1">
                     <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
@@ -218,7 +218,7 @@
                     <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
                 </ul>
             </div>
-            <div class="w-full md:w-1/4">
+            <div class="w-full md:w-1/4 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 font-cinzel">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
