@@ -87,7 +87,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/80">
                     <h3 class="font-bold text-gray-800 text-lg">Manage Carousel Banners</h3>
-                    <button @click="bannerModal = true" class="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-700 shadow-md transition-all active:scale-95">+ Add New Banner</button>
+                    <button @click="bannerModal = true" class="bg-[#a52a2a] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#a52a2a]  shadow-md transition-all active:scale-95">+ Add New Banner</button>
                 </div>
                 
                 <div class="p-6">
@@ -125,10 +125,10 @@
                     <div class="p-8">
                         <h3 class="text-xl font-bold mb-4 text-gray-800">Upload Banner Image</h3>
                         <p class="text-xs text-gray-500 mb-4">Recommended size: 1920x600px</p>
-                        <input type="file" name="image" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 transition-all">
+                        <input type="file" name="image" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold   file:text-bg-[#a52a2a] hover:file:bg-[#a52a2a]  transition-all">
                     </div>
                     <div class="bg-gray-50 px-8 py-4 flex flex-row-reverse gap-3">
-                        <button type="submit" class="bg-blue-600 text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-blue-700">Upload Now</button>
+                        <button type="submit" class="bg-[#a52a2a]  text-white px-5 py-2 rounded-lg font-bold text-sm hover:bg-[#a52a2a] ">Upload Now</button>
                         <button @click="bannerModal = false" type="button" class="font-bold text-gray-500 text-sm hover:text-gray-700">Cancel</button>
                     </div>
                 </form>
