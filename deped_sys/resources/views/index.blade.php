@@ -120,38 +120,39 @@
         </div>
 
         <section class="container mx-auto mt-8 text-left px-4">
-            <div class="bg-[#a52a2a] text-white py-3 px-6 text-xl md:text-2xl font-bold uppercase tracking-wide font-cinzel rounded-t-lg">
+            <div class="bg-[#a52a2a] text-white py-4 px-8 text-xl md:text-3xl font-black uppercase tracking-widest font-cinzel rounded-t-2xl shadow-lg">
                 Latest Public Advisory
             </div>
-            <div class="p-6 md:p-10 bg-white shadow-sm mb-10 rounded-b-lg border border-gray-200 border-t-0 flex justify-center">
+            <div class="p-8 md:p-16 bg-white shadow-sm mb-10 rounded-b-2xl border border-gray-200 border-t-0 flex justify-center">
                 @if(isset($latestAdvisory))
-                    <div class="w-full max-w-[320px] group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                    <div class="w-full max-w-[700px] group bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-2xl hover:shadow-red-900/10 transition-all duration-500">
                         <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block relative overflow-hidden">
-                            <div class="aspect-[3/4] w-full bg-gray-100 overflow-hidden">
+                            <div class="aspect-[3/4] w-full bg-gray-50 overflow-hidden">
                                 <img src="{{ asset('storage/' . $latestAdvisory->image_path) }}" 
                                      alt="{{ $latestAdvisory->title }}" 
-                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                                     class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-1000">
                             </div>
                             <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                <div class="bg-red-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg uppercase tracking-widest">
-                                    Read PDF
+                                <div class="bg-red-700 text-white px-10 py-4 rounded-full text-sm font-black shadow-2xl uppercase tracking-widest active:scale-95 transition-transform">
+                                    Open Full Announcement
                                 </div>
                             </div>
                         </a>
-                        <div class="p-5">
-                            <div class="text-[10px] text-red-600 font-black uppercase mb-1 tracking-widest">Latest Notice</div>
-                            <h3 class="font-bold text-gray-800 text-sm leading-tight mb-2">
+                        <div class="p-10 bg-white">
+                            <div class="text-xs text-red-600 font-black uppercase mb-3 tracking-tighter">Current Notice</div>
+                            <h3 class="font-black text-gray-900 text-3xl leading-tight mb-6">
                                 {{ $latestAdvisory->title }}
                             </h3>
-                            <p class="text-gray-400 text-[10px] italic">
-                                Posted on {{ $latestAdvisory->created_at->format('M d, Y') }}
-                            </p>
+                            <div class="flex items-center text-gray-400 text-sm font-bold italic">
+                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                Published on {{ $latestAdvisory->created_at->format('F d, Y') }}
+                            </div>
                         </div>
                     </div>
                 @else
-                    <div class="flex flex-col items-center py-10">
-                        <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" /></svg>
-                        <p class="text-gray-500 italic">No public advisories have been posted recently.</p>
+                    <div class="flex flex-col items-center py-20">
+                        <svg class="w-24 h-24 text-gray-100 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" /></svg>
+                        <p class="text-gray-400 font-bold italic text-xl uppercase tracking-widest">No active advisories found</p>
                     </div>
                 @endif
             </div>
@@ -184,11 +185,11 @@
             <div class="w-full md:w-1/6 flex justify-center md:justify-start">
                 <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[150px] h-auto object-contain">
             </div>
-            <div class="w-full md:w-1/4">
+            <div class="w-full md:w-1/4 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
                 <p class="text-[13px] leading-relaxed">All content is in the public domain unless otherwise stated.</p>
             </div>
-            <div class="w-full md:w-1/5">
+            <div class="w-full md:w-1/5 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
                 <ul class="text-[13px] space-y-1">
                     <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
@@ -196,7 +197,7 @@
                     <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
                 </ul>
             </div>
-            <div class="w-full md:w-1/4">
+            <div class="w-full md:w-1/4 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 font-cinzel">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
