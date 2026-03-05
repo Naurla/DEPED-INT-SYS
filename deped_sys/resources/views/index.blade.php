@@ -10,59 +10,65 @@
     <style>
         .scroll-top-btn:hover { background-color: #333; }
         [x-cloak] { display: none !important; }
-        /* Custom font class for Cinzel */
         .font-cinzel { font-family: 'Cinzel', serif; }
     </style>
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
     x-data="{ 
         loginModal: false, 
+        mobileMenu: false,
         activeSlide: 1, 
         slides: [
-            '{{ asset('images/banner1.png') }}',
+            '{{ asset('images/r9.png') }}',
             '{{ asset('images/foi.png') }}',
-            '{{ asset('images/rnp.png') }}'
+            '{{ asset('images/deped.png') }}'
         ] 
     }" 
     x-init="setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000)">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
-        <div class="container mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+        <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
             
             <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
-                
                 <div class="flex items-center gap-4">
                     <img src="{{ asset('images/deped.png') }}" 
                          alt="DepEd Logo" 
-                         class="h-16 md:h-20 w-auto drop-shadow-md">
+                         class="h-14 md:h-20 w-auto drop-shadow-md">
                     
                     <img src="{{ asset('images/r9.png') }}" 
                          alt="Region IX Logo" 
-                         class="h-16 md:h-20 w-auto drop-shadow-md">
+                         class="h-14 md:h-20 w-auto drop-shadow-md">
                 </div>
-
-                
-
-                <div class="flex flex-col font-cinzel text-white items-start">
-     <span class="text-xs md:text-sm tracking-wider uppercase leading-tight font-black">Republic of the Philippines</span>
-    <span class="text-xs md:text-sm tracking-wider uppercase leading-tight pb-1 font-black">Department Of Education</span>
+                <div class="flex flex-col font-cinzel text-white items-center md:items-start">
+                  <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
+                    <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
     
-    <div class="w-full border-b-[2px] border-white my-1"></div>
+                    <div class="w-full border-b-[2px] border-white my-1"></div>
     
-    <h1 class="text-2xl md:text-[25px] uppercase tracking-wide pt-1 font-black">Zamboanga City Division</h1>
-</div>
+                    <h1 class="text-xl md:text-[25px] tracking-wide pt-0 font-black">Zamboanga City Division</h1>
+                </div>
             </div>
 
             <div class="flex items-center">
                 <img src="{{ asset('images/ts.png') }}" 
                      alt="Transparency Seal" 
-                     class="h-16 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
+                     class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
             </div>
         </div>
     </header>
 
     <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-50">
-        <div class="w-full flex flex-col md:flex-row items-center text-[14px] text-gray-800">
+        <div class="flex md:hidden items-center justify-between px-6 py-3">
+            <span class="font-bold text-gray-800">MENU</span>
+            <button @click="mobileMenu = !mobileMenu" class="text-gray-600 focus:outline-none">
+                <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path x-show="!mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                    <path x-show="mobileMenu" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <div :class="mobileMenu ? 'block' : 'hidden'" class="w-full md:flex flex-col md:flex-row items-center text-[14px] text-gray-800">
             
             <div class="w-full md:w-auto py-3 px-10 bg-white border-r border-gray-300 text-center md:text-left">
                 <a href="http://www.gov.ph" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">
@@ -70,12 +76,12 @@
                 </a>
             </div>
 
-            <div class="flex flex-wrap items-center flex-grow justify-center md:justify-start">
-                <a href="/" class="px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">
+            <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
+                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">
                     Home
                 </a>
 
-                <div class="group relative px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center transition-colors">
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
@@ -86,7 +92,7 @@
                     </div>
                 </div>
 
-                <div class="group relative px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center transition-colors">
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
@@ -97,21 +103,21 @@
                     </div>
                 </div>
 
-                <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
-                <a href="#" class="px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
+                <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
+                <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
             </div>
 
-            <div class="px-6 py-2 md:py-0 flex items-center space-x-4">
+            <div class="px-6 py-4 md:py-0 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
                 <button @click="loginModal = true" class="text-gray-600 hover:text-[#b91c1c] transition-colors flex items-center group">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                     </svg>
-                    <span class="ml-1 font-semibold hidden md:inline">Admin</span>
+                    <span class="ml-1 font-semibold">Admin</span>
                 </button>
 
-                <form action="#" method="GET" class="relative flex items-center">
+                <form action="#" method="GET" class="relative flex items-center w-full md:w-auto pb-4 md:pb-0">
                     <input type="text" name="search" placeholder="Search..." 
-                        class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-40 lg:w-56 transition-all">
+                        class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-full md:w-40 lg:w-56 transition-all">
                     <button type="submit" class="absolute right-3 text-gray-400 hover:text-red-700">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -150,11 +156,11 @@
             </div>
         </div>
 
-        <section class="container mx-auto mt-4 text-left">
-            <div class="bg-[#a52a2a] text-white py-3 px-6 text-2xl font-bold uppercase tracking-wide font-cinzel">
+        <section class="container mx-auto mt-4 text-left px-4">
+            <div class="bg-[#a52a2a] text-white py-3 px-6 text-xl md:text-2xl font-bold uppercase tracking-wide font-cinzel">
                 Public Advisory
             </div>
-            <div class="p-10 bg-white shadow-sm mb-10">
+            <div class="p-4 md:p-10 bg-white shadow-sm mb-10">
                 @if(isset($advisories) && count($advisories) > 0)
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         @foreach($advisories as $advisory)
