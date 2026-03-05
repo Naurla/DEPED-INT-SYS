@@ -10,39 +10,49 @@
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Inter', sans-serif; }
+
+        /* Hides the sidebar scrollbar for a cleaner look */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+        }
     </style>
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true }">
 
-    <aside class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-xl z-20" :class="sidebarOpen ? 'w-64' : 'w-20'">
-        <div class="p-6 border-b border-red-800 flex items-center justify-between">
+    <aside class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
+           :class="sidebarOpen ? 'w-64' : 'w-20'">
+        
+        <div class="p-6 border-b border-red-800 flex items-center justify-between h-20 shrink-0">
             <div class="flex items-center space-x-3 overflow-hidden" x-show="sidebarOpen">
-                
                 <h1 class="font-bold tracking-tighter text-lg whitespace-nowrap uppercase">DEPED ADMIN</h1>
             </div>
-            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-red-700 p-1 rounded transition-colors">
+            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-red-700 p-1 rounded transition-colors shrink-0">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
             </button>
         </div>
         
-        <nav class="flex-grow p-4 space-y-2 text-sm overflow-y-auto mt-2">
-            <a href="{{ route('admin.dashboard') }}" class="flex items-center space-x-3 px-4 py-3 bg-red-800 rounded-lg font-bold">
+        <nav class="flex-grow p-4 space-y-2 text-sm overflow-y-auto mt-2 custom-scrollbar">
+            <a href="{{ route('admin.dashboard') }}" 
+               class="flex items-center space-x-3 px-4 py-3 bg-red-800 rounded-lg font-bold shadow-inner border border-red-700/50 transition-colors">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen">Dashboard</span>
             </a>
 
-            <a href="{{ route('admin.banners.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-700 transition-colors">
+            <a href="{{ route('admin.banners.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.banners.*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen">Home Banners</span>
             </a>
             
-            <a href="{{ route('admin.advisory.index') }}" class="flex items-center space-x-3 px-4 py-3 rounded-lg hover:bg-red-700 transition-colors">
+            <a href="{{ route('admin.advisory.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
                 <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen">Public Advisories</span>
             </a>
         </nav>
 
-        <div class="p-4 border-t border-red-800">
+        <div class="p-4 border-t border-red-800 shrink-0">
             <a href="/" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-all text-white">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen" class="font-bold uppercase tracking-widest text-xs">Logout</span>
