@@ -36,7 +36,6 @@
         </div>
         
         <nav class="flex-grow p-4 space-y-3 text-sm overflow-y-auto mt-4">
-            
             <a href="{{ route('admin.dashboard') }}" class="nav-item flex items-center space-x-4 px-4 py-4 bg-white/10 border border-white/20 rounded-2xl font-bold shadow-lg shadow-black/10">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -51,25 +50,11 @@
                 <span x-show="sidebarOpen" class="tracking-wide font-medium">Home Banners</span>
             </a>
             
-            <a href="#" class="nav-item flex items-center space-x-4 px-4 py-4 hover:bg-white/10 hover:translate-x-1 rounded-2xl transition-all">
-                <svg class="w-6 h-6 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span x-show="sidebarOpen" class="tracking-wide font-medium">Issuances</span>
-            </a>
-
             <a href="{{ route('admin.advisory.index') }}" class="nav-item flex items-center space-x-4 px-4 py-4 hover:bg-white/10 hover:translate-x-1 rounded-2xl transition-all">
                 <svg class="w-6 h-6 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span x-show="sidebarOpen" class="tracking-wide font-medium">Public Advisories</span>
-            </a>
-
-            <a href="#" class="nav-item flex items-center space-x-4 px-4 py-4 hover:bg-white/10 hover:translate-x-1 rounded-2xl transition-all">
-                <svg class="w-6 h-6 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <span x-show="sidebarOpen" class="tracking-wide font-medium">User Management</span>
             </a>
         </nav>
 
@@ -186,5 +171,55 @@
         </main>
     </div>
 
-    </body>
+    <div x-show="bannerModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div @click="bannerModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form action="{{ route('banners.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="bg-white px-8 pt-8 pb-6">
+                        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Upload New Banner</h3>
+                        <div class="mt-4">
+                            <label class="block text-sm font-bold text-gray-700 mb-2">Select Image (PNG, JPG)</label>
+                            <input type="file" name="image" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-8 py-6 flex flex-row-reverse gap-3">
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-blue-700">Upload Banner</button>
+                        <button @click="bannerModal = false" type="button" class="bg-white text-gray-700 px-6 py-3 rounded-xl border border-gray-300 font-bold">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div x-show="uploadModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div @click="uploadModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                <form action="{{ route('advisories.store') }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="bg-white px-8 pt-8 pb-6">
+                        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">New Public Advisory</h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
+                                <input type="text" name="title" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-1">PDF File</label>
+                                <input type="file" name="pdf" accept=".pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-gray-50 px-8 py-6 flex flex-row-reverse gap-3">
+                        <button type="submit" class="bg-[#b91c1c] text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-red-800">Post Advisory</button>
+                        <button @click="uploadModal = false" type="button" class="bg-white text-gray-700 px-6 py-3 rounded-xl border border-gray-300 font-bold">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+</body>
 </html>
