@@ -43,7 +43,7 @@
         }
     }">
 
-    <aside class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
+    <aside class="bg-[#a52a2a] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
            :class="sidebarOpen ? 'w-64' : 'w-20'">
         
         <div class="p-6 border-b border-red-800 flex items-center justify-between h-20 shrink-0">
@@ -114,7 +114,7 @@
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="p-6 border-b border-gray-100 flex justify-between items-center">
                     <h3 class="font-bold text-gray-800 text-xl">Manage Advisories</h3>
-                    <button @click="openCreate()" class="bg-[#b91c1c] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-800 transition-colors shadow-md">
+                    <button @click="openCreate()" class="bg-[#a52a2a] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-800 transition-colors shadow-md">
                         + New Advisory
                     </button>
                 </div>
@@ -171,7 +171,7 @@
         <div class="flex items-center justify-center min-h-screen px-4">
             <div class="fixed inset-0 bg-black opacity-50" @click="uploadModal = false"></div>
             <div class="bg-white rounded-xl shadow-xl overflow-hidden z-50 w-full max-w-md transform transition-all">
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-[#b91c1c] text-white">
+                <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-[#a52a2ac] text-white">
                     <h3 class="font-bold" x-text="editMode ? 'Edit Advisory' : 'Upload New Advisory'"></h3>
                     <button @click="uploadModal = false" class="text-white hover:text-gray-200 text-xl font-bold">&times;</button>
                 </div>
@@ -201,7 +201,7 @@
                     </div>
                     <div class="pt-4 flex justify-end space-x-3">
                         <button type="button" @click="uploadModal = false" class="px-4 py-2 text-sm font-bold text-gray-500">Cancel</button>
-                        <button type="submit" class="px-6 py-2 text-sm font-bold bg-[#b91c1c] text-white rounded-lg hover:bg-red-800 shadow-md" x-text="editMode ? 'Save Changes' : 'Upload'"></button>
+                        <button type="submit" class="px-6 py-2 text-sm font-bold bg-[#a52a2a] text-white rounded-lg hover:bg-red-800 shadow-md" x-text="editMode ? 'Save Changes' : 'Upload'"></button>
                     </div>
                 </form>
             </div>

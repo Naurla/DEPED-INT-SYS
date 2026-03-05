@@ -17,9 +17,15 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true, bannerModal: false }">
+<body class="bg-gray-100 flex h-screen overflow-hidden" 
+    x-data="{ 
+        sidebarOpen: true, 
+        bannerModal: false, 
+        deleteModal: false, 
+        bannerId: null 
+    }">
 
-    <aside class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
+    <aside class="bg-[#a52a2a] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
            :class="sidebarOpen ? 'w-64' : 'w-20'">
         
         <div class="p-6 border-b border-red-800 flex items-center justify-between h-20 shrink-0">
@@ -61,9 +67,9 @@
 
     <div class="flex-grow flex flex-col overflow-hidden">
         <header class="bg-white border-b h-16 flex items-center justify-between px-8 shadow-sm z-10">
-            <div class="flex items-center text-sm">
-                <span class="text-gray-400 font-medium mr-2">Admin /</span>
-                <span class="font-bold text-gray-800">Home Banners</span>
+            <div class="flex items-center text-sm font-semibold text-gray-600">
+                <span class="mr-2">Admin /</span>
+                <span class="text-red-600">Home Banners</span>
             </div>
             
             <div class="flex items-center space-x-6">
@@ -91,10 +97,10 @@
                                 <div class="relative group rounded-xl overflow-hidden border border-gray-100 shadow-sm transition-hover hover:shadow-md">
                                     <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-48 object-cover">
                                     <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <form action="{{ route('banners.destroy', $banner->id) }}" method="POST">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-colors">Remove</button>
-                                        </form>
+                                        <button @click="bannerId = {{ $banner->id }}; deleteModal = true" 
+                                                class="bg-red-600 text-white px-4 py-2 rounded-lg text-xs font-bold uppercase hover:bg-red-700 transition-colors">
+                                            Remove
+                                        </button>
                                     </div>
                                 </div>
                             @endforeach
@@ -129,5 +135,37 @@
             </div>
         </div>
     </div>
+
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[60] overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 text-center">
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="deleteModal = false"></div>
+
+            <div class="bg-white rounded-2xl p-8 shadow-2xl z-[70] w-full max-w-sm transform transition-all relative">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Delete Banner?</h3>
+                <p class="text-gray-500 text-sm mb-6">Are you sure? This image will be permanently removed from the website carousel.</p>
+                
+                <div class="flex space-x-3">
+                    <button @click="deleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
+                        Cancel
+                    </button>
+                    
+                    <form :action="'/admin/banners/' + bannerId" method="POST" class="flex-1">
+                        @csrf 
+                        @method('DELETE')
+                        <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition">
+                            Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>

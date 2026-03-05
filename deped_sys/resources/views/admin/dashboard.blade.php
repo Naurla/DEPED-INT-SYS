@@ -20,7 +20,7 @@
 </head>
 <body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true }">
 
-    <aside class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
+    <aside class="bg-[#a52a2a] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
            :class="sidebarOpen ? 'w-64' : 'w-20'">
         
         <div class="p-6 border-b border-red-800 flex items-center justify-between h-20 shrink-0">
