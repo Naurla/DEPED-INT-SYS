@@ -40,4 +40,9 @@ class BannerController extends Controller
         $banner->delete();
         return back()->with('success', 'Banner deleted!');
     }
+
+    public function adminIndex() {
+    $banners = Banner::all(); // Get the raw banner models for management
+    return view('admin.banners', compact('banners'));
+}
 }

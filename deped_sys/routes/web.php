@@ -39,6 +39,7 @@ Route::put('/admin/advisories/{advisory}', [AdvisoryController::class, 'update']
 
 // Ensure your delete route is also present
 Route::delete('/admin/advisories/{advisory}', [AdvisoryController::class, 'destroy'])->name('advisories.destroy');
-Route::get('/admin/banners', [BannerController::class, 'index'])->name('admin.banners.index');
+// Change this line in routes/web.php
+Route::get('/admin/banners', [BannerController::class, 'adminIndex'])->name('admin.banners.index');
 Route::post('/admin/banners', [BannerController::class, 'store'])->name('banners.store');
 Route::delete('/admin/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
