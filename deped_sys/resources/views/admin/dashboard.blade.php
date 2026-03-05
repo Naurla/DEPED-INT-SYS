@@ -13,7 +13,13 @@
         .nav-item { transition: all 0.2s ease-in-out; }
     </style>
 </head>
-<body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true, uploadModal: false, bannerModal: false }">
+<body class="bg-gray-100 flex h-screen overflow-hidden" 
+    x-data="{ 
+        sidebarOpen: true, 
+        uploadModal: false, 
+        bannerModal: false,
+        activeSection: 'dashboard' 
+    }">
 
     <aside 
         class="bg-[#b91c1c] text-white transition-all duration-300 flex flex-col shadow-2xl z-20"
@@ -24,9 +30,7 @@
                 <div class="bg-white p-1 rounded-lg">
                     <img src="{{ asset('images/deped.png') }}" alt="Logo" class="h-8 w-auto">
                 </div>
-                <h1 class="font-black tracking-tighter text-lg whitespace-nowrap">
-                    DEPED ADMIN
-                </h1>
+                <h1 class="font-black tracking-tighter text-lg whitespace-nowrap">DEPED ADMIN</h1>
             </div>
             <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-red-700 p-2 rounded-xl transition-colors">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -36,25 +40,31 @@
         </div>
         
         <nav class="flex-grow p-4 space-y-3 text-sm overflow-y-auto mt-4">
-            <a href="{{ route('admin.dashboard') }}" class="nav-item flex items-center space-x-4 px-4 py-4 bg-white/10 border border-white/20 rounded-2xl font-bold shadow-lg shadow-black/10">
+            <a href="#" @click="activeSection = 'dashboard'" 
+               class="nav-item flex items-center space-x-4 px-4 py-4 rounded-2xl font-bold transition-all"
+               :class="activeSection === 'dashboard' ? 'bg-white/10 border border-white/20 shadow-lg' : 'hover:bg-white/5'">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
                 <span x-show="sidebarOpen" class="tracking-wide">Dashboard</span>
             </a>
 
-            <a href="#manage-banners" class="nav-item flex items-center space-x-4 px-4 py-4 hover:bg-white/10 hover:translate-x-1 rounded-2xl transition-all">
+            <a href="#" @click="activeSection = 'banners'" 
+               class="nav-item flex items-center space-x-4 px-4 py-4 rounded-2xl font-bold transition-all"
+               :class="activeSection === 'banners' ? 'bg-white/10 border border-white/20 shadow-lg' : 'hover:bg-white/5'">
                 <svg class="w-6 h-6 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span x-show="sidebarOpen" class="tracking-wide font-medium">Home Banners</span>
+                <span x-show="sidebarOpen" class="tracking-wide">Home Banners</span>
             </a>
             
-            <a href="{{ route('admin.advisory.index') }}" class="nav-item flex items-center space-x-4 px-4 py-4 hover:bg-white/10 hover:translate-x-1 rounded-2xl transition-all">
+            <a href="#" @click="activeSection = 'advisories'" 
+               class="nav-item flex items-center space-x-4 px-4 py-4 rounded-2xl font-bold transition-all"
+               :class="activeSection === 'advisories' ? 'bg-white/10 border border-white/20 shadow-lg' : 'hover:bg-white/5'">
                 <svg class="w-6 h-6 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
-                <span x-show="sidebarOpen" class="tracking-wide font-medium">Public Advisories</span>
+                <span x-show="sidebarOpen" class="tracking-wide">Public Advisories</span>
             </a>
         </nav>
 
@@ -72,132 +82,147 @@
         <header class="bg-white border-b h-20 flex items-center justify-between px-8 shadow-sm z-10">
             <div class="flex items-center">
                 <span class="text-gray-400 font-medium mr-2">Admin /</span>
-                <span class="font-bold text-gray-800 text-lg">Dashboard</span>
+                <span class="font-bold text-gray-800 text-lg" x-text="activeSection === 'dashboard' ? 'Dashboard' : (activeSection === 'banners' ? 'Home Banners' : 'Public Advisories')"></span>
             </div>
             
             <div class="flex items-center space-x-6">
                 <div class="text-right hidden sm:block">
                     <p class="text-sm font-black text-gray-900 uppercase tracking-tighter">Administrator</p>
                     <p class="text-[10px] text-green-500 font-bold flex items-center justify-end">
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>
-                        ONLINE
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>ONLINE
                     </p>
                 </div>
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-black border-2 border-white shadow-xl">
-                    AD
-                </div>
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-red-600 to-red-800 flex items-center justify-center text-white font-black border-2 border-white shadow-xl">AD</div>
             </div>
         </header>
 
         <main class="flex-grow p-10 overflow-y-auto bg-gray-50/50">
-            @if ($errors->any())
-                <div class="mb-8 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-xl shadow-sm">
-                    <p class="font-black text-sm uppercase tracking-wider mb-2">Upload Failed:</p>
-                    <ul class="list-disc ml-5 text-sm font-medium">
-                        @foreach ($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+            
+            <div x-show="activeSection === 'dashboard'" x-transition:enter="transition ease-out duration-300">
+                <div class="mb-10">
+                    <h2 class="text-3xl font-black text-gray-900 tracking-tight">Welcome back, Admin!</h2>
+                    <p class="text-gray-500 mt-1">Website Summary Overview</p>
                 </div>
-            @endif
 
-            <div class="mb-10">
-                <h2 class="text-3xl font-black text-gray-900 tracking-tight">Welcome back, Admin!</h2>
-                <p class="text-gray-500 mt-1">Manage your website content here.</p>
-            </div>
-
-            <div id="manage-banners" class="mb-10 bg-white rounded-3xl shadow-xl shadow-black/5 border border-gray-100 overflow-hidden">
-                <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/80">
-                    <div>
-                        <h3 class="font-black text-gray-900 text-xl tracking-tight">Home Carousel Banners</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                    <div @click="activeSection = 'banners'" class="bg-white p-6 rounded-3xl shadow-xl shadow-black/5 border border-gray-100 flex items-center cursor-pointer hover:border-red-500 transition-all active:scale-95">
+                        <div class="p-4 bg-blue-100 rounded-2xl text-blue-600 mr-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Home Banners</p>
+                            <p class="text-2xl font-black text-gray-900">{{ $counts['banners'] }}</p>
+                        </div>
                     </div>
-                    <button @click="bannerModal = true" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-blue-700 transition-all shadow-lg active:scale-95">
-                        + Add New Banner
-                    </button>
-                </div>
-                <div class="p-8">
-                    @if(isset($banners) && count($banners) > 0)
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                            @foreach($banners as $banner)
-                                <div class="relative group rounded-3xl overflow-hidden border-4 border-gray-50 shadow-md">
-                                    <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-110">
-                                    <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <form action="{{ route('banners.destroy', $banner->id) }}" method="POST" onsubmit="return confirm('Delete this banner image?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase tracking-widest shadow-xl hover:bg-red-700 transition-colors">
-                                                Remove Image
-                                            </button>
-                                        </form>
-                                    </div>
-                                </div>
-                            @endforeach
+
+                    <div @click="activeSection = 'advisories'" class="bg-white p-6 rounded-3xl shadow-xl shadow-black/5 border border-gray-100 flex items-center cursor-pointer hover:border-red-500 transition-all active:scale-95">
+                        <div class="p-4 bg-red-100 rounded-2xl text-red-600 mr-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
                         </div>
-                    @else
-                        <div class="text-center py-10 text-gray-400 italic">
-                            No custom banners uploaded.
+                        <div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Advisories</p>
+                            <p class="text-2xl font-black text-gray-900">{{ $counts['advisories'] }}</p>
                         </div>
-                    @endif
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl shadow-xl shadow-black/5 border border-gray-100 flex items-center">
+                        <div class="p-4 bg-amber-100 rounded-2xl text-amber-600 mr-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Total Memos</p>
+                            <p class="text-2xl font-black text-gray-900">{{ $counts['memos'] }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-white rounded-3xl shadow-xl shadow-black/5 border border-gray-100 overflow-hidden">
-                <div class="p-8 border-b border-gray-50 flex justify-between items-center">
-                    <h3 class="font-black text-gray-900 text-xl tracking-tight">Public Advisories</h3>
-                    <button @click="uploadModal = true" class="bg-[#b91c1c] text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-red-800 transition-all shadow-lg active:scale-95">
-                        + New Public Advisory
-                    </button>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left">
-                        <thead class="bg-gray-50/50 text-gray-400 font-black uppercase text-[10px] tracking-[0.1em]">
-                            <tr>
-                                <th class="px-8 py-5">Title</th>
-                                <th class="px-8 py-5">Date Posted</th>
-                                <th class="px-8 py-5 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-50">
-                            @foreach($advisories as $advisory)
-                            <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-8 py-6 font-bold text-gray-800">
-                                    <a href="{{ asset('storage/' . $advisory->pdf_path) }}" target="_blank" class="hover:text-red-700">
-                                        {{ $advisory->title }}
-                                    </a>
-                                </td>
-                                <td class="px-8 py-6 text-gray-500">{{ $advisory->created_at->format('M d, Y') }}</td>
-                                <td class="px-8 py-6 text-right">
-                                    <form action="{{ route('advisories.destroy', $advisory->id) }}" method="POST" onsubmit="return confirm('Delete this advisory?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-800 font-black text-xs uppercase tracking-widest px-4 py-2 rounded-xl border border-red-100 hover:bg-red-50 transition-all">Delete</button>
-                                    </form>
-                                </td>
-                            </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+            <div x-show="activeSection === 'banners'" x-cloak x-transition:enter="transition ease-out duration-300">
+                <div class="mb-10 bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="p-8 border-b border-gray-50 flex justify-between items-center bg-gray-50/80">
+                        <h3 class="font-black text-gray-900 text-xl tracking-tight">Manage Carousel Banners</h3>
+                        <button @click="bannerModal = true" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-blue-700 transition-all shadow-lg active:scale-95">+ Add New Banner</button>
+                    </div>
+                    <div class="p-8">
+                        @if(isset($banners) && count($banners) > 0)
+                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                @foreach($banners as $banner)
+                                    <div class="relative group rounded-3xl overflow-hidden border-4 border-gray-50 shadow-md">
+                                        <img src="{{ asset('storage/' . $banner->image_path) }}" class="w-full h-52 object-cover transition-transform duration-500 group-hover:scale-110">
+                                        <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                            <form action="{{ route('banners.destroy', $banner->id) }}" method="POST" onsubmit="return confirm('Delete this banner image?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="bg-red-600 text-white px-6 py-3 rounded-2xl text-xs font-black uppercase shadow-xl hover:bg-red-700">Remove Image</button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="text-center py-10 text-gray-400 italic">No banners uploaded yet.</div>
+                        @endif
+                    </div>
                 </div>
             </div>
+
+            <div x-show="activeSection === 'advisories'" x-cloak x-transition:enter="transition ease-out duration-300">
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="p-8 border-b border-gray-50 flex justify-between items-center">
+                        <h3 class="font-black text-gray-900 text-xl tracking-tight">Manage Public Advisories</h3>
+                        <button @click="uploadModal = true" class="bg-[#b91c1c] text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-red-800 transition-all shadow-lg active:scale-95">+ New Advisory</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50/50 text-gray-400 font-black uppercase text-[10px] tracking-widest">
+                                <tr>
+                                    <th class="px-8 py-5">Title</th>
+                                    <th class="px-8 py-5">Date Posted</th>
+                                    <th class="px-8 py-5 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-50">
+                                @foreach($advisories as $advisory)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-8 py-6 font-bold text-gray-800">
+                                        <a href="{{ asset('storage/' . $advisory->pdf_path) }}" target="_blank" class="hover:text-red-700">{{ $advisory->title }}</a>
+                                    </td>
+                                    <td class="px-8 py-6 text-gray-500">{{ $advisory->created_at->format('M d, Y') }}</td>
+                                    <td class="px-8 py-6 text-right">
+                                        <form action="{{ route('advisories.destroy', $advisory->id) }}" method="POST" onsubmit="return confirm('Delete this advisory?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-red-600 font-black text-xs uppercase px-4 py-2 rounded-xl border border-red-100 hover:bg-red-50">Delete</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
     <div x-show="bannerModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div @click="bannerModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div @click="bannerModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
+            <div class="bg-white rounded-3xl overflow-hidden shadow-2xl transform transition-all sm:max-w-lg sm:w-full relative z-50">
                 <form action="{{ route('banners.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="bg-white px-8 pt-8 pb-6">
-                        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">Upload New Banner</h3>
-                        <div class="mt-4">
-                            <label class="block text-sm font-bold text-gray-700 mb-2">Select Image (PNG, JPG)</label>
-                            <input type="file" name="image" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-                        </div>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-black mb-4">Upload Banner</h3>
+                        <input type="file" name="image" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-blue-50 file:text-blue-700">
                     </div>
                     <div class="bg-gray-50 px-8 py-6 flex flex-row-reverse gap-3">
-                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-blue-700">Upload Banner</button>
-                        <button @click="bannerModal = false" type="button" class="bg-white text-gray-700 px-6 py-3 rounded-xl border border-gray-300 font-bold">Cancel</button>
+                        <button type="submit" class="bg-blue-600 text-white px-6 py-3 rounded-xl font-black">Upload</button>
+                        <button @click="bannerModal = false" type="button" class="font-bold text-gray-500">Cancel</button>
                     </div>
                 </form>
             </div>
@@ -205,33 +230,28 @@
     </div>
 
     <div x-show="uploadModal" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            <div @click="uploadModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
-            <div class="inline-block align-bottom bg-white rounded-3xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div class="flex items-center justify-center min-h-screen px-4">
+            <div @click="uploadModal = false" class="fixed inset-0 bg-gray-500 bg-opacity-75"></div>
+            <div class="bg-white rounded-3xl overflow-hidden shadow-2xl transform transition-all sm:max-w-lg sm:w-full relative z-50">
                 <form action="{{ route('advisories.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-                    <div class="bg-white px-8 pt-8 pb-6">
-                        <h3 class="text-2xl font-black text-gray-900 mb-4 tracking-tight">New Public Advisory</h3>
+                    <div class="p-8">
+                        <h3 class="text-2xl font-black mb-4 tracking-tight">New Advisory</h3>
                         <div class="space-y-4">
+                            <input type="text" name="title" placeholder="Title" required class="w-full px-4 py-3 rounded-xl border">
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                                <input type="text" name="title" required class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-red-500 outline-none">
+                                <label class="text-xs font-bold text-gray-400 uppercase ml-1">Thumbnail</label>
+                                <input type="file" name="image" accept="image/*" required class="w-full text-sm text-gray-500 file:bg-red-50 file:text-red-700 file:rounded-full file:border-0 file:px-4 file:py-2">
                             </div>
-                            
                             <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">Preview Image (Required)</label>
-                                <input type="file" name="image" accept="image/*" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-bold text-gray-700 mb-1">PDF File</label>
-                                <input type="file" name="pdf" accept=".pdf" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-red-50 file:text-red-700 hover:file:bg-red-100">
+                                <label class="text-xs font-bold text-gray-400 uppercase ml-1">PDF File</label>
+                                <input type="file" name="pdf" accept=".pdf" required class="w-full text-sm text-gray-500 file:bg-red-50 file:text-red-700 file:rounded-full file:border-0 file:px-4 file:py-2">
                             </div>
                         </div>
                     </div>
                     <div class="bg-gray-50 px-8 py-6 flex flex-row-reverse gap-3">
-                        <button type="submit" class="bg-[#b91c1c] text-white px-6 py-3 rounded-xl text-sm font-black hover:bg-red-800">Post Advisory</button>
-                        <button @click="uploadModal = false" type="button" class="bg-white text-gray-700 px-6 py-3 rounded-xl border border-gray-300 font-bold">Cancel</button>
+                        <button type="submit" class="bg-[#b91c1c] text-white px-6 py-3 rounded-xl font-black">Post</button>
+                        <button @click="uploadModal = false" type="button" class="font-bold text-gray-500">Cancel</button>
                     </div>
                 </form>
             </div>

@@ -18,38 +18,26 @@
         loginModal: false, 
         mobileMenu: false,
         activeSlide: 1, 
-        {{-- This now correctly injects a simple array of URL strings --}}
         slides: {{ $banners->toJson() }}
     }" 
     x-init="if(slides.length > 0) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
         <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
-            
             <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
                 <div class="flex items-center gap-4">
-                    <img src="{{ asset('images/deped.png') }}" 
-                         alt="DepEd Logo" 
-                         class="h-14 md:h-20 w-auto drop-shadow-md">
-                    
-                    <img src="{{ asset('images/r9.png') }}" 
-                         alt="Region IX Logo" 
-                         class="h-14 md:h-20 w-auto drop-shadow-md">
+                    <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
+                    <img src="{{ asset('images/r9.png') }}" alt="Region IX Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
                 </div>
                 <div class="flex flex-col font-cinzel text-white items-center md:items-start">
-                  <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
+                    <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
                     <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
-    
                     <div class="w-full border-b-[2px] border-white my-1"></div>
-    
                     <h1 class="text-xl md:text-[25px] tracking-wide pt-0 font-black">Zamboanga City Division</h1>
                 </div>
             </div>
-
             <div class="flex items-center">
-                <img src="{{ asset('images/ts.png') }}" 
-                     alt="Transparency Seal" 
-                     class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
+                <img src="{{ asset('images/ts.png') }}" alt="Transparency Seal" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
             </div>
         </div>
     </header>
@@ -66,40 +54,27 @@
         </div>
 
         <div :class="mobileMenu ? 'block' : 'hidden'" class="w-full md:flex flex-col md:flex-row items-center text-[14px] text-gray-800">
-            
             <div class="w-full md:w-auto py-3 px-10 bg-white border-r border-gray-300 text-center md:text-left">
-                <a href="http://www.gov.ph" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">
-                    GOVPH
-                </a>
+                <a href="http://www.gov.ph" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">GOVPH</a>
             </div>
-
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
-                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">
-                    Home
-                </a>
-
+                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">Home</a>
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
-                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-                    </svg>
+                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Vision & Mission</a>
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Organizational Structure</a>
                     </div>
                 </div>
-
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>Issuances</span>
-                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-                    </svg>
+                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Advisories</a>
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Division Memoranda</a>
                     </div>
                 </div>
-
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
             </div>
@@ -111,14 +86,10 @@
                     </svg>
                     <span class="ml-1 font-semibold">Admin</span>
                 </button>
-
                 <form action="#" method="GET" class="relative flex items-center w-full md:w-auto pb-4 md:pb-0">
-                    <input type="text" name="search" placeholder="Search..." 
-                        class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-full md:w-40 lg:w-56 transition-all">
+                    <input type="text" name="search" placeholder="Search..." class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-full md:w-40 lg:w-56 transition-all">
                     <button type="submit" class="absolute right-3 text-gray-400 hover:text-red-700">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </button>
                 </form>
             </div>
@@ -127,7 +98,7 @@
 
     <main class="flex-grow">
         <div class="container mx-auto mt-6 px-4">
-            <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] bg-gray-200 rounded-xl shadow-lg overflow-hidden">
+            <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
                 <template x-for="(slide, index) in slides" :key="index">
                     <div x-show="activeSlide === index + 1" 
                          x-transition:enter="transition opacity duration-1000"
@@ -136,59 +107,50 @@
                          x-transition:leave="transition opacity duration-1000"
                          x-transition:leave-start="opacity-100"
                          x-transition:leave-end="opacity-0"
-                         class="absolute inset-0">
-                        <img :src="slide" 
-                             alt="Hero Banner" 
-                             class="w-full h-full object-cover">
+                         class="absolute inset-0 flex items-center justify-center">
+                        <img :src="slide" alt="Hero Banner" class="w-full h-full object-contain">
                     </div>
                 </template>
-
                 <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
                     <template x-for="(slide, index) in slides" :key="index">
-                        <button @click="activeSlide = index + 1" 
-                                :class="activeSlide === index + 1 ? 'bg-red-700 w-6' : 'bg-white/50 w-2'"
-                                class="h-2 rounded-full transition-all duration-300 shadow-sm"></button>
+                        <button @click="activeSlide = index + 1" :class="activeSlide === index + 1 ? 'bg-red-700 w-6' : 'bg-gray-300 w-2'" class="h-2 rounded-full transition-all duration-300 shadow-sm"></button>
                     </template>
                 </div>
             </div>
         </div>
 
-        <section class="container mx-auto mt-4 text-left px-4">
-            <div class="bg-[#a52a2a] text-white py-3 px-6 text-xl md:text-2xl font-bold uppercase tracking-wide font-cinzel">
-                Public Advisory
+        <section class="container mx-auto mt-8 text-left px-4">
+            <div class="bg-[#a52a2a] text-white py-3 px-6 text-xl md:text-2xl font-bold uppercase tracking-wide font-cinzel rounded-t-lg">
+                Latest Public Advisory
             </div>
-            <div class="p-4 md:p-10 bg-white shadow-sm mb-10">
-                @if(isset($advisories) && count($advisories) > 0)
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                        @foreach($advisories as $advisory)
-                            <div class="group bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
-                                <a href="{{ asset('storage/' . $advisory->pdf_path) }}" target="_blank" class="block relative overflow-hidden">
-                                    <img src="{{ asset('storage/' . $advisory->image_path) }}" 
-                                         alt="{{ $advisory->title }}" 
-                                         class="w-full h-64 object-cover transform group-hover:scale-105 transition-transform duration-500">
-                                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-40 transition-all flex items-center justify-center">
-                                        <div class="bg-red-700 text-white px-4 py-2 rounded-full text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                                            View Full PDF
-                                        </div>
-                                    </div>
-                                </a>
-                                <div class="p-5">
-                                    <div class="text-xs text-red-600 font-bold uppercase mb-2">Notice</div>
-                                    <h3 class="font-bold text-gray-800 text-lg leading-tight mb-2">
-                                        {{ $advisory->title }}
-                                    </h3>
-                                    <p class="text-gray-500 text-xs italic">
-                                        Posted on {{ $advisory->created_at->format('M d, Y') }}
-                                    </p>
+            <div class="p-6 md:p-10 bg-white shadow-sm mb-10 rounded-b-lg border border-gray-200 border-t-0 flex justify-center">
+                @if(isset($latestAdvisory))
+                    <div class="w-full max-w-[320px] group bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300">
+                        <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block relative overflow-hidden">
+                            <div class="aspect-[3/4] w-full bg-gray-100 overflow-hidden">
+                                <img src="{{ asset('storage/' . $latestAdvisory->image_path) }}" 
+                                     alt="{{ $latestAdvisory->title }}" 
+                                     class="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700">
+                            </div>
+                            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                <div class="bg-red-700 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg uppercase tracking-widest">
+                                    Read PDF
                                 </div>
                             </div>
-                        @endforeach
+                        </a>
+                        <div class="p-5">
+                            <div class="text-[10px] text-red-600 font-black uppercase mb-1 tracking-widest">Latest Notice</div>
+                            <h3 class="font-bold text-gray-800 text-sm leading-tight mb-2">
+                                {{ $latestAdvisory->title }}
+                            </h3>
+                            <p class="text-gray-400 text-[10px] italic">
+                                Posted on {{ $latestAdvisory->created_at->format('M d, Y') }}
+                            </p>
+                        </div>
                     </div>
                 @else
                     <div class="flex flex-col items-center py-10">
-                        <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" />
-                        </svg>
+                        <svg class="w-16 h-16 text-gray-200 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" /></svg>
                         <p class="text-gray-500 italic">No public advisories have been posted recently.</p>
                     </div>
                 @endif
@@ -196,27 +158,12 @@
         </section>
     </main>
 
-    <div 
-        class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4"
-        x-show="loginModal"
-        x-cloak
-        x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0"
-        x-transition:enter-end="opacity-100"
-        x-transition:leave="transition ease-in duration-200"
-        x-transition:leave-start="opacity-100"
-        x-transition:leave-end="opacity-0"
-    >
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" x-show="loginModal" x-cloak x-transition>
         <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden" @click.away="loginModal = false">
             <div class="bg-[#b91c1c] py-4 px-6 flex justify-between items-center">
                 <h3 class="text-white font-bold text-lg uppercase tracking-wide">Admin Login</h3>
-                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
             </div>
-
             <form action="{{ route('admin.login') }}" method="POST" class="p-8">
                 @csrf
                 <div class="mb-5">
@@ -227,15 +174,12 @@
                     <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
                     <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
                 </div>
-
-                <button type="submit" class="w-full bg-[#b91c1c] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">
-                    Sign In
-                </button>
+                <button type="submit" class="w-full bg-[#b91c1c] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">Sign In</button>
             </form>
         </div>
     </div>
 
-    <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300">
+    <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300 mt-auto">
         <div class="container mx-auto px-6 lg:px-20 flex flex-wrap md:flex-nowrap items-start gap-8">
             <div class="w-full md:w-1/6 flex justify-center md:justify-start">
                 <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[150px] h-auto object-contain">

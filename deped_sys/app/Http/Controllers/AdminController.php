@@ -14,7 +14,14 @@ class AdminController extends Controller
         $banners = Banner::all(); 
         $advisories = Advisory::latest()->get();
 
-        return view('admin.dashboard', compact('banners', 'advisories'));
+        // Calculate counts for the dashboard summary
+        $counts = [
+            'banners'    => Banner::count(),
+            'advisories' => Advisory::count(),
+            'memos'      => 0, // Replace with Memo::count() when the model exists
+        ];
+
+        return view('admin.dashboard', compact('banners', 'advisories', 'counts'));
     }
 
     public function login(Request $request)

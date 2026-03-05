@@ -11,24 +11,22 @@ use App\Models\Advisory;
 // UPDATE THIS ROUTE:
 Route::get('/', function () {
     // This gets all advisories from PostgreSQL, newest first
-    $advisories = Advisory::latest()->get(); 
+    $latestAdvisory = Advisory::latest()->first(); 
     
     // Fetch banners from database
     $dbBanners = \App\Models\Banner::all();
     
     if($dbBanners->isEmpty()) {
-        // Fallback images if database is empty so the site doesn't crash
         $banners = collect([
             asset('images/r9.png'), 
             asset('images/foi.png'), 
             asset('images/deped.png')
         ]);
     } else {
-        // Convert database objects into a simple array of image URLs
         $banners = $dbBanners->map(fn($banner) => asset('storage/' . $banner->image_path));
     }
 
-    return view('index', compact('advisories', 'banners'));
+    return view('index', compact('latestAdvisory', 'banners'));
 });
 
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
