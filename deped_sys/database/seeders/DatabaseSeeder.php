@@ -3,23 +3,35 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Role;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
      * Seed the application's database.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        // 1. Create the necessary roles
+        $superAdminRole = Role::firstOrCreate(['slug' => 'super-admin'], ['name' => 'Super Admin']);
+        Role::firstOrCreate(['slug' => 'info-office'], ['name' => 'Information Office']);
+        Role::firstOrCreate(['slug' => 'issuance-manager'], ['name' => 'Issuance Manager']);
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        // 2. Find your existing admin account by its email, or create it if it doesn't exist
+        // IMPORTANT: Change 'admin@example.com' to the actual email you use to log in!
+        $admin = User::firstOrCreate(
+            ['email' => 'admin@example.com'], 
+            [
+                'name' => 'Super Administrator',
+                'password' => Hash::make('password123'), // Change this if you want a different default password
+                'requires_password_change' => false
+            ]
+        );
+
+        // 3. Attach the Super Admin role to your account
+        $admin->role_id = $superAdminRole->id;
+        $admin->save();
     }
 }

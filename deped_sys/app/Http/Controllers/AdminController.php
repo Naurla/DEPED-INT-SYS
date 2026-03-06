@@ -3,8 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Banner; // Use only Banner
+use App\Models\Banner;
 use App\Models\Advisory;
+use Illuminate\Support\Facades\Auth; // Make sure to add this line
 
 class AdminController extends Controller
 {
@@ -26,11 +27,21 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-        if ($request->username === 'admin' && $request->password === 'password123') {
-            session(['admin_logged_in' => true]);
+        // Validate the incoming request
+        $credentials = $request->validate([
+            'email' => ['required', 'email'], // Assuming your login form uses an email field
+            'password' => ['required'],
+        ]);
+
+        // Attempt to log the user in using Laravel's Auth system
+        if (Auth::attempt($credentials)) {
+            // Regenerate the session to prevent fixation attacks
+            $request->session()->regenerate();
+            
             return redirect()->route('admin.dashboard');
         }
 
+        // If authentication fails, redirect back with an error
         return back()->with('error', 'Invalid Credentials');
     }
 }

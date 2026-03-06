@@ -18,10 +18,12 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+    'name',
+    'email',
+    'password',
+    'role_id',
+    'requires_password_change'
+];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -45,4 +47,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function role()
+{
+    return $this->belongsTo(Role::class);
+}
+
+public function hasRole($slug)
+{
+    return $this->role && $this->role->slug === $slug;
+}
 }
