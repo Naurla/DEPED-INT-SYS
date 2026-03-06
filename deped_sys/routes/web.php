@@ -7,6 +7,7 @@ use App\Http\Controllers\BannerController;
 use App\Models\Banner;
 // Add this line to access the Advisory model
 use App\Models\Advisory; 
+use App\Http\Controllers\IssuanceController;
 
 // UPDATE THIS ROUTE:
 Route::get('/', function () {
@@ -43,3 +44,4 @@ Route::delete('/admin/advisories/{advisory}', [AdvisoryController::class, 'destr
 Route::get('/admin/banners', [BannerController::class, 'adminIndex'])->name('admin.banners.index');
 Route::post('/admin/banners', [BannerController::class, 'store'])->name('banners.store');
 Route::delete('/admin/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
+Route::get('/issuances', [IssuanceController::class, 'index'])->name('issuances.index');

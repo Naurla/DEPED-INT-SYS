@@ -79,10 +79,11 @@
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Advisories</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Division Memoranda</a>
-                    </div>
+                   <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
+    <a href="{{ route('issuances.index') }}" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Advisories</a>
+    <a href="{{ route('issuances.index') }}" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Memoranda</a>
+    <a href="{{ route('issuances.index') }}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">HRMPSB</a>
+</div>
                 </div>
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
