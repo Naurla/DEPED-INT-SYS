@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="bg-white min-h-screen py-16">
-    <div class="container mx-auto px-6 max-w-5xl">
+    <div class="container pl-20 px-6 max-w-5xl">
         
         <div class="mb-16 border-b border-gray-100 pb-10">
             <h1 class="text-4xl font-black text-gray-900 uppercase tracking-tighter">
@@ -18,8 +18,6 @@
                             {{ $item->created_at->format('F d, Y') }} , {{ $item->title }} -  {{ $item->description }}
                         </h1>
                         
-                        
-
                         @if($item->description)
                             <p class="text-gray-600 text-2xl md:text-3xl leading-relaxed line-clamp-2">
                                   {{ $item->title }} - {{ $item->description }}
