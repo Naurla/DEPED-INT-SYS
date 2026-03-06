@@ -13,10 +13,15 @@ class IssuanceController extends Controller
     {
         $items = Issuance::where('type', 'advisory')->latest()->paginate(10);
         
+        $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
+        $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
+        
         return view('issuances.category', [
             'items' => $items,
             'title' => 'Division Advisories',
             'color' => 'red',
+            'recentAdvisories' => $recentAdvisories,
+            'recentMemoranda' => $recentMemoranda,
         ]);
     }
 
@@ -24,10 +29,15 @@ class IssuanceController extends Controller
     {
         $items = Issuance::where('type', 'memorandum')->latest()->paginate(10);
         
+        $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
+        $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
+        
         return view('issuances.category', [
             'items' => $items,
             'title' => 'Division Memoranda',
             'color' => 'blue',
+            'recentAdvisories' => $recentAdvisories,
+            'recentMemoranda' => $recentMemoranda,
         ]);
     }
 
@@ -35,10 +45,15 @@ class IssuanceController extends Controller
     {
         $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(10);
         
+        $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
+        $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
+        
         return view('issuances.category', [
             'items' => $items,
             'title' => 'HRMPSB Assessment Results',
             'color' => 'yellow',
+            'recentAdvisories' => $recentAdvisories,
+            'recentMemoranda' => $recentMemoranda,
         ]);
     }
 
