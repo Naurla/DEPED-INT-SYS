@@ -48,3 +48,11 @@ Route::delete('/admin/banners/{banner}', [BannerController::class, 'destroy'])->
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
 Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->name('issuances.memoranda');
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
+Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
+
+Route::prefix('admin/issuances')->name('admin.issuances.')->group(function () {
+    Route::get('/', [IssuanceController::class, 'adminIndex'])->name('index');
+    Route::post('/', [IssuanceController::class, 'store'])->name('store');
+    Route::put('/{issuance}', [IssuanceController::class, 'update'])->name('update');
+    Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
+});
