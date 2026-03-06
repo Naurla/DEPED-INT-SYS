@@ -148,6 +148,10 @@
                     <input type="text" name="title" required class="w-full border p-2 rounded focus:ring-red-500">
                 </div>
                 <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Description (Optional)</label>
+                    <textarea name="description" rows="3" class="w-full border p-2 rounded focus:ring-red-500" placeholder="Enter a brief description..."></textarea>
+                </div>
+                <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Upload PDF</label>
                     <input type="file" name="pdf_file" accept=".pdf" required class="w-full border p-2 rounded">
                 </div>
@@ -174,6 +178,10 @@
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Document Title</label>
                     <input type="text" name="title" x-model="editIssuance.title" required class="w-full border p-2 rounded">
+                </div>
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Description (Optional)</label>
+                    <textarea name="description" x-model="editIssuance.description" rows="3" class="w-full border p-2 rounded focus:ring-blue-500" placeholder="Enter a brief description..."></textarea>
                 </div>
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Replace PDF (Leave blank to keep current)</label>

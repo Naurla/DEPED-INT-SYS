@@ -14,6 +14,7 @@ return new class extends Migration
     Schema::create('issuances', function (Blueprint $table) {
         $table->id();
         $table->string('title');
+        $table->text('description')->nullable(); // Add this line
         $table->string('type'); // Will store 'advisory', 'memorandum', or 'hrmpsb'
         $table->string('pdf_path');
         $table->string('image_path')->nullable(); // For the red image/thumbnail

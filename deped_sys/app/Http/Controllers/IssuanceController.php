@@ -57,6 +57,7 @@ class IssuanceController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string', // Validating description
             'type' => 'required|in:advisory,memorandum,hrmpsb',
             'pdf_file' => 'required|mimes:pdf|max:10240', // Max 10MB PDF
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Optional thumbnail
@@ -71,6 +72,7 @@ class IssuanceController extends Controller
 
         Issuance::create([
             'title' => $validated['title'],
+            'description' => $validated['description'] ?? null, // SAVING description to database
             'type' => $validated['type'],
             'pdf_path' => $pdfPath,
             'image_path' => $imagePath,
@@ -83,11 +85,16 @@ class IssuanceController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string', // Added description validation here
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        $dataToUpdate = ['title' => $validated['title']];
+        // Added description to the fields being updated
+        $dataToUpdate = [
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+        ];
 
         // Replace PDF if a new one is uploaded
         if ($request->hasFile('pdf_file')) {
