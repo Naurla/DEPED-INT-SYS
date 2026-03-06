@@ -21,7 +21,7 @@
                         
 
                         @if($item->description)
-                            <p class="text-gray-600 text-lg leading-relaxed line-clamp-2">
+                            <p class="text-gray-600 text-2xl md:text-3xl leading-relaxed line-clamp-2">
                                   {{ $item->title }} - {{ $item->description }}
                             </p>
                         @endif
