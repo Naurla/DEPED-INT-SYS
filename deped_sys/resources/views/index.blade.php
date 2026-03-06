@@ -68,6 +68,7 @@
             </div>
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">Home</a>
+                
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
@@ -76,15 +77,17 @@
                         <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Organizational Structure</a>
                     </div>
                 </div>
+
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
-                    <span>Issuances</span>
+                    <span class="">Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                   <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
-    <a href="{{ route('issuances.index') }}" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Advisories</a>
-    <a href="{{ route('issuances.index') }}" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Memoranda</a>
-    <a href="{{ route('issuances.index') }}" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">HRMPSB</a>
-</div>
+                    <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700  transition-colors"> Division Advisories</a>
+                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800  transition-colors"> Division Memoranda</a>
+                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-yellow-50 text-gray-700 hover:text-yellow-700  transition-colors">HRMPSB</a>
+                    </div>
                 </div>
+
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
             </div>
@@ -135,8 +138,8 @@
                     <h2 class="text-3xl md:text-5xl font-black text-gray-800 uppercase tracking-tight font-cinzel">Public Advisory</h2>
                     <p class="text-gray-500 text-sm font-bold uppercase tracking-[0.2em] mt-2 italic">Latest Division Announcement</p>
                 </div>
-                <a href="{{ route('admin.advisory.index') }}" class="hidden md:flex items-center gap-2 text-[#a52a2a] hover:text-red-900 font-black text-sm uppercase tracking-widest transition-all group">
-                    View Archive 
+                <a href="{{ route('issuances.advisories') }}" class="hidden md:flex items-center gap-2 text-[#a52a2a] hover:text-red-900 font-black text-sm uppercase tracking-widest transition-all group">
+                    View All Advisories 
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                     </svg>

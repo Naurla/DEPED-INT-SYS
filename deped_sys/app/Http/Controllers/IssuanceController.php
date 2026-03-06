@@ -2,19 +2,45 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Issuance;
 use Illuminate\Http\Request;
-use App\Models\Advisory;
 
 class IssuanceController extends Controller
 {
-    public function index()
+    public function advisories()
     {
-        // Fixes pagination error by using paginate()
-        // Unique pageNames ('adv_page', etc.) allow independent tab pagination
-        $advisories = Advisory::where('type', 'advisory')->latest()->paginate(10, ['*'], 'adv_page');
-        $memoranda = Advisory::where('type', 'memorandum')->latest()->paginate(10, ['*'], 'mem_page');
-        $hrmpsb = Advisory::where('type', 'hrmpsb')->latest()->paginate(10, ['*'], 'hr_page');
+        // Make sure 'advisory' matches the exact spelling in your database 'type' column
+        $items = Issuance::where('type', 'advisory')->latest()->paginate(10);
+        
+        return view('issuances.category', [
+            'items' => $items,
+            'title' => 'Division Advisories',
+            'color' => 'red',
+           
+        ]);
+    }
 
-        return view('issuances.index', compact('advisories', 'memoranda', 'hrmpsb'));
+    public function memoranda()
+    {
+        $items = Issuance::where('type', 'memorandum')->latest()->paginate(10);
+        
+        return view('issuances.category', [
+            'items' => $items,
+            'title' => 'Division Memoranda',
+            'color' => 'blue',
+           
+        ]);
+    }
+
+    public function hrmpsb()
+    {
+        $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(10);
+        
+        return view('issuances.category', [
+            'items' => $items,
+            'title' => 'HRMPSB Assessment Results',
+            'color' => 'yellow',
+          
+        ]);
     }
 }

@@ -44,4 +44,7 @@ Route::delete('/admin/advisories/{advisory}', [AdvisoryController::class, 'destr
 Route::get('/admin/banners', [BannerController::class, 'adminIndex'])->name('admin.banners.index');
 Route::post('/admin/banners', [BannerController::class, 'store'])->name('banners.store');
 Route::delete('/admin/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
-Route::get('/issuances', [IssuanceController::class, 'index'])->name('issuances.index');
+// Replace your old '/issuances' route with these three separate ones:
+Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
+Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->name('issuances.memoranda');
+Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
