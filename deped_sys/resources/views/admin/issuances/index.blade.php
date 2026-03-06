@@ -155,10 +155,6 @@
                     <label class="block text-gray-700 text-sm font-bold mb-2">Upload PDF</label>
                     <input type="file" name="pdf_file" accept=".pdf" required class="w-full border p-2 rounded">
                 </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Thumbnail/Image (Optional)</label>
-                    <input type="file" name="image_file" accept="image/*" class="w-full border p-2 rounded">
-                </div>
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" @click="addModal = false" class="px-4 py-2 text-gray-600 bg-gray-200 rounded">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-red-700 text-white font-bold rounded">Upload Record</button>
@@ -186,10 +182,6 @@
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Replace PDF (Leave blank to keep current)</label>
                     <input type="file" name="pdf_file" accept=".pdf" class="w-full border p-2 rounded">
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Replace Thumbnail (Optional)</label>
-                    <input type="file" name="image_file" accept="image/*" class="w-full border p-2 rounded">
                 </div>
                 <div class="flex justify-end gap-2 mt-6">
                     <button type="button" @click="editModal = false" class="px-4 py-2 text-gray-600 bg-gray-200 rounded">Cancel</button>

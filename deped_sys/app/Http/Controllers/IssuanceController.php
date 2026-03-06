@@ -57,25 +57,18 @@ class IssuanceController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string', // Validating description
+            'description' => 'nullable|string', 
             'type' => 'required|in:advisory,memorandum,hrmpsb',
             'pdf_file' => 'required|mimes:pdf|max:10240', // Max 10MB PDF
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048' // Optional thumbnail
         ]);
 
         $pdfPath = $request->file('pdf_file')->store('issuances/pdfs', 'public');
         
-        $imagePath = null;
-        if ($request->hasFile('image_file')) {
-            $imagePath = $request->file('image_file')->store('issuances/thumbnails', 'public');
-        }
-
         Issuance::create([
             'title' => $validated['title'],
-            'description' => $validated['description'] ?? null, // SAVING description to database
+            'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
             'pdf_path' => $pdfPath,
-            'image_path' => $imagePath,
         ]);
 
         return back()->with('success', ucfirst($validated['type']) . ' uploaded successfully!');
@@ -85,12 +78,10 @@ class IssuanceController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'nullable|string', // Added description validation here
+            'description' => 'nullable|string', 
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
-            'image_file' => 'nullable|image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        // Added description to the fields being updated
         $dataToUpdate = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -98,14 +89,10 @@ class IssuanceController extends Controller
 
         // Replace PDF if a new one is uploaded
         if ($request->hasFile('pdf_file')) {
-            if ($issuance->pdf_path) Storage::disk('public')->delete($issuance->pdf_path);
+            if ($issuance->pdf_path) {
+                Storage::disk('public')->delete($issuance->pdf_path);
+            }
             $dataToUpdate['pdf_path'] = $request->file('pdf_file')->store('issuances/pdfs', 'public');
-        }
-
-        // Replace Thumbnail if a new one is uploaded
-        if ($request->hasFile('image_file')) {
-            if ($issuance->image_path) Storage::disk('public')->delete($issuance->image_path);
-            $dataToUpdate['image_path'] = $request->file('image_file')->store('issuances/thumbnails', 'public');
         }
 
         $issuance->update($dataToUpdate);
@@ -115,9 +102,10 @@ class IssuanceController extends Controller
 
     public function destroy(Issuance $issuance)
     {
-        // Delete files from storage
-        if ($issuance->pdf_path) Storage::disk('public')->delete($issuance->pdf_path);
-        if ($issuance->image_path) Storage::disk('public')->delete($issuance->image_path);
+        // Delete PDF file from storage
+        if ($issuance->pdf_path) {
+            Storage::disk('public')->delete($issuance->pdf_path);
+        }
         
         // Delete database record
         $issuance->delete();
@@ -127,14 +115,14 @@ class IssuanceController extends Controller
 
     public function show(Issuance $issuance)
     {
-        // Fetch recent advisories (excluding the current one if it's an advisory)
+        // Fetch recent advisories (excluding the current one)
         $recentAdvisories = Issuance::where('type', 'advisory')
                                     ->where('id', '!=', $issuance->id)
                                     ->latest()
                                     ->take(5)
                                     ->get();
 
-        // Fetch recent memoranda (excluding the current one if it's a memo)
+        // Fetch recent memoranda (excluding the current one)
         $recentMemoranda = Issuance::where('type', 'memorandum')
                                    ->where('id', '!=', $issuance->id)
                                    ->latest()
