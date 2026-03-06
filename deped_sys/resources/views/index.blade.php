@@ -260,7 +260,7 @@
                 </ul>
             </div>
             <div class="w-full md:w-1/4 text-center md:text-left">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 font-cinzel">Contact Us</h2>
+                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 ">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
                     <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
