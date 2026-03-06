@@ -27,7 +27,7 @@
         loginModal: false, 
         mobileMenu: false,
         activeSlide: 1, 
-        slides: {{ $banners->toJson() }}
+        slides: {{ $banners->toJson() ?? '[]' }}
     }" 
     x-init="if(slides.length > 0) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
 
@@ -72,9 +72,46 @@
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Vision & Mission</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Organizational Structure</a>
+                    
+                    <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-xl border border-gray-200 py-2 z-50">
+                        
+                        <div class="group/sub relative">
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
+                                Profile
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            </a>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">QMS Scope, Quality Policy, Quality Objective</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Vision, Mission, Core Values, and Mandate</a>
+                            </div>
+                        </div>
+
+                        <div class="group/sub relative">
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
+                                Organizational Structure
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            </a>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Office Organizational Structure</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Executive Committee</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Curriculum Implementation Division</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Office of the Schools Division Superintendent</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">School Governance and Operations Division</a>
+                            </div>
+                        </div>
+
+                        <div class="group/sub relative">
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
+                                DepEd Data Privacy
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            </a>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Data Privacy Notice</a>
+                            </div>
+                        </div>
+
+                        <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Citizen's Charter</a>
+                        
                     </div>
                 </div>
 
@@ -82,9 +119,9 @@
                     <span class="">Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700  transition-colors"> Division Advisories</a>
-                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800  transition-colors"> Division Memoranda</a>
-                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-yellow-50 text-gray-700 hover:text-yellow-700  transition-colors">HRMPSB</a>
+                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
+                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
+                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-yellow-50 text-gray-700 hover:text-yellow-700 transition-colors">HRMPSB</a>
                     </div>
                 </div>
 
