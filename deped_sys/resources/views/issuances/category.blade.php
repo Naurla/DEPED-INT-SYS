@@ -10,16 +10,24 @@
             </h1>
         </div>
 
-        <div class="space-y-10">
+        <div class="space-y-12">
             @forelse($items as $item)
                 <div class="group border-l-4 border-gray-100 hover:border-blue-700 pl-8 transition-all duration-300">
-                    <a href="{{ route('issuances.show', $item->id) }}" class="block">
-                        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 leading-tight uppercase tracking-tight group-hover:text-blue-800 transition-colors">
-                            {{ $item->created_at->format('F d, Y') }}, {{ $item->title }}
+                    <a href="{{ route('issuances.show', $item->id) }}" class="block space-y-2">
+                        <h1 class="text-2xl md:text-3xl font-black text-gray-900 leading-tight uppercase tracking-tight group-hover:text-blue-800 transition-colors">
+                            {{ $item->created_at->format('F d, Y') }} , {{ $item->title }} -  {{ $item->description }}
                         </h1>
+                        
+                        
+
+                        @if($item->description)
+                            <p class="text-gray-600 text-lg leading-relaxed line-clamp-2">
+                                  {{ $item->title }} - {{ $item->description }}
+                            </p>
+                        @endif
                     </a>
                     
-                    <div class="mt-4">
+                    <div class="mt-6">
                         <a href="{{ route('issuances.show', $item->id) }}" class="text-xs font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-blue-700 inline-flex items-center gap-2">
                             Read More 
                             <span class="text-xl">→</span>

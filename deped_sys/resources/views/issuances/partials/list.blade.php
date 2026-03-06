@@ -19,19 +19,26 @@
                         </span>
                     </div>
 
-                    <h3 class="text-xl font-extrabold text-gray-900 leading-tight group-hover:text-blue-700 transition-colors uppercase">
+                    <h3 class="text-xl md:text-2xl font-black text-gray-900 leading-tight group-hover:text-blue-700 transition-colors uppercase">
                         <a href="{{ route('issuances.show', $item->id) }}">
-                            {{ $item->created_at->format('F d, Y') }} - {{ $item->title }}
+                            {{ $item->date ? \Carbon\Carbon::parse($item->date)->format('F j, Y') : $item->created_at->format('F j, Y') }}, 
+                            {{ $item->reference_no ?? 'AD NO. 236, S. 2025' }} - {{ $item->title }}
                         </a>
                     </h3>
 
-                    <div class="mt-2 text-gray-600 font-medium text-lg leading-snug">
-                        {{-- If you have a separate 'subtitle' field, use it here. 
-                             Otherwise, this displays the first part of the description --}}
-                        <p class="text-gray-500 uppercase tracking-wide text-sm font-bold">
-                            {{ Str::limit($item->description, 150) }}
+                    <div class="mt-1">
+                        <p class="text-gray-500 uppercase tracking-wide text-xs font-bold">
+                            {{ $item->reference_no ?? 'AD NO. 236, S. 2025' }} - {{ $item->title }}
                         </p>
                     </div>
+
+                    @if($item->description)
+                        <div class="mt-4 text-gray-600 font-medium text-sm leading-snug">
+                            <p class="text-gray-500 uppercase tracking-wide text-xs font-bold">
+                                {{ Str::limit($item->description, 150) }}
+                            </p>
+                        </div>
+                    @endif
                 </div>
 
                 <div class="flex-shrink-0 pt-2">
