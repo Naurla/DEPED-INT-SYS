@@ -141,7 +141,7 @@ class ProcurementController extends Controller
             $permission = new Permission([
                 'type' => 'domain',
                 'role' => 'reader',
-                'domain' => 'deped.gov.ph' // Restricted to DepEd domain
+                'domain' => 'wmsu.edu.ph' // Restricted to DepEd domain
             ]);
 
             $this->driveService->permissions->create($fileId, $permission);

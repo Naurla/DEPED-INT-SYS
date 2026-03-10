@@ -4,31 +4,39 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\BidOpportunity;
-use Illuminate\Support\Facades\Storage;
 
 class FileAccessController extends Controller
 {
     public function show($id, $type)
     {
-        // 1. STRICT DOMAIN CHECK
-        // Check if the currently logged in user's email ends with @deped.gov.ph
-        if (!str_ends_with(auth()->user()->email, '@wmsu.edu.ph')) {
-            // If they are logged in with @gmail.com or anything else, block them completely.
-            abort(403, 'Access Blocked: This document is strictly restricted to @deped.gov.ph accounts only.');
+        // 1. CHECK IF LOGGED IN
+        if (!auth()->check()) {
+            abort(403, 'Access Blocked: You must be logged in to view this document.');
         }
 
-        // 2. Find the opportunity
+        // 2. STRICT DOMAIN CHECK
+        // Check if the currently logged in user's email ends with @wmsu.edu.ph
+        if (!str_ends_with(auth()->user()->email, '@wmsu.edu.ph')) {
+            abort(403, 'Access Blocked: This document is strictly restricted to @wmsu.edu.ph accounts only.');
+        }
+
+        // 3. Find the opportunity
         $opportunity = BidOpportunity::findOrFail($id);
 
-        // 3. Determine the private path based on the type
-        $path = ($type === 'jpeg') ? $opportunity->jpeg_path : $opportunity->pdf_path;
+        // 4. Get the Google Drive ID based on the type requested
+        $driveId = ($type === 'jpeg') ? $opportunity->jpeg_path : $opportunity->pdf_path;
 
-        // 4. Verify the file exists in private storage
-        if (!Storage::disk('local')->exists($path)) {
-            abort(404, 'File not found in private storage.');
+        if (!$driveId) {
+            abort(404, 'File not found.');
         }
 
-        // 5. Return the file as a dynamic secure response
-        return response()->file(Storage::disk('local')->path($path));
+        // 5. Redirect the authorized user to the secure Google Drive viewer/image
+        if ($type === 'jpeg') {
+            // For images (loaded in the <img> tag)
+            return redirect("https://drive.google.com/thumbnail?id={$driveId}&sz=w1000");
+        } else {
+            // For PDFs (loaded when clicking the download/view button)
+            return redirect("https://drive.google.com/file/d/{$driveId}/view");
+        }
     }
 }
