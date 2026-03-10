@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Banner;
@@ -20,7 +21,6 @@ class BannerController extends Controller
     }
 
     public function store(Request $request) {
-        // Corrected the 'required' validation typo
         $request->validate([
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048'
         ]);
@@ -30,19 +30,22 @@ class BannerController extends Controller
         
         Banner::create(['image_path' => $path]);
         
-        // Ensures you are redirected back to the dashboard after upload
-        return redirect()->route('admin.dashboard')->with('success', 'Banner added successfully!');
+        // FIXED: Now redirects back to the banners page instead of the dashboard
+        return back()->with('success', 'Banner added successfully!');
     }
 
     public function destroy(Banner $banner) {
         // Deletes the file from the public disk before removing the database record
         Storage::disk('public')->delete($banner->image_path);
         $banner->delete();
+        
         return back()->with('success', 'Banner deleted!');
     }
 
     public function adminIndex() {
-    $banners = Banner::all(); // Get the raw banner models for management
-    return view('admin.banners', compact('banners'));
-}
+        $banners = Banner::all(); 
+
+    // UPDATE THIS LINE: Add .index to point to your new folder structure
+        return view('admin.banners.index', compact('banners'));
+    }
 }

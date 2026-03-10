@@ -44,4 +44,10 @@ class AdminController extends Controller
         // If authentication fails, redirect back with an error
         return back()->with('error', 'Invalid Credentials');
     }
+    public function logout(Request $request) {
+    auth()->logout();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+    return redirect('/');
+    }
 }

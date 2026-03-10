@@ -1,216 +1,114 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Management | Admin Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap" rel="stylesheet">
-    <style>
-        [x-cloak] { display: none !important; }
-        body { font-family: 'Inter', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
-    </style>
-</head>
-<body class="bg-gray-100 flex h-screen overflow-hidden" x-data="{ sidebarOpen: true }">
+@extends('layouts.admin')
 
-    <aside class="bg-[#a52a2a] text-white transition-all duration-300 flex flex-col shadow-xl z-20 h-screen sticky top-0 shrink-0" 
-           :class="sidebarOpen ? 'w-64' : 'w-20'">
-        <div class="p-6 border-b border-red-800 flex items-center justify-between h-20 shrink-0">
-            <div class="flex items-center space-x-3 overflow-hidden" x-show="sidebarOpen">
-                <h1 class="font-bold tracking-tighter text-lg whitespace-nowrap uppercase">DEPED ADMIN</h1>
+@section('page_title', 'User Management')
+
+@section('content')
+<div class="mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Manage System Users</h2>
+    <p class="text-gray-500 text-sm mt-1">Add new administrators and assign specific permissions.</p>
+</div>
+
+@if(session('success'))
+    <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm">
+        <div class="flex items-start">
+            <div class="flex-shrink-0">
+                <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
             </div>
-            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-red-700 p-1 rounded transition-colors shrink-0">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-            </button>
+            <div class="ml-3">
+                <p class="text-sm text-green-700 font-bold whitespace-pre-wrap">{{ session('success') }}</p>
+            </div>
         </div>
-        
-        <nav class="flex-grow p-4 space-y-2 text-sm overflow-y-auto mt-2 custom-scrollbar">
-            <a href="{{ route('admin.dashboard') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.dashboard') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Dashboard</span>
-            </a>
+    </div>
+@endif
 
-            @if(auth()->check() && auth()->user()->hasRole('super-admin'))
-            <a href="{{ route('admin.users.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.users.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                <span x-show="sidebarOpen">User Management</span>
-            </a>
-            @endif
-
-            @if(auth()->check() && (auth()->user()->hasRole('info-office') || auth()->user()->hasRole('super-admin')))
-            <a href="{{ route('admin.banners.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors hover:bg-red-700">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Home Banners</span>
-            </a>
-            
-            <a href="{{ route('admin.advisory.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors hover:bg-red-700">
-                <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Public Advisories</span>
-            </a>
-            @endif
-
-            @if(auth()->check() && (auth()->user()->hasRole('issuance-manager') || auth()->user()->hasRole('super-admin')))
-            <div x-data="{ dropdownOpen: false }" class="relative">
-                <button @click="dropdownOpen = !dropdownOpen" 
-                   class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors hover:bg-red-700">
-                    <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                        <span x-show="sidebarOpen">Manage Issuances</span>
-                    </div>
-                    <svg x-show="sidebarOpen" :class="{'rotate-180': dropdownOpen}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-2 mt-1 space-y-2 bg-red-900/30 rounded-lg shadow-inner">
-                    <a href="{{ route('admin.issuances.index', ['type' => 'advisory']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold">Div. Advisories</a>
-                    <a href="{{ route('admin.issuances.index', ['type' => 'memorandum']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold">Div. Memoranda</a>
-                    <a href="{{ route('admin.issuances.index', ['type' => 'hrmpsb']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold">HRMPSB</a>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    
+    <div class="lg:col-span-1">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+            <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Create New User</h3>
+            <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-4">
+                @csrf
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
+                    <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-sm" placeholder="e.g. Juan Dela Cruz">
                 </div>
-            </div>
-            @endif
-        </nav>
-
-        <div class="p-4 border-t border-red-800 shrink-0">
-            <a href="/" class="flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-all text-white">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen" class="font-bold uppercase tracking-widest text-xs">Logout</span>
-            </a>
-        </div>
-    </aside>
-
-    <div class="flex-grow flex flex-col overflow-hidden">
-        <header class="bg-white border-b h-16 flex items-center justify-between px-8 shadow-sm z-10">
-            <div class="flex items-center text-sm">
-                <span class="text-gray-400 font-medium mr-2">Admin /</span>
-                <span class="font-bold text-gray-800">User Management</span>
-            </div>
-            <div class="flex items-center space-x-6">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-gray-900 uppercase tracking-tighter">{{ auth()->user()->name }}</p>
-                    <p class="text-[10px] text-green-500 font-bold flex items-center justify-end">
-                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>ONLINE
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
+                    <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-sm" placeholder="user@deped.gov.ph">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Assign Role</label>
+                    <select name="role_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-sm">
+                        <option value="" disabled selected>Select a role...</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}">{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1 mt-2">
+                        <strong>Super Admin:</strong> Full Access<br>
+                        <strong>Info Office:</strong> Banners & Public Advisories<br>
+                        <strong>Issuance Manager:</strong> Issuances, Memos, HRMPSB
                     </p>
                 </div>
-                <div class="w-10 h-10 rounded-lg bg-red-700 flex items-center justify-center text-white font-bold border-2 border-white shadow-md">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                </div>
-            </div>
-        </header>
-
-        <main class="flex-grow p-8 overflow-y-auto bg-gray-50/50">
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Manage System Users</h2>
-                <p class="text-gray-500 text-sm mt-1">Add new administrators and assign specific permissions.</p>
-            </div>
-
-            @if(session('success'))
-                <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg shadow-sm">
-                    <div class="flex items-start">
-                        <div class="flex-shrink-0">
-                            <svg class="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                        </div>
-                        <div class="ml-3">
-                            <p class="text-sm text-green-700 font-bold whitespace-pre-wrap">{{ session('success') }}</p>
-                        </div>
-                    </div>
-                </div>
-            @endif
-
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                
-                <div class="lg:col-span-1">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
-                        <h3 class="text-lg font-bold text-gray-900 mb-4 border-b pb-2">Create New User</h3>
-                        <form action="{{ route('admin.users.store') }}" method="POST" class="space-y-4">
-                            @csrf
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Full Name</label>
-                                <input type="text" name="name" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-sm" placeholder="e.g. Juan Dela Cruz">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Email Address</label>
-                                <input type="email" name="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-sm" placeholder="user@deped.gov.ph">
-                            </div>
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-1">Assign Role</label>
-                                <select name="role_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500 text-sm">
-                                    <option value="" disabled selected>Select a role...</option>
-                                    @foreach($roles as $role)
-                                        <option value="{{ $role->id }}">{{ $role->name }}</option>
-                                    @endforeach
-                                </select>
-                                <p class="text-xs text-gray-500 mt-1 mt-2">
-                                    <strong>Super Admin:</strong> Full Access<br>
-                                    <strong>Info Office:</strong> Banners & Public Advisories<br>
-                                    <strong>Issuance Manager:</strong> Issuances, Memos, HRMPSB
-                                </p>
-                            </div>
-                            <button type="submit" class="w-full bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-red-800 transition-colors mt-2 text-sm shadow-sm">
-                                Generate Account & Password
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-                <div class="lg:col-span-2">
-                    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                            <h3 class="text-lg font-bold text-gray-900">Registered Accounts</h3>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-wider font-bold">
-                                    <tr>
-                                        <th class="px-6 py-4">User Details</th>
-                                        <th class="px-6 py-4">Role</th>
-                                        <th class="px-6 py-4">Created Date</th>
-                                        <th class="px-6 py-4 text-right">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="divide-y divide-gray-100">
-                                    @foreach($users as $user)
-                                        <tr class="hover:bg-gray-50 transition-colors">
-                                            <td class="px-6 py-4">
-                                                <div class="font-bold text-gray-900">{{ $user->name }}</div>
-                                                <div class="text-xs text-gray-500">{{ $user->email }}</div>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full 
-                                                    {{ $user->role && $user->role->slug == 'super-admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
-                                                    {{ $user->role ? $user->role->name : 'No Role' }}
-                                                </span>
-                                            </td>
-                                            <td class="px-6 py-4 text-gray-500 text-xs">
-                                                {{ $user->created_at->format('M d, Y') }}
-                                            </td>
-                                            <td class="px-6 py-4 text-right">
-                                                @if(auth()->user()->id !== $user->id)
-                                                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
-                                                        @csrf
-                                                        @method('DELETE')
-                                                        <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-xs flex items-center justify-end w-full">
-                                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                                            Remove
-                                                        </button>
-                                                    </form>
-                                                @else
-                                                    <span class="text-xs text-gray-400 font-bold">Current User</span>
-                                                @endif
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </main>
+                <button type="submit" class="w-full bg-red-700 text-white font-bold py-2.5 px-4 rounded-lg hover:bg-red-800 transition-colors mt-2 text-sm shadow-sm">
+                    Generate Account & Password
+                </button>
+            </form>
+        </div>
     </div>
-</body>
-</html>
+
+    <div class="lg:col-span-2">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                <h3 class="text-lg font-bold text-gray-900">Registered Accounts</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-gray-50 text-gray-500 uppercase text-[10px] tracking-wider font-bold">
+                        <tr>
+                            <th class="px-6 py-4">User Details</th>
+                            <th class="px-6 py-4">Role</th>
+                            <th class="px-6 py-4">Created Date</th>
+                            <th class="px-6 py-4 text-right">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach($users as $user)
+                            <tr class="hover:bg-gray-50 transition-colors">
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-gray-900">{{ $user->name }}</div>
+                                    <div class="text-xs text-gray-500">{{ $user->email }}</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="px-2.5 py-1 text-[10px] font-bold uppercase rounded-full 
+                                        {{ $user->role && $user->role->slug == 'super-admin' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ $user->role ? $user->role->name : 'No Role' }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 text-gray-500 text-xs">
+                                    {{ $user->created_at->format('M d, Y') }}
+                                </td>
+                                <td class="px-6 py-4 text-right">
+                                    @if(auth()->user()->id !== $user->id)
+                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-500 hover:text-red-700 font-bold text-xs flex items-center justify-end w-full">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                                Remove
+                                            </button>
+                                        </form>
+                                    @else
+                                        <span class="text-xs text-gray-400 font-bold">Current User</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+@endsection

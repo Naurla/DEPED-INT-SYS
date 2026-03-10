@@ -13,7 +13,7 @@ use App\Models\Banner;
 use App\Models\Advisory; 
 
 // ==========================================
-// PUBLIC ROUTES (No Login Required)
+// PUBLIC ROUTES
 // ==========================================
 
 Route::get('/', function () {
@@ -33,32 +33,35 @@ Route::get('/', function () {
     return view('index', compact('latestAdvisory', 'banners'));
 })->name('login'); 
 
+// Admin Login
+Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+
 // Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
 Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->name('issuances.memoranda');
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
-// Public Procurement List & View
+// Public Procurement
 Route::prefix('procurement')->name('procurement.')->group(function () {
     Route::get('bid-opportunities', [BidOpportunityController::class, 'index'])->name('bid-opportunities.index');
     Route::get('bid-opportunities/{id}', [BidOpportunityController::class, 'show'])->name('bid-opportunities.show');
 });
 
-// Admin Login (Post request from the modal)
-Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
-
 // ==========================================
-// SECURE ROUTES (Login Required)
+// SECURE ROUTES
 // ==========================================
 
 Route::middleware(['auth'])->group(function () {
 
-    // 1. Secure File Access (For DepEd Personnel only)
+    // LOGOUT ROUTE (Placed here so it is accessible as route('logout'))
+    Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
+
+    // Secure File Access
     Route::get('/procurement/bid-opportunities/file/{id}/{type}', [FileAccessController::class, 'show'])
         ->name('procurement.file.access');
 
-    // 2. Protected Admin Dashboard & Management
+    // Protected Admin Management
     Route::prefix('admin')->name('admin.')->group(function () {
         
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
@@ -82,7 +85,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
         });
 
-        // Issuance Manager: Memos
+        // Issuance Manager
         Route::middleware(['role:issuance-manager'])->prefix('issuances')->name('issuances.')->group(function () {
             Route::get('/', [IssuanceController::class, 'adminIndex'])->name('index');
             Route::post('/', [IssuanceController::class, 'store'])->name('store');
@@ -90,7 +93,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
         });
 
-        // Procurement Management (Admin Side)
+        // Procurement Management
         Route::prefix('procurement/bid-opportunities')->name('bid-opportunities.')->group(function () {
             Route::get('/', [ProcurementController::class, 'index'])->name('index');
             Route::get('/create', [ProcurementController::class, 'create'])->name('create');
