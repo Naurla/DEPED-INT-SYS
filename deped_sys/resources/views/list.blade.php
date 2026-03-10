@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="bg-white min-h-screen py-16">
-    <div class="container pl-20 px-6 max-w-5xl">
+    <div class="container pl-20 px-6 max-w-10xl">
         
         <div class="mb-12">
             <h1 class="text-[1.4rem] font-extrabold text-black uppercase tracking-wide">
