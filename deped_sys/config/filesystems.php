@@ -47,6 +47,13 @@ return [
             'report' => false,
         ],
 
+        'google' => [
+            'driver' => 'google',
+            'credentials' => storage_path('app/google-drive-credentials.json'),
+            'folder' => env('GOOGLE_DRIVE_FOLDER_ID'), // Create this key in your .env file
+            'throw' => false,
+        ],
+
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
