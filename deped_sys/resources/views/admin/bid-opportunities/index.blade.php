@@ -29,6 +29,13 @@
                 <input type="text" name="title" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
             </div>
 
+            <div>
+                <label class="block text-gray-700 text-sm font-bold mb-1">Description</label>
+                <textarea name="description" rows="3" 
+                    placeholder="Brief details about this bidding opportunity..." 
+                    class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-1">JPEG Image (Max 5MB)</label>
@@ -55,7 +62,7 @@
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
                         <th class="p-4 border-b">Title</th>
-                        <th class="p-4 border-b">Image (JPEG)</th>
+                        <th class="p-4 border-b">Description</th> <th class="p-4 border-b">Image (JPEG)</th>
                         <th class="p-4 border-b">Document (PDF)</th>
                         <th class="p-4 border-b">Date Uploaded</th>
                     </tr>
@@ -65,6 +72,10 @@
                         <tr class="hover:bg-gray-50 border-b transition-colors">
                             <td class="p-4 font-semibold text-gray-800">{{ $bid->title }}</td>
                             
+                            <td class="p-4 text-sm text-gray-600 max-w-xs">
+                                {{ Str::limit($bid->description, 100) }}
+                            </td>
+
                             <td class="p-4">
                                 @if($bid->jpeg_path)
                                     <img src="https://drive.google.com/thumbnail?id={{ $bid->jpeg_path }}&sz=w200" alt="Bid Image" class="w-24 h-auto rounded shadow-sm border">
@@ -88,7 +99,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="p-6 text-center text-gray-500">No bid opportunities uploaded yet.</td>
+                            <td colspan="5" class="p-6 text-center text-gray-500">No bid opportunities uploaded yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

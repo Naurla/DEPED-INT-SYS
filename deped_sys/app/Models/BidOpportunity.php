@@ -13,6 +13,7 @@ class BidOpportunity extends Model
 
     protected $fillable = [
         'title',
+        'description',
         'jpeg_path',
         'pdf_path',
     ];

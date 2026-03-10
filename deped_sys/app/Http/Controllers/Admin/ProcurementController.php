@@ -65,6 +65,7 @@ class ProcurementController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'description' => 'nullable|string', // Add validation
             'jpeg_file' => 'required|image|mimes:jpeg,jpg|max:5120',
             'pdf_file' => 'required|mimes:pdf|max:10240',
         ]);
@@ -80,6 +81,7 @@ class ProcurementController extends Controller
         // 3. Create Local Record (Storing Drive IDs instead of local paths)
         BidOpportunity::create([
             'title' => $request->title,
+            'description' => $request->description,
             'jpeg_path' => $jpegDriveId, // Store the Google Drive File ID
             'pdf_path' => $pdfDriveId,
         ]);

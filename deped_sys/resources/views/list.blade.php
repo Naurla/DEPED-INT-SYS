@@ -4,23 +4,29 @@
 <div class="bg-white min-h-screen py-16">
     <div class="container pl-20 px-6 max-w-5xl">
         
-        <div class="mb-10">
+        <div class="mb-12">
             <h1 class="text-[1.4rem] font-extrabold text-black uppercase tracking-wide">
                 {{ $type_name ?? 'Bid Opportunities' }}
             </h1>
         </div>
 
-        <div class="space-y-12">
+        <div class="space-y-16">
             @forelse($items as $item)
                 <div class="group transition-all duration-300">
+                  
+
                     <a href="{{ route('procurement.bid-opportunities.show', $item->id) }}" class="block">
-                        <h2 class="text-xl md:text-[1.35rem] font-extrabold text-[#333] leading-snug uppercase group-hover:text-blue-800 transition-colors mb-3">
-                            {{ strtoupper($item->created_at->format('F d, Y')) }} - {{ $item->title }}
+                        <h2 class="text-xl md:text-[1.35rem] font-extrabold text-[#333] leading-snug uppercase group-hover:text-blue-800 transition-colors mb-4">
+                            {{ $item->title }} __  {{ $item->description }}
                         </h2>
                     </a>
                     
+                    <p class="text-gray-600 text-sm font-medium leading-relaxed mb-6 pr-10">
+                      {{ $item->title }} -  {{ $item->description }}
+                    </p>
+                    
                     <div>
-                        <a href="{{ route('procurement.bid-opportunities.show', $item->id) }}" class="inline-block border border-gray-400 text-gray-500 px-4 py-1.5 text-sm hover:bg-gray-50 hover:text-gray-700 transition-colors">
+                        <a href="{{ route('procurement.bid-opportunities.show', $item->id) }}" class="inline-block border border-gray-400 text-gray-500 px-6 py-2 text-xs font-black uppercase tracking-widest hover:bg-gray-50 hover:text-gray-700 transition-colors">
                             Read More
                         </a>
                     </div>
