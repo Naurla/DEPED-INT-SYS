@@ -5,21 +5,20 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdvisoryController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\IssuanceController;
-use App\Http\Controllers\Admin\UserController; // Added User Controller for role management
+use App\Http\Controllers\Admin\UserController; 
+use App\Http\Controllers\Admin\ProcurementController;
+use App\Http\Controllers\Frontend\BidOpportunityController;
+use App\Http\Controllers\Frontend\FileAccessController;
 use App\Models\Banner;
 use App\Models\Advisory; 
 
 // ==========================================
-// PUBLIC ROUTES
+// PUBLIC ROUTES (No Login Required)
 // ==========================================
 
-// Added ->name('login') to the end of this route to fix the "Route [login] not defined" error
 Route::get('/', function () {
-    // This gets all advisories from PostgreSQL, newest first
     $latestAdvisory = Advisory::latest()->first(); 
-    
-    // Fetch banners from database
-    $dbBanners = \App\Models\Banner::all();
+    $dbBanners = Banner::all();
     
     if($dbBanners->isEmpty()) {
         $banners = collect([
@@ -34,52 +33,69 @@ Route::get('/', function () {
     return view('index', compact('latestAdvisory', 'banners'));
 })->name('login'); 
 
-// Public Issuances Views
+// Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
 Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->name('issuances.memoranda');
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
-// ==========================================
-// ADMIN LOGIN (Unprotected)
-// ==========================================
+// Public Procurement List & View
+Route::prefix('procurement')->name('procurement.')->group(function () {
+    Route::get('bid-opportunities', [BidOpportunityController::class, 'index'])->name('bid-opportunities.index');
+    Route::get('bid-opportunities/{id}', [BidOpportunityController::class, 'show'])->name('bid-opportunities.show');
+});
+
+// Admin Login (Post request from the modal)
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 
 // ==========================================
-// PROTECTED ADMIN ROUTES
+// SECURE ROUTES (Login Required)
 // ==========================================
-Route::prefix('admin')->middleware(['auth'])->group(function () {
-    
-    // Dashboard accessible to any logged-in admin user
-    Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.dashboard');
 
-    // 1. Super Admin Only: User Management
-    Route::middleware(['role:super-admin'])->group(function () {
-        Route::get('/users', [UserController::class, 'index'])->name('admin.users.index');
-        Route::post('/users', [UserController::class, 'store'])->name('admin.users.store');
-        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('admin.users.destroy');
-    });
+Route::middleware(['auth'])->group(function () {
 
-    // 2. Info Office (and Super Admin): Public Advisories & Banners
-    Route::middleware(['role:info-office'])->group(function () {
-        // Advisories
-        Route::get('/advisories', [AdvisoryController::class, 'index'])->name('admin.advisory.index');
-        Route::post('/advisories/store', [AdvisoryController::class, 'store'])->name('advisories.store');
-        Route::put('/advisories/{advisory}', [AdvisoryController::class, 'update'])->name('advisories.update');
-        Route::delete('/advisories/{advisory}', [AdvisoryController::class, 'destroy'])->name('advisories.destroy');
+    // 1. Secure File Access (For DepEd Personnel only)
+    Route::get('/procurement/bid-opportunities/file/{id}/{type}', [FileAccessController::class, 'show'])
+        ->name('procurement.file.access');
+
+    // 2. Protected Admin Dashboard & Management
+    Route::prefix('admin')->name('admin.')->group(function () {
         
-        // Banners
-        Route::get('/banners', [BannerController::class, 'adminIndex'])->name('admin.banners.index');
-        Route::post('/banners', [BannerController::class, 'store'])->name('banners.store');
-        Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
-    });
+        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-    // 3. Issuance Manager (and Super Admin): Memos, Division Advisories, HRMPSB
-    Route::middleware(['role:issuance-manager'])->prefix('issuances')->name('admin.issuances.')->group(function () {
-        Route::get('/', [IssuanceController::class, 'adminIndex'])->name('index');
-        Route::post('/', [IssuanceController::class, 'store'])->name('store');
-        Route::put('/{issuance}', [IssuanceController::class, 'update'])->name('update');
-        Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
-    });
+        // Super Admin: User Management
+        Route::middleware(['role:super-admin'])->group(function () {
+            Route::get('/users', [UserController::class, 'index'])->name('users.index');
+            Route::post('/users', [UserController::class, 'store'])->name('users.store');
+            Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+        });
 
+        // Info Office: Advisories & Banners
+        Route::middleware(['role:info-office'])->group(function () {
+            Route::get('/advisories', [AdvisoryController::class, 'index'])->name('advisory.index');
+            Route::post('/advisories/store', [AdvisoryController::class, 'store'])->name('advisories.store');
+            Route::put('/advisories/{advisory}', [AdvisoryController::class, 'update'])->name('advisories.update');
+            Route::delete('/advisories/{advisory}', [AdvisoryController::class, 'destroy'])->name('advisories.destroy');
+            
+            Route::get('/banners', [BannerController::class, 'adminIndex'])->name('banners.index');
+            Route::post('/banners', [BannerController::class, 'store'])->name('banners.store');
+            Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
+        });
+
+        // Issuance Manager: Memos
+        Route::middleware(['role:issuance-manager'])->prefix('issuances')->name('issuances.')->group(function () {
+            Route::get('/', [IssuanceController::class, 'adminIndex'])->name('index');
+            Route::post('/', [IssuanceController::class, 'store'])->name('store');
+            Route::put('/{issuance}', [IssuanceController::class, 'update'])->name('update');
+            Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
+        });
+
+        // Procurement Management (Admin Side)
+        Route::prefix('procurement/bid-opportunities')->name('bid-opportunities.')->group(function () {
+            Route::get('/', [ProcurementController::class, 'index'])->name('index');
+            Route::get('/create', [ProcurementController::class, 'create'])->name('create');
+            Route::post('/store', [ProcurementController::class, 'store'])->name('store');
+            Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
+        });
+    });
 });
