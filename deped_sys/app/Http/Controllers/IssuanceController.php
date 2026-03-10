@@ -14,7 +14,7 @@ class IssuanceController extends Controller
 {
     private $driveService;
     // IMPORTANT: Paste the Google Drive folder ID where you want Issuances saved
-    private $parentFolderId = 'YOUR_PARENT_FOLDER_ID_HERE'; 
+    private $parentFolderId = '1OJCkFiAR3wdpiS-oCsoui_4HjHZQ-vDM'; 
 
     public function __construct()
     {
