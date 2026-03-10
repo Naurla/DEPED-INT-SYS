@@ -1,45 +1,43 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container mx-auto mt-6 px-4 mb-24">
-    
-    <div class="flex items-center justify-between border-b-4 border-[#a52a2a] pb-4 mb-12 mt-8">
-        <h2 class="text-3xl md:text-5xl font-black text-gray-800 uppercase tracking-tight font-cinzel">{{ $type_name ?? 'Bid Opportunity' }}</h2>
-    </div>
-
-    <div class="flex flex-col lg:flex-row gap-12 bg-white p-10 rounded-[2rem] shadow-2xl border border-gray-100">
+<div class="bg-white py-10 min-h-screen">
+    <div class="container mx-auto px-6 lg:px-20 max-w-6xl">
         
-        {{-- Secure JPEG Image Section --}}
-        <div class="w-full lg:w-1/2 aspect-[3/4] bg-gray-50 rounded-xl overflow-hidden shadow-inner border border-gray-200">
-            <img src="{{ route('procurement.file.access', [$item->id, 'jpeg']) }}" 
-                 alt="{{ $item->title }}" 
-                 class="w-full h-full object-cover">
-        </div>
-
-        {{-- Details & PDF Section --}}
-        <div class="w-full lg:w-1/2 flex flex-col justify-center">
-            <div>
-                <div class="inline-block bg-red-50 text-[#a52a2a] text-[11px] font-black px-4 py-1.5 rounded-full uppercase tracking-widest mb-6">
-                    Posted • {{ $item->created_at->format('M d, Y') }}
-                </div>
+        {{-- Header Section --}}
+        <div class="mb-8">
+            <a href="javascript:history.back()" class="text-[#a52a2a] hover:text-red-800 font-bold text-sm inline-flex items-center mb-6 uppercase tracking-wider">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                Back to List
+            </a>
+            <h1 class="text-2xl md:text-4xl font-black text-gray-900 leading-tight mb-4">
+                {{ $item->title }}
+            </h1>
+            <div class="flex items-center text-gray-500 text-sm font-semibold space-x-4">
+                <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-sm uppercase tracking-wider text-xs">
+                    {{ $type_name ?? 'Bid Opportunity' }}
+                </span>
+                <span>Posted on: {{ $item->created_at->format('F d, Y') }}</span>
                 
-                <h3 class="font-black text-gray-900 text-3xl md:text-4xl leading-tight mb-6">
-                    {{ $item->title }}
-                </h3>
-                
-                <div class="w-16 h-1 bg-[#a52a2a] rounded-full mb-8"></div>
-            </div>
-
-            {{-- Secure PDF Download Button --}}
-            <div class="border-t border-gray-100 pt-8 mt-4">
-                <a href="{{ route('procurement.file.access', [$item->id, 'pdf']) }}" target="_blank" class="w-full bg-[#b91c1c] text-white font-bold py-4 rounded-xl hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider text-center flex items-center justify-center">
-                    <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    View Full PDF Document
+                {{-- Secure PDF Download Link --}}
+                <a href="{{ route('procurement.file.access', [$item->id, 'pdf']) }}" target="_blank" class="text-blue-600 hover:underline flex items-center">
+                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download PDF
                 </a>
-                
-                <p class="text-gray-400 text-xs text-center mt-3 font-medium">This document is restricted to @wmsu.edu.ph accounts only.</p>
             </div>
         </div>
+
+        {{-- Main Content Section (PDF Preview) --}}
+        <div class="w-full bg-gray-100 rounded-lg p-2 shadow-inner mb-4 border border-gray-300 h-[70vh] min-h-[600px]">
+            <iframe 
+                src="{{ route('procurement.file.access', [$item->id, 'pdf']) }}" 
+                class="w-full h-full rounded bg-white" 
+                title="{{ $item->title }}">
+            </iframe>
+        </div>
+        <p class="text-gray-400 text-xs text-center mb-16 font-medium">This document is restricted to authorized accounts only.</p>
+
+        
 
     </div>
 </div>

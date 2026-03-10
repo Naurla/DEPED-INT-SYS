@@ -12,7 +12,6 @@
         [x-cloak] { display: none !important; }
         .font-cinzel { font-family: 'Cinzel', serif; }
         
-        /* High-quality hover effect for the large centered card */
         .advisory-card-large { 
             transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
@@ -108,7 +107,6 @@
                         </div>
 
                         <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Citizen's Charter</a>
-                        
                     </div>
                 </div>
 
@@ -139,7 +137,6 @@
                         <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Minutes of Pre-Bid Conference</a>
                     </div>
                 </div>
-
             </div>
 
             <div class="px-6 py-4 md:py-0 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
@@ -162,6 +159,61 @@
     <main class="flex-grow">
         @yield('content')
     </main>
+
+    {{-- FULL WIDTH GLOBAL RECENT UPDATES SECTION --}}
+    <div class="w-full bg-gray-50 border-t-4 border-[#a52a2a] pt-12 pb-16 shadow-inner">
+        <div class="container mx-auto px-6 lg:px-20 max-w-full">
+            <h2 class="text-3xl font-black text-gray-900 mb-12 uppercase tracking-[0.2em] text-center">Recent Updates</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 lg:px-12">
+                {{-- Column 1: Latest Advisories --}}
+                <div class="w-full">
+                    <h3 class="text-xl font-bold text-[#a52a2a] border-b-2 border-gray-200 pb-4 mb-8 uppercase tracking-widest flex items-center">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                        Latest Advisories
+                    </h3>
+                    <ul class="space-y-6">
+                        @forelse($globalRecentAdvisories ?? [] as $adv)
+                            <li class="group bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-[#a52a2a] transition-all w-full">
+                                <a href="{{ route('issuances.show', $adv->id) }}" class="block">
+                                    <p class="text-base font-bold text-gray-800 group-hover:text-[#a52a2a] transition-colors line-clamp-2 leading-snug">{{ $adv->title }}</p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500 font-medium">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        {{ $adv->created_at->format('F d, Y') }}
+                                    </div>
+                                </a>
+                            </li>
+                        @empty
+                            <li class="text-sm text-gray-400 italic bg-white p-6 rounded-xl text-center w-full">No recent advisories.</li>
+                        @endforelse
+                    </ul>
+                </div>
+
+                {{-- Column 2: Latest Memoranda --}}
+                <div class="w-full">
+                    <h3 class="text-xl font-bold text-blue-900 border-b-2 border-gray-200 pb-4 mb-8 uppercase tracking-widest flex items-center">
+                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Latest Memoranda
+                    </h3>
+                    <ul class="space-y-6">
+                        @forelse($globalRecentMemoranda ?? [] as $memo)
+                            <li class="group bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-blue-800 transition-all w-full">
+                                <a href="{{ route('issuances.show', $memo->id) }}" class="block">
+                                    <p class="text-base font-bold text-gray-800 group-hover:text-blue-800 transition-colors line-clamp-2 leading-snug">{{ $memo->title }}</p>
+                                    <div class="flex items-center mt-3 text-xs text-gray-500 font-medium">
+                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                                        {{ $memo->created_at->format('F d, Y') }}
+                                    </div>
+                                </a>
+                            </li>
+                        @empty
+                            <li class="text-sm text-gray-400 italic bg-white p-6 rounded-xl text-center w-full">No recent memoranda.</li>
+                        @endforelse
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" x-show="loginModal" x-cloak x-transition>
         <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden" @click.away="loginModal = false">
