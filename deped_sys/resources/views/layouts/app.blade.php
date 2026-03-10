@@ -21,8 +21,13 @@
             box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
         }
     </style>
+    @stack('styles')
 </head>
-<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" x-data="{ loginModal: false, mobileMenu: false }">
+<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
+    x-data="{ 
+        loginModal: false, 
+        mobileMenu: false
+    }">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
         <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
@@ -54,34 +59,87 @@
                 </svg>
             </button>
         </div>
+
         <div :class="mobileMenu ? 'block' : 'hidden'" class="w-full md:flex flex-col md:flex-row items-center text-[14px] text-gray-800">
             <div class="w-full md:w-auto py-3 px-10 bg-white border-r border-gray-300 text-center md:text-left">
                 <a href="http://www.gov.ph" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">GOVPH</a>
             </div>
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
-                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] {{ request()->is('/') ? 'bg-gray-200 font-bold' : 'bg-[#e6e6e6] hover:bg-gray-300' }} border-r border-gray-300 transition-colors">Home</a>
+                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">Home</a>
                 
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-56 bg-white shadow-xl border border-gray-200 py-2 z-50">
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Vision & Mission</a>
-                        <a href="#" class="block px-4 py-2 hover:bg-gray-100 text-gray-700">Organizational Structure</a>
+                    
+                    <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-xl border border-gray-200 py-2 z-50">
+                        <div class="group/sub relative">
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
+                                Profile
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            </a>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">QMS Scope, Quality Policy, Quality Objective</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Vision, Mission, Core Values, and Mandate</a>
+                            </div>
+                        </div>
+
+                        <div class="group/sub relative">
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
+                                Organizational Structure
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            </a>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Office Organizational Structure</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Executive Committee</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Curriculum Implementation Division</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Office of the Schools Division Superintendent</a>
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">School Governance and Operations Division</a>
+                            </div>
+                        </div>
+
+                        <div class="group/sub relative">
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
+                                DepEd Data Privacy
+                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            </a>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
+                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Data Privacy Notice</a>
+                            </div>
+                        </div>
+
+                        <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Citizen's Charter</a>
+                        
                     </div>
                 </div>
 
-                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 {{ request()->is('issuances/*') ? 'bg-white font-bold' : 'hover:bg-white' }} cursor-pointer flex items-center justify-center transition-colors">
-                    <span>Issuances</span>
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
+                    <span class="">Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50">
-                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 font-bold transition-colors">Division Advisories</a>
-                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 font-bold transition-colors">Division Memoranda</a>
-                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-yellow-50 text-gray-700 hover:text-yellow-700 font-bold transition-colors">HRMPSB</a>
+                    <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
+                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
+                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-yellow-50 text-gray-700 hover:text-yellow-700 transition-colors">HRMPSB</a>
                     </div>
                 </div>
 
                 <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
-                <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">Procurement</a>
+                
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
+                    <span>Procurement</span>
+                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
+                    </svg>
+                    <div class="hidden group-hover:block absolute left-0 top-full w-max bg-white shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                       <a href="{{ route('procurement.bid-opportunities.index') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Bid Opportunities</a>
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Agency Procurement Compliance and Performance Indicator</a>
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Agency Procurement Plan - Common User Supplies</a>
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Annual Procurement Plan - Non CSE</a>
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Award Notice</a>
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Procurement Monitoring Report</a>
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Minutes of Pre-Bid Conference</a>
+                    </div>
+                </div>
+
             </div>
 
             <div class="px-6 py-4 md:py-0 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
@@ -115,7 +173,7 @@
                 @csrf
                 <div class="mb-5">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-                    <input type="text" name="username" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
+                    <input type="email" name="email" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
@@ -156,5 +214,7 @@
             </div>
         </div>
     </footer>
+    
+    @stack('scripts')
 </body>
 </html>
