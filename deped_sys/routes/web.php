@@ -96,8 +96,8 @@ Route::middleware(['auth'])->group(function () {
         // Procurement Management
         Route::prefix('procurement/bid-opportunities')->name('bid-opportunities.')->group(function () {
             Route::get('/', [ProcurementController::class, 'index'])->name('index');
-            Route::get('/create', [ProcurementController::class, 'create'])->name('create');
-            Route::post('/store', [ProcurementController::class, 'store'])->name('store');
+            Route::post('/', [ProcurementController::class, 'store'])->name('store');
+            Route::put('/{id}', [ProcurementController::class, 'update'])->name('update'); // Added Update Route
             Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
         });
     });
