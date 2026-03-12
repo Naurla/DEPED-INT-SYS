@@ -8,16 +8,30 @@
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        .scroll-top-btn:hover { background-color: #333; }
         [x-cloak] { display: none !important; }
         .font-cinzel { font-family: 'Cinzel', serif; }
         
-        .advisory-card-large { 
-            transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #a52a2a; border-radius: 4px; }
+
+        /* Unified Bullet Line Style */
+        .issuance-line { 
+            position: relative; 
         }
-        .advisory-card-large:hover { 
-            transform: translateY(-10px);
-            box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.25), 0 18px 36px -18px rgba(0, 0, 0, 0.3);
+        .issuance-line::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 1.5rem;
+            bottom: -2.5rem;
+            width: 1px;
+            background: #e5e7eb;
+            transform: translateX(-50%);
+        }
+        .issuance-item:last-child .issuance-line::after { 
+            display: none; 
         }
     </style>
     @stack('styles')
@@ -65,93 +79,24 @@
             </div>
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">Home</a>
-                
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    
                     <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-xl border border-gray-200 py-2 z-50">
                         <div class="group/sub relative">
-                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
-                                Profile
-                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                            </a>
-                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">QMS Scope, Quality Policy, Quality Objective</a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Vision, Mission, Core Values, and Mandate</a>
-                            </div>
+                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Profile</a>
                         </div>
-
-                        <div class="group/sub relative">
-                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
-                                Organizational Structure
-                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                            </a>
-                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Division Office Organizational Structure</a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Executive Committee</a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Curriculum Implementation Division</a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">Office of the Schools Division Superintendent</a>
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 text-gray-800 border-b border-gray-50">School Governance and Operations Division</a>
-                            </div>
-                        </div>
-
-                        <div class="group/sub relative">
-                            <a href="#" class="flex justify-between items-center px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">
-                                DepEd Data Privacy
-                                <svg class="w-3 h-3 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                            </a>
-                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-[350px] bg-white shadow-xl border border-gray-200 py-2 ml-1 z-50">
-                                <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Data Privacy Notice</a>
-                            </div>
-                        </div>
-
                         <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Citizen's Charter</a>
                     </div>
                 </div>
-
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
-                    <span class="">Issuances</span>
+                    <span>Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                    <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50">
                         <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
                         <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
-                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-yellow-50 text-gray-700 hover:text-yellow-700 transition-colors">HRMPSB</a>
                     </div>
                 </div>
-
-                <a href="#" class="w-full md:w-auto text-center px-6 py-[14px] border-r border-gray-300 hover:bg-white transition-colors">K to 12</a>
-                
-                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
-                    <span>Procurement</span>
-                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/>
-                    </svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-max bg-white shadow-2xl border border-gray-200 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                       <a href="{{ route('procurement.bid-opportunities.index') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Bid Opportunities</a>
-                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Agency Procurement Compliance and Performance Indicator</a>
-                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Agency Procurement Plan - Common User Supplies</a>
-                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Annual Procurement Plan - Non CSE</a>
-                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Award Notice</a>
-                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Procurement Monitoring Report</a>
-                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap">Minutes of Pre-Bid Conference</a>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-6 py-4 md:py-0 flex flex-col md:flex-row items-center space-y-4 md:space-y-0 md:space-x-4 w-full md:w-auto">
-                <button @click="loginModal = true" class="text-gray-600 hover:text-[#b91c1c] transition-colors flex items-center group">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                    <span class="ml-1 font-semibold">Admin</span>
-                </button>
-                <form action="#" method="GET" class="relative flex items-center w-full md:w-auto pb-4 md:pb-0">
-                    <input type="text" name="search" placeholder="Search..." class="bg-white border border-gray-300 text-gray-700 text-xs rounded-full py-1.5 pl-4 pr-10 focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent w-full md:w-40 lg:w-56 transition-all">
-                    <button type="submit" class="absolute right-3 text-gray-400 hover:text-red-700">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </button>
-                </form>
             </div>
         </div>
     </nav>
@@ -160,79 +105,66 @@
         @yield('content')
     </main>
 
-    {{-- FULL WIDTH GLOBAL RECENT UPDATES SECTION --}}
-    <div class="w-full bg-gray-50 border-t-4 border-[#a52a2a] pt-12 pb-16 shadow-inner">
+    {{-- RECENT UPDATES - BULLET TYPE FORM --}}
+    <div class="w-full bg-white py-16 border-t border-gray-200">
         <div class="container mx-auto px-6 lg:px-20 max-w-full">
-            <h2 class="text-3xl font-black text-gray-900 mb-12 uppercase tracking-[0.2em] text-center">Recent Updates</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-16 lg:px-12">
-                {{-- Column 1: Latest Advisories --}}
-                <div class="w-full">
-                    <h3 class="text-xl font-bold text-[#a52a2a] border-b-2 border-gray-200 pb-4 mb-8 uppercase tracking-widest flex items-center">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
-                        Latest Advisories
-                    </h3>
-                    <ul class="space-y-6">
-                        @forelse($globalRecentAdvisories ?? [] as $adv)
-                            <li class="group bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-[#a52a2a] transition-all w-full">
-                                <a href="{{ route('issuances.show', $adv->id) }}" class="block">
-                                    <p class="text-base font-bold text-gray-800 group-hover:text-[#a52a2a] transition-colors line-clamp-2 leading-snug">{{ $adv->title }}</p>
-                                    <div class="flex items-center mt-3 text-xs text-gray-500 font-medium">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        {{ $adv->created_at->format('F d, Y') }}
-                                    </div>
-                                </a>
-                            </li>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
+                
+                {{-- Column 1: Recent Division Advisories --}}
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-8 border-b pb-3">
+                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight">
+                            Recent Division Advisories
+                        </h3>
+                        
+                    </div>
+                    
+                    <div class="flex flex-col">
+                        @forelse(collect($globalRecentAdvisories ?? [])->take(3) as $adv)
+                            <a href="{{ route('issuances.show', $adv->id) }}" class="issuance-item flex group">
+                                <div class="issuance-line w-12 flex-shrink-0 flex justify-center pt-1">
+                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-gray-300 bg-white z-10 group-hover:bg-[#a52a2a] group-hover:border-[#a52a2a] transition-all"></div>
+                                </div>
+                                <div class="flex-1 pb-10">
+                                    <h4 class="text-[15px] font-bold text-gray-800 group-hover:text-[#a52a2a] leading-tight mb-1 uppercase transition-colors">
+                                        {{ $adv->created_at->format('M d, Y') }} {{ $adv->title }} - {{ $adv->description ?? 'Click to view details.' }}
+                                    </h4>
+                                </div>
+                            </a>
                         @empty
-                            <li class="text-sm text-gray-400 italic bg-white p-6 rounded-xl text-center w-full">No recent advisories.</li>
+                            <p class="text-sm text-gray-400 italic py-4">No recent advisories.</p>
                         @endforelse
-                    </ul>
+                    </div>
                 </div>
 
-                {{-- Column 2: Latest Memoranda --}}
-                <div class="w-full">
-                    <h3 class="text-xl font-bold text-blue-900 border-b-2 border-gray-200 pb-4 mb-8 uppercase tracking-widest flex items-center">
-                        <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Latest Memoranda
-                    </h3>
-                    <ul class="space-y-6">
-                        @forelse($globalRecentMemoranda ?? [] as $memo)
-                            <li class="group bg-white p-6 rounded-xl shadow-sm border border-gray-100 hover:border-blue-800 transition-all w-full">
-                                <a href="{{ route('issuances.show', $memo->id) }}" class="block">
-                                    <p class="text-base font-bold text-gray-800 group-hover:text-blue-800 transition-colors line-clamp-2 leading-snug">{{ $memo->title }}</p>
-                                    <div class="flex items-center mt-3 text-xs text-gray-500 font-medium">
-                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                                        {{ $memo->created_at->format('F d, Y') }}
-                                    </div>
-                                </a>
-                            </li>
-                        @empty
-                            <li class="text-sm text-gray-400 italic bg-white p-6 rounded-xl text-center w-full">No recent memoranda.</li>
-                        @endforelse
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
+                {{-- Column 2: Recent Division Memoranda --}}
+                <div class="flex flex-col">
+                    <div class="flex justify-between items-center mb-8 border-b pb-3">
+                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight">
+                             Recent Division Memoranda
+                        </h3>
+        
+                    </div>
 
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" x-show="loginModal" x-cloak x-transition>
-        <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden" @click.away="loginModal = false">
-            <div class="bg-[#b91c1c] py-4 px-6 flex justify-between items-center">
-                <h3 class="text-white font-bold text-lg uppercase tracking-wide">Admin Login</h3>
-                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg></button>
+                    <div class="flex flex-col">
+                        @forelse(collect($globalRecentMemoranda ?? [])->take(3) as $memo)
+                            <a href="{{ route('issuances.show', $memo->id) }}" class="issuance-item flex group">
+                                <div class="issuance-line w-12 flex-shrink-0 flex justify-center pt-1">
+                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-gray-300 bg-white z-10 group-hover:bg-blue-800 group-hover:border-blue-800 transition-all"></div>
+                                </div>
+                                <div class="flex-1 pb-10">
+                                    <h4 class="text-[15px] font-bold text-gray-800 group-hover:text-blue-800 leading-tight mb-1 uppercase transition-colors">
+                                        {{ $memo->created_at->format('M d, Y') }} {{ $memo->title }} - {{ $memo->description ?? 'Click to view details.' }}
+                                    </h4>
+                                </div>
+                            </a>
+                        @empty
+                            <p class="text-sm text-gray-400 italic py-4">No recent memoranda.</p>
+                        @endforelse
+                    </div>
+                </div>
+
             </div>
-            <form action="{{ route('admin.login') }}" method="POST" class="p-8">
-                @csrf
-                <div class="mb-5">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Username</label>
-                    <input type="email" name="email" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                    <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-red-600 outline-none">
-                </div>
-                <button type="submit" class="w-full bg-[#b91c1c] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">Sign In</button>
-            </form>
         </div>
     </div>
 
@@ -245,20 +177,11 @@
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
                 <p class="text-[13px] leading-relaxed">All content is in the public domain unless otherwise stated.</p>
             </div>
-            <div class="w-full md:w-1/5 text-center md:text-left">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
-                <ul class="text-[13px] space-y-1">
-                    <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
-                    <li><a href="#" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
-                    <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
-                </ul>
-            </div>
             <div class="w-full md:w-1/4 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 ">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
                     <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
-                    <p><strong>Phone:</strong><br>(062) 991-1234</p>
                 </div>
             </div>
             <div class="w-full md:w-1/6 flex justify-center md:justify-end">
