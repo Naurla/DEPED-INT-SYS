@@ -43,9 +43,9 @@ Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('is
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
 // Public Procurement
-Route::prefix('procurement')->name('procurement.')->group(function () {
-    Route::get('bid-opportunities', [BidOpportunityController::class, 'index'])->name('bid-opportunities.index');
-    Route::get('bid-opportunities/{id}', [BidOpportunityController::class, 'show'])->name('bid-opportunities.show');
+Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
+    Route::get('/', [App\Http\Controllers\Frontend\BidOpportunityController::class, 'index'])->name('index');
+    Route::get('/{id}', [App\Http\Controllers\Frontend\BidOpportunityController::class, 'show'])->name('show');
 });
 
 // ==========================================
@@ -93,12 +93,12 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
         });
 
-        // Procurement Management
-        Route::prefix('procurement/bid-opportunities')->name('bid-opportunities.')->group(function () {
-            Route::get('/', [ProcurementController::class, 'index'])->name('index');
-            Route::post('/', [ProcurementController::class, 'store'])->name('store');
-            Route::put('/{id}', [ProcurementController::class, 'update'])->name('update'); // Added Update Route
-            Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
+      // Procurement Management
+        Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
+            Route::get('/', [App\Http\Controllers\Admin\ProcurementController::class, 'index'])->name('index');
+            Route::post('/', [App\Http\Controllers\Admin\ProcurementController::class, 'store'])->name('store');
+            Route::put('/{id}', [App\Http\Controllers\Admin\ProcurementController::class, 'update'])->name('update');
+            Route::delete('/{id}', [App\Http\Controllers\Admin\ProcurementController::class, 'destroy'])->name('destroy');
         });
-    });
-});
+    }); // End of admin prefix group
+}); // End of auth

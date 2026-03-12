@@ -81,13 +81,22 @@
                 </button>
                 
                 <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-3 mt-1 space-y-3 bg-red-900/30 rounded-lg shadow-inner">
-                    <a href="{{ route('admin.bid-opportunities.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.bid-opportunities.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Bid Opportunities</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">APCPI</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">APP - CSE</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">APP - Non CSE</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Award Notices</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">PMR</a>
-                </div>
+    <a href="{{ route('admin.procurement.index', 'bid-opportunities') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/bid-opportunities*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Bid Opportunities</a>
+    
+    <a href="{{ route('admin.procurement.index', 'apcpi') }}" class="block py-1 text-sm leading-tight pr-2 transition-all {{ request()->is('admin/procurement/apcpi*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">
+    APCPI
+    </a>
+    
+    <a href="{{ route('admin.procurement.index', 'app-cse') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/app-cse*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">APP - CSE</a>
+    
+    <a href="{{ route('admin.procurement.index', 'app-non-cse') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/app-non-cse*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">APP - Non CSE</a>
+    
+    <a href="{{ route('admin.procurement.index', 'award-notices') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/award-notices*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Award Notices</a>
+    
+    <a href="{{ route('admin.procurement.index', 'pmr') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/pmr*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">PMR</a>
+    <a href="{{ route('admin.procurement.index', 'pre-bid-minutes') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/pre-bid-minutes*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Minutes of Pre-Bid</a>
+</div>
+
             </div>
         </nav>
 

@@ -16,5 +16,6 @@ class BidOpportunity extends Model
         'description',
         'jpeg_path',
         'pdf_path',
+        'category',
     ];
 }

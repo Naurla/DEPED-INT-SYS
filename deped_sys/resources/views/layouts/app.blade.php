@@ -79,6 +79,7 @@
             </div>
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] bg-[#e6e6e6] hover:bg-gray-300 border-r border-gray-300 transition-colors">Home</a>
+                
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
@@ -89,6 +90,7 @@
                         <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Citizen's Charter</a>
                     </div>
                 </div>
+                
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>Issuances</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
@@ -97,6 +99,22 @@
                         <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
                     </div>
                 </div>
+
+                {{-- NEW PROCUREMENT DROPDOWN --}}
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
+                    <span>Procurement</span>
+                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50">
+                        <a href="{{ route('procurement.index', 'bid-opportunities') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Bid Opportunities</a>
+                        <a href="{{ route('procurement.index', 'apcpi') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Agency Procurement Compliance and Performance Indicators</a>
+                        <a href="{{ route('procurement.index', 'app-cse') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Annual Procurement Plan – Common User Supplies</a>
+                        <a href="{{ route('procurement.index', 'app-non-cse') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Annual Procurement Plan – Non CSE</a>
+                        <a href="{{ route('procurement.index', 'award-notices') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Award Notices</a>
+                        <a href="{{ route('procurement.index', 'pmr') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Procurement Monitoring Report</a>
+                         <a href="{{ route('procurement.index', 'pre-bid-minutes') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Minutes of Pre-Bid</a>
+                    </div>
+                </div>
+
             </div>
         </div>
     </nav>
@@ -105,63 +123,55 @@
         @yield('content')
     </main>
 
-    {{-- RECENT UPDATES - BULLET TYPE FORM --}}
+    {{-- RECENT UPDATES - SIMPLE BULLET LINK FORM --}}
     <div class="w-full bg-white py-16 border-t border-gray-200">
         <div class="container mx-auto px-6 lg:px-20 max-w-full">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
                 
                 {{-- Column 1: Recent Division Advisories --}}
                 <div class="flex flex-col">
-                    <div class="flex justify-between items-center mb-8 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight pl-5">
+                    <div class="flex justify-between items-center mb-6 border-b pb-3">
+                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">
                             Recent Division Advisories
                         </h3>
-                        
                     </div>
                     
-                    <div class="flex flex-col">
+                    <ul class="space-y-4">
                         @forelse(collect($globalRecentAdvisories ?? [])->take(3) as $adv)
-                            <a href="{{ route('issuances.show', $adv->id) }}" class="issuance-item flex group">
-                                <div class="issuance-line w-12 flex-shrink-0 flex justify-center pt-1">
-                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-gray-300 bg-white z-10 group-hover:bg-[#a52a2a] group-hover:border-[#a52a2a] transition-all"></div>
-                                </div>
-                                <div class="flex-1 pb-10">
-                                    <h4 class="text-[15px] font-bold text-gray-800 group-hover:text-[#a52a2a] leading-tight mb-1 uppercase transition-colors">
-                                        {{ $adv->created_at->format('M d, Y') }} {{ $adv->title }} - {{ $adv->description ?? 'Click to view details.' }}
-                                    </h4>
-                                </div>
-                            </a>
+                            <li class="flex items-start">
+                                {{-- Simple Black Bullet --}}
+                                <span class="text-black mr-3 mt-1.5 flex-shrink-0">•</span>
+                                <a href="{{ route('issuances.show', $adv->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase">
+                                    {{ $adv->created_at->format('M d, Y') }} {{ $adv->title }} - {{ $adv->description ?? 'Click to view details.' }}
+                                </a>
+                            </li>
                         @empty
                             <p class="text-sm text-gray-400 italic py-4">No recent advisories.</p>
                         @endforelse
-                    </div>
+                    </ul>
                 </div>
 
                 {{-- Column 2: Recent Division Memoranda --}}
                 <div class="flex flex-col">
-                    <div class="flex justify-between items-center mb-8 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight pl-5">
+                    <div class="flex justify-between items-center mb-6 border-b pb-3">
+                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">
                              Recent Division Memoranda
                         </h3>
-        
                     </div>
 
-                    <div class="flex flex-col">
+                    <ul class="space-y-4">
                         @forelse(collect($globalRecentMemoranda ?? [])->take(3) as $memo)
-                            <a href="{{ route('issuances.show', $memo->id) }}" class="issuance-item flex group">
-                                <div class="issuance-line w-12 flex-shrink-0 flex justify-center pt-1">
-                                    <div class="w-3.5 h-3.5 rounded-full border-2 border-gray-300 bg-white z-10 group-hover:bg-blue-800 group-hover:border-blue-800 transition-all"></div>
-                                </div>
-                                <div class="flex-1 pb-10">
-                                    <h4 class="text-[15px] font-bold text-gray-800 group-hover:text-blue-800 leading-tight mb-1 uppercase transition-colors">
-                                        {{ $memo->created_at->format('M d, Y') }} {{ $memo->title }} - {{ $memo->description ?? 'Click to view details.' }}
-                                    </h4>
-                                </div>
-                            </a>
+                            <li class="flex items-start">
+                                {{-- Simple Black Bullet --}}
+                                <span class="text-black mr-3 mt-1.5 flex-shrink-0">•</span>
+                                <a href="{{ route('issuances.show', $memo->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase">
+                                    {{ $memo->created_at->format('M d, Y') }} {{ $memo->title }} - {{ $memo->description ?? 'Click to view details.' }}
+                                </a>
+                            </li>
                         @empty
                             <p class="text-sm text-gray-400 italic py-4">No recent memoranda.</p>
                         @endforelse
-                    </div>
+                    </ul>
                 </div>
 
             </div>
@@ -177,11 +187,20 @@
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
                 <p class="text-[13px] leading-relaxed">All content is in the public domain unless otherwise stated.</p>
             </div>
+            <div class="w-full md:w-1/5 text-center md:text-left">
+                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
+                <ul class="text-[13px] space-y-1">
+                    <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
+                    <li><a href="#" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
+                    <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
+                </ul>
+            </div>
             <div class="w-full md:w-1/4 text-center md:text-left">
                 <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800 ">Contact Us</h2>
                 <div class="text-[13px] space-y-3">
                     <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
                     <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
+                    <p><strong>Phone:</strong><br>(062) 991-1234</p>
                 </div>
             </div>
             <div class="w-full md:w-1/6 flex justify-center md:justify-end">

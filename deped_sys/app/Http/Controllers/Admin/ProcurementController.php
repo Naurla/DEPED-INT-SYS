@@ -9,71 +9,77 @@ use Illuminate\Support\Facades\Storage;
 
 class ProcurementController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    // Helper to format the category name nicely for the View
+    private function getCategoryTitle($category)
     {
-        // Fetch the bid opportunities from the database, newest first
-        $bidOpportunities = BidOpportunity::latest()->paginate(10);
-
-        // Return the view and pass the data to it
-        return view('admin.bid-opportunities.index', compact('bidOpportunities'));
+        $titles = [
+            'bid-opportunities' => 'Bid Opportunities',
+            'apcpi' => 'Agency Procurement Compliance and Performance Indicators',
+            'app-cse' => 'Annual Procurement Plan – Common User Supplies',
+            'app-non-cse' => 'Annual Procurement Plan – Non CSE',
+            'award-notices' => 'Award Notices',
+            'pmr' => 'Procurement Monitoring Report',
+            'pre-bid-minutes' => 'Minutes of Pre-Bid Conference',
+        ];
+        return $titles[$category] ?? 'Procurement Documents';
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function index(Request $request, $category)
+    {
+        $categoryTitle = $this->getCategoryTitle($category);
+        
+        $query = BidOpportunity::where('category', $category)->latest();
+        
+        if ($request->has('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        $opportunities = $query->paginate(10);
+
+        return view('admin.procurement.index', compact('opportunities', 'category', 'categoryTitle'));
+    }
+
+    public function store(Request $request, $category)
     {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
-            // Ensures at least ONE file is uploaded, but not necessarily both
-            'jpeg_file' => 'required_without:pdf_file|image|mimes:jpeg,jpg|max:5120',
+            'jpeg_file' => 'required_without:pdf_file|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'required_without:jpeg_file|mimes:pdf|max:10240',
         ]);
 
-        // Create a folder path based on the current month and year
-        $folderPath = 'bid_opportunities/' . now()->format('F_Y');
+        // Dynamically save to a folder based on the category!
+        $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
 
-        // Check if the file exists in the request before trying to store it
-        $jpegPath = $request->hasFile('jpeg_file') 
-            ? $request->file('jpeg_file')->store($folderPath, 'public') 
-            : null;
-            
-        $pdfPath = $request->hasFile('pdf_file') 
-            ? $request->file('pdf_file')->store($folderPath, 'public') 
-            : null;
+        $jpegPath = $request->hasFile('jpeg_file') ? $request->file('jpeg_file')->store($folderPath, 'public') : null;
+        $pdfPath = $request->hasFile('pdf_file') ? $request->file('pdf_file')->store($folderPath, 'public') : null;
 
-        // Create Local Record
         BidOpportunity::create([
             'title' => $request->title,
             'description' => $request->description,
             'jpeg_path' => $jpegPath,
             'pdf_path' => $pdfPath,
+            'category' => $category, // Assign the dynamic category
         ]);
 
-        return redirect()->route('admin.bid-opportunities.index')
-                         ->with('success', 'Bid Opportunity uploaded successfully.');
+        return redirect()->route('admin.procurement.index', $category)
+                         ->with('success', \Illuminate\Support\Str::singular($this->getCategoryTitle($category)) . ' uploaded successfully.');
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, $id)
+    // --- MISSING UPDATE METHOD ADDED HERE ---
+    public function update(Request $request, $category, $id)
     {
-        $bidOpportunity = BidOpportunity::findOrFail($id);
+        $opportunity = BidOpportunity::where('category', $category)->findOrFail($id);
 
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
-            // Files are nullable here because the user might just be updating the title/description
-            'jpeg_file' => 'nullable|image|mimes:jpeg,jpg|max:5120',
+            // Note: Files are nullable here because the user might just be updating the text
+            'jpeg_file' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
         ]);
 
-        $folderPath = 'bid_opportunities/' . now()->format('F_Y');
+        $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
         
         $dataToUpdate = [
             'title' => $request->title,
@@ -83,8 +89,8 @@ class ProcurementController extends Controller
         // Replace Image if a new one is uploaded
         if ($request->hasFile('jpeg_file')) {
             // Delete old file from local storage
-            if ($bidOpportunity->jpeg_path) {
-                Storage::disk('public')->delete($bidOpportunity->jpeg_path);
+            if ($opportunity->jpeg_path) {
+                Storage::disk('public')->delete($opportunity->jpeg_path);
             }
             $dataToUpdate['jpeg_path'] = $request->file('jpeg_file')->store($folderPath, 'public');
         }
@@ -92,40 +98,30 @@ class ProcurementController extends Controller
         // Replace PDF if a new one is uploaded
         if ($request->hasFile('pdf_file')) {
             // Delete old file from local storage
-            if ($bidOpportunity->pdf_path) {
-                Storage::disk('public')->delete($bidOpportunity->pdf_path);
+            if ($opportunity->pdf_path) {
+                Storage::disk('public')->delete($opportunity->pdf_path);
             }
             $dataToUpdate['pdf_path'] = $request->file('pdf_file')->store($folderPath, 'public');
         }
 
         // Apply Updates
-        $bidOpportunity->update($dataToUpdate);
+        $opportunity->update($dataToUpdate);
 
-        return redirect()->route('admin.bid-opportunities.index')
-                         ->with('success', 'Bid Opportunity updated successfully.');
+        return redirect()->route('admin.procurement.index', $category)
+                         ->with('success', \Illuminate\Support\Str::singular($this->getCategoryTitle($category)) . ' updated successfully.');
     }
+    // ----------------------------------------
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy($id)
+    public function destroy($category, $id)
     {
-        $bidOpportunity = BidOpportunity::findOrFail($id);
+        $opportunity = BidOpportunity::findOrFail($id);
 
-        // Delete Image from local storage
-        if ($bidOpportunity->jpeg_path) {
-            Storage::disk('public')->delete($bidOpportunity->jpeg_path);
-        }
+        if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
+        if ($opportunity->pdf_path) Storage::disk('public')->delete($opportunity->pdf_path);
 
-        // Delete PDF from local storage
-        if ($bidOpportunity->pdf_path) {
-            Storage::disk('public')->delete($bidOpportunity->pdf_path);
-        }
+        $opportunity->delete();
 
-        // Delete database record
-        $bidOpportunity->delete();
-
-        return redirect()->route('admin.bid-opportunities.index')
-                         ->with('success', 'Bid Opportunity deleted successfully.');
+        return redirect()->route('admin.procurement.index', $category)
+                         ->with('success', 'Document deleted successfully.');
     }
 }
