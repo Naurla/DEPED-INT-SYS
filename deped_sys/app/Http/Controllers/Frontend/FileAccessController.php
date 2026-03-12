@@ -36,8 +36,14 @@ class FileAccessController extends Controller
             abort(404, 'File does not exist on the server.');
         }
 
-        // 6. Return the file directly to the browser
-        // This will display the PDF inside your iframe natively!
-        return Storage::disk('public')->response($filePath);
+        // 6. Return the file directly to the browser with explicit headers
+        // This guarantees the browser knows it's a PDF and renders it inside the iframe natively!
+        $absolutePath = Storage::disk('public')->path($filePath);
+        $mimeType = Storage::disk('public')->mimeType($filePath);
+        
+        return response()->file($absolutePath, [
+            'Content-Type' => $mimeType,
+            'Content-Disposition' => 'inline; filename="' . basename($filePath) . '"'
+        ]);
     }
 }
