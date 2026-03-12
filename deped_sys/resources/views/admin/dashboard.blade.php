@@ -76,9 +76,9 @@
             @endif
 
             @if(auth()->check() && (auth()->user()->hasRole('procurement-manager') || auth()->user()->hasRole('super-admin')))
-            <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.bid-opportunities.*') ? 'true' : 'false' }} }" class="relative mt-2">
+            <div x-data="{ dropdownOpen: {{ request()->is('admin/procurement*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.bid-opportunities.*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/procurement*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                         <span x-show="sidebarOpen">Procurement Mgt.</span>
@@ -87,14 +87,19 @@
                 </button>
                 
                 <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-2 mt-1 space-y-2 bg-red-900/30 rounded-lg shadow-inner">
-                    <a href="{{ route('admin.bid-opportunities.index') }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->routeIs('admin.bid-opportunities.*') ? 'text-white font-bold' : '' }}">Bid Opportunities</a>
+                    <a href="{{ route('admin.procurement.index', ['category' => 'bid-opportunities']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/bid-opportunities*') ? 'text-white font-bold' : '' }}">Bid Opportunities</a>
                     
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">APCPI</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">APP - CSE</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">APP - Non CSE</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Award Notices</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">PMR</a>
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Pre-Bid Minutes</a>
+                    <a href="{{ route('admin.procurement.index', ['category' => 'apcpi']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/apcpi*') ? 'text-white font-bold' : '' }}">APCPI</a>
+                    
+                    <a href="{{ route('admin.procurement.index', ['category' => 'app-cse']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/app-cse*') ? 'text-white font-bold' : '' }}">APP - CSE</a>
+                    
+                    <a href="{{ route('admin.procurement.index', ['category' => 'app-non-cse']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/app-non-cse*') ? 'text-white font-bold' : '' }}">APP - Non CSE</a>
+                    
+                    <a href="{{ route('admin.procurement.index', ['category' => 'award-notices']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/award-notices*') ? 'text-white font-bold' : '' }}">Award Notices</a>
+                    
+                    <a href="{{ route('admin.procurement.index', ['category' => 'pmr']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/pmr*') ? 'text-white font-bold' : '' }}">PMR</a>
+                    
+                    <a href="{{ route('admin.procurement.index', ['category' => 'pre-bid-minutes']) }}" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all {{ request()->is('admin/procurement/pre-bid-minutes*') ? 'text-white font-bold' : '' }}">Pre-Bid Minutes</a>
                 </div>
             </div>
             @endif
