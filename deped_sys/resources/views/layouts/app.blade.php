@@ -108,17 +108,13 @@
         @yield('content')
     </main>
 
-    {{-- RECENT UPDATES - SIMPLE BULLET LINK FORM --}}
+    {{-- RECENT UPDATES SECTION --}}
     <div class="w-full bg-white py-16 border-t border-gray-200">
         <div class="container mx-auto px-6 lg:px-20 max-w-full">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                
-                {{-- Column 1: Recent Division Advisories --}}
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center mb-6 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">
-                            Recent Division Advisories
-                        </h3>
+                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">Recent Division Advisories</h3>
                     </div>
                     <ul class="space-y-4">
                         @forelse(collect($globalRecentAdvisories ?? [])->take(3) as $adv)
@@ -134,12 +130,9 @@
                     </ul>
                 </div>
 
-                {{-- Column 2: Recent Division Memoranda --}}
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center mb-6 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">
-                             Recent Division Memoranda
-                        </h3>
+                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">Recent Division Memoranda</h3>
                     </div>
                     <ul class="space-y-4">
                         @forelse(collect($globalRecentMemoranda ?? [])->take(3) as $memo)
@@ -185,8 +178,6 @@
             </div>
             <div class="w-full md:w-1/6 flex flex-col items-center md:items-end justify-between self-stretch">
                 <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="h-16 w-auto object-contain">
-                
-                {{-- ADMIN LOGIN ICON - BOTTOM RIGHT --}}
                 <button @click="loginModal = true" class="mt-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />

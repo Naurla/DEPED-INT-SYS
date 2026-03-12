@@ -52,6 +52,30 @@ Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->na
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
+// K to 12 Nested Routes (New)
+Route::prefix('k-to-12')->name('k12.')->group(function () {
+    
+    // About under K to 12
+    Route::prefix('about')->name('about.')->group(function () {
+        Route::get('/curriculum', [IssuanceController::class, 'k12Content'])->name('curriculum');
+        Route::get('/faq', [IssuanceController::class, 'k12Content'])->name('faq');
+    });
+
+    Route::get('/learning-materials', [IssuanceController::class, 'k12Content'])->name('learning-materials');
+
+    // Alternative Learning System (ALS) under K to 12
+    Route::prefix('als')->name('als.')->group(function () {
+        Route::get('/about', [IssuanceController::class, 'alsContent'])->name('about');
+        Route::get('/statistics', [IssuanceController::class, 'alsContent'])->name('stats');
+        Route::get('/stories', [IssuanceController::class, 'alsContent'])->name('stories');
+        Route::get('/modules', [IssuanceController::class, 'alsContent'])->name('modules');
+        Route::get('/implementer-of-the-month', [IssuanceController::class, 'alsContent'])->name('implementer');
+    });
+
+    Route::get('/junior-high', [IssuanceController::class, 'k12Content'])->name('junior-high');
+    Route::get('/senior-high', [IssuanceController::class, 'k12Content'])->name('senior-high');
+});
+
 // Public Procurement
 Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
     Route::get('/', [App\Http\Controllers\Frontend\BidOpportunityController::class, 'index'])->name('index');
