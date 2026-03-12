@@ -4,33 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Issuance;
 use Illuminate\Http\Request;
-// Removed Illuminate\Support\Facades\Storage since we are using Google Drive now
-use Google\Client;
-use Google\Service\Drive;
-use Google\Service\Drive\DriveFile;
-use Google\Service\Drive\Permission;
+use Illuminate\Support\Facades\Storage;
 
 class IssuanceController extends Controller
 {
-    private $driveService;
-    // IMPORTANT: Paste the Google Drive folder ID where you want Issuances saved
-    private $parentFolderId = '1OJCkFiAR3wdpiS-oCsoui_4HjHZQ-vDM'; 
-
-    public function __construct()
-    {
-        // Initialize the Google Client with your .env credentials
-        $client = new Client();
-        $client->setClientId(env('GOOGLE_CLIENT_ID'));
-        $client->setClientSecret(env('GOOGLE_CLIENT_SECRET'));
-        $client->addScope(Drive::DRIVE);
-        
-        // Automatically exchange the refresh token for a fresh access token
-        $client->fetchAccessTokenWithRefreshToken(env('GOOGLE_REFRESH_TOKEN'));
-
-        // Set the Drive service
-        $this->driveService = new Drive($client);
-    }
-
     // --- PUBLIC VIEWS (Kept exactly as you wrote them) ---
     public function advisories()
     {
@@ -99,7 +76,7 @@ class IssuanceController extends Controller
         return view('issuances.show', compact('issuance', 'recentAdvisories', 'recentMemoranda'));
     }
 
-    // --- ADMIN CRUD METHODS (Updated for Google Drive) ---
+    // --- ADMIN CRUD METHODS ---
     public function adminIndex(Request $request)
     {
         // Get the type from the URL (e.g., ?type=memorandum), default to advisory
@@ -119,19 +96,15 @@ class IssuanceController extends Controller
             'pdf_file' => 'required|mimes:pdf|max:10240', // Max 10MB PDF
         ]);
 
-        // 1. Create folder structure: Issuances > Type (e.g., Advisory)
-        $categoryFolderId = $this->getOrCreateFolder('Issuances', $this->parentFolderId);
-        $typeFolderId = $this->getOrCreateFolder(ucfirst($validated['type']), $categoryFolderId);
-
-        // 2. Upload the file to the specific type folder
-        $pdfDriveId = $this->uploadToDrive($request->file('pdf_file'), $typeFolderId);
+        // Upload the file to local public storage
+        $path = $request->file('pdf_file')->store('issuances/' . $validated['type'], 'public');
         
-        // 3. Save to database using the Google Drive ID
+        // Save to database
         Issuance::create([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
-            'pdf_path' => $pdfDriveId,
+            'pdf_path' => $path,
         ]);
 
         return back()->with('success', ucfirst($validated['type']) . ' uploaded successfully!');
@@ -153,20 +126,13 @@ class IssuanceController extends Controller
         // Replace PDF if a new one is uploaded
         if ($request->hasFile('pdf_file')) {
             
-            // Delete old file from Google Drive
+            // Delete old file from local storage
             if ($issuance->pdf_path) {
-                try {
-                    $this->driveService->files->delete($issuance->pdf_path);
-                } catch (\Exception $e) {
-                    \Log::warning('Could not delete old Drive file: ' . $e->getMessage());
-                }
+                Storage::disk('public')->delete($issuance->pdf_path);
             }
             
-            // Upload the new file to Google Drive
-            $categoryFolderId = $this->getOrCreateFolder('Issuances', $this->parentFolderId);
-            $typeFolderId = $this->getOrCreateFolder(ucfirst($issuance->type), $categoryFolderId);
-            
-            $dataToUpdate['pdf_path'] = $this->uploadToDrive($request->file('pdf_file'), $typeFolderId);
+            // Upload the new file to local public storage
+            $dataToUpdate['pdf_path'] = $request->file('pdf_file')->store('issuances/' . $issuance->type, 'public');
         }
 
         $issuance->update($dataToUpdate);
@@ -176,76 +142,14 @@ class IssuanceController extends Controller
 
     public function destroy(Issuance $issuance)
     {
-        // Delete PDF file from Google Drive
+        // Delete PDF file from local storage
         if ($issuance->pdf_path) {
-            try {
-                $this->driveService->files->delete($issuance->pdf_path);
-            } catch (\Exception $e) {
-                \Log::warning('Could not delete Drive file during record deletion: ' . $e->getMessage());
-            }
+            Storage::disk('public')->delete($issuance->pdf_path);
         }
         
         // Delete database record
         $issuance->delete();
 
         return back()->with('success', 'Issuance deleted successfully!');
-    }
-
-    // --- GOOGLE DRIVE HELPER METHODS ---
-
-    private function getOrCreateFolder($name, $parentId)
-    {
-        $query = "name = '$name' and mimeType = 'application/vnd.google-apps.folder' and '$parentId' in parents and trashed = false";
-        $results = $this->driveService->files->listFiles(['q' => $query]);
-
-        if (count($results->getFiles()) > 0) {
-            return $results->getFiles()[0]->getId();
-        }
-
-        $folderMetadata = new DriveFile([
-            'name' => $name,
-            'mimeType' => 'application/vnd.google-apps.folder',
-            'parents' => [$parentId]
-        ]);
-
-        $folder = $this->driveService->files->create($folderMetadata, ['fields' => 'id']);
-        
-        // Try to set DepEd domain permissions (Falls back quietly if unable)
-        $this->setDomainPermissions($folder->getId());
-
-        return $folder->getId();
-    }
-
-    private function uploadToDrive($file, $parentId)
-    {
-        $fileMetadata = new DriveFile([
-            'name' => time() . '_' . $file->getClientOriginalName(),
-            'parents' => [$parentId]
-        ]);
-
-        $content = file_get_contents($file->getRealPath());
-        $uploadedFile = $this->driveService->files->create($fileMetadata, [
-            'data' => $content,
-            'mimeType' => $file->getMimeType(),
-            'uploadType' => 'multipart',
-            'fields' => 'id'
-        ]);
-
-        return $uploadedFile->id;
-    }
-
-    private function setDomainPermissions($fileId)
-    {
-        try {
-            $permission = new Permission([
-                'type' => 'domain',
-                'role' => 'reader',
-                'domain' => 'deped.gov.ph' 
-            ]);
-
-            $this->driveService->permissions->create($fileId, $permission);
-        } catch (\Exception $e) {
-            \Log::warning('Notice: Could not set domain permissions. Error: ' . $e->getMessage());
-        }
     }
 }

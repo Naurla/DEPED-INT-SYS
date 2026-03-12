@@ -50,7 +50,7 @@
 
             <div class="flex justify-end pt-2">
                 <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-lg shadow-sm transition-colors">
-                    Upload to Google Drive
+                    Upload Bid Opportunity
                 </button>
             </div>
         </form>
@@ -78,7 +78,7 @@
 
                             <td class="p-4">
                                 @if($bid->jpeg_path)
-                                    <img src="https://drive.google.com/thumbnail?id={{ $bid->jpeg_path }}&sz=w200" alt="Bid Image" class="w-24 h-auto rounded shadow-sm border">
+                                    <img src="{{ asset('storage/' . $bid->jpeg_path) }}" alt="Bid Image" class="w-24 h-auto rounded shadow-sm border">
                                 @else
                                     <span class="text-sm text-gray-400">No Image</span>
                                 @endif
@@ -86,7 +86,7 @@
                             
                             <td class="p-4">
                                 @if($bid->pdf_path)
-                                    <a href="https://drive.google.com/file/d/{{ $bid->pdf_path }}/view" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center text-sm">
+                                    <a href="{{ asset('storage/' . $bid->pdf_path) }}" target="_blank" class="text-blue-600 font-bold hover:underline flex items-center text-sm">
                                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         View PDF
                                     </a>
