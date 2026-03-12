@@ -12,6 +12,10 @@ use App\Http\Controllers\Frontend\FileAccessController;
 use App\Models\Banner;
 use App\Models\Advisory; 
 
+// Import the new Curriculum Controllers and alias them to avoid conflicts
+use App\Http\Controllers\Frontend\CurriculumController as FrontendCurriculumController;
+use App\Http\Controllers\Admin\CurriculumController as AdminCurriculumController;
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -52,12 +56,13 @@ Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->na
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
-// K to 12 Nested Routes (New)
+// K to 12 Nested Routes
 Route::prefix('k-to-12')->name('k12.')->group(function () {
     
     // About under K to 12
     Route::prefix('about')->name('about.')->group(function () {
-        Route::get('/curriculum', [IssuanceController::class, 'k12Content'])->name('curriculum');
+        // UPDATED: Now points to the new dynamic Frontend CurriculumController
+        Route::get('/curriculum', [FrontendCurriculumController::class, 'index'])->name('curriculum');
         Route::get('/faq', [IssuanceController::class, 'k12Content'])->name('faq');
     });
 
@@ -78,8 +83,8 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
 
 // Public Procurement
 Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
-    Route::get('/', [App\Http\Controllers\Frontend\BidOpportunityController::class, 'index'])->name('index');
-    Route::get('/{id}', [App\Http\Controllers\Frontend\BidOpportunityController::class, 'show'])->name('show');
+    Route::get('/', [BidOpportunityController::class, 'index'])->name('index');
+    Route::get('/{id}', [BidOpportunityController::class, 'show'])->name('show');
 });
 
 // ==========================================
@@ -99,6 +104,22 @@ Route::middleware(['auth'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+
+        // NEW: Curriculum Management Admin Routes
+        Route::prefix('curriculum')->name('curriculum.')->group(function () {
+            // Main Page Content
+            Route::get('/', [AdminCurriculumController::class, 'index'])->name('index');
+            Route::post('/page', [AdminCurriculumController::class, 'updatePage'])->name('update_page');
+
+            // Learning Strands
+            Route::post('/strands', [AdminCurriculumController::class, 'storeStrand'])->name('strands.store');
+            Route::put('/strands/{strand}', [AdminCurriculumController::class, 'updateStrand'])->name('strands.update');
+            Route::delete('/strands/{strand}', [AdminCurriculumController::class, 'destroyStrand'])->name('strands.destroy');
+
+            // Learning Materials (PDFs)
+            Route::post('/materials', [AdminCurriculumController::class, 'storeMaterial'])->name('materials.store');
+            Route::delete('/materials/{material}', [AdminCurriculumController::class, 'destroyMaterial'])->name('materials.destroy');
+        });
 
         // Super Admin: User Management
         Route::middleware(['role:super-admin'])->group(function () {
@@ -129,10 +150,10 @@ Route::middleware(['auth'])->group(function () {
 
         // Procurement Management
         Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
-            Route::get('/', [App\Http\Controllers\Admin\ProcurementController::class, 'index'])->name('index');
-            Route::post('/', [App\Http\Controllers\Admin\ProcurementController::class, 'store'])->name('store');
-            Route::put('/{id}', [App\Http\Controllers\Admin\ProcurementController::class, 'update'])->name('update');
-            Route::delete('/{id}', [App\Http\Controllers\Admin\ProcurementController::class, 'destroy'])->name('destroy');
+            Route::get('/', [ProcurementController::class, 'index'])->name('index');
+            Route::post('/', [ProcurementController::class, 'store'])->name('store');
+            Route::put('/{id}', [ProcurementController::class, 'update'])->name('update');
+            Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
         });
     }); // End of admin prefix group
 }); // End of auth
