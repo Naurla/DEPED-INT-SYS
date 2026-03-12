@@ -16,6 +16,16 @@ use App\Models\Advisory;
 // PUBLIC ROUTES
 // ==========================================
 
+// NEW: Foolproof Image Route (Bypasses Windows Storage Link issues)
+Route::get('/serve-image/{path}', function($path) {
+    $absolutePath = storage_path('app/public/' . $path);
+    if (!file_exists($absolutePath)) {
+        abort(404, 'Image not found on disk.');
+    }
+    return response()->file($absolutePath);
+})->where('path', '.*')->name('serve.image');
+
+
 Route::get('/', function () {
     $latestAdvisory = Advisory::latest()->first(); 
     $dbBanners = Banner::all();
@@ -54,11 +64,11 @@ Route::prefix('procurement/{category}')->name('procurement.')->group(function ()
 
 Route::middleware(['auth'])->group(function () {
 
-    // LOGOUT ROUTE (Placed here so it is accessible as route('logout'))
+    // LOGOUT ROUTE
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
-    // Secure File Access
-    Route::get('/procurement/bid-opportunities/file/{id}/{type}', [FileAccessController::class, 'show'])
+    // Secure File Access (Now works for all categories!)
+    Route::get('/procurement/file/{id}/{type}', [FileAccessController::class, 'show'])
         ->name('procurement.file.access');
 
     // Protected Admin Management
@@ -93,7 +103,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
         });
 
-      // Procurement Management
+        // Procurement Management
         Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
             Route::get('/', [App\Http\Controllers\Admin\ProcurementController::class, 'index'])->name('index');
             Route::post('/', [App\Http\Controllers\Admin\ProcurementController::class, 'store'])->name('store');
