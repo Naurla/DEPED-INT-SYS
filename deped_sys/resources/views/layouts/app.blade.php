@@ -62,9 +62,7 @@
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
                 
                 {{-- Home --}}
-                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] border-r border-gray-300 transition-colors {{ request()->is('/') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
-                    Home
-                </a>
+                <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] border-r border-gray-300 transition-colors {{ request()->is('/') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">Home</a>
                 
                 {{-- About --}}
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->is('about*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
@@ -83,6 +81,44 @@
                     <div class="hidden group-hover:block absolute left-0 top-full w-64 bg-white shadow-2xl border border-gray-200 py-2 z-50">
                         <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
                         <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
+                    </div>
+                </div>
+
+                {{-- K to 12 --}}
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->routeIs('k12.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                    <span>K to 12</span>
+                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-2xl border border-gray-200 py-2 z-50">
+                        
+                        <div class="relative group/sub">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>About</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="{{ route('k12.about.curriculum') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">K to 12 Basic Education Curriculum</a>
+                                <a href="{{ route('k12.about.faq') }}" class="block px-6 py-3 hover:bg-gray-100">FAQ</a>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('k12.learning-materials') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Learning Materials</a>
+
+                        <div class="relative group/sub">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>Alternative Learning System (ALS)</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="{{ route('k12.als.about') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
+                                <a href="{{ route('k12.als.stats') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Enrollment Statistics</a>
+                                <a href="{{ route('k12.als.stories') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">ALS Stories</a>
+                                <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Modules</a>
+                                <a href="{{ route('k12.als.implementer') }}" class="block px-6 py-3 hover:bg-gray-100">Featured ALS Implementer of the Month</a>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('k12.junior-high') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Junior High School</a>
+                        <a href="{{ route('k12.senior-high') }}" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">Senior High School</a>
                     </div>
                 </div>
 
