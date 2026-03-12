@@ -25,13 +25,13 @@
     }">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
-        <div class="container mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
-            <div class="flex flex-col md:flex-row items-center gap-4 md:gap-6 text-center md:text-left">
+        <div class="container mx-auto flex flex-row lg:flex-row items-center justify-between gap-6">
+            <div class="flex flex-row md:flex-row items-start gap-4 md:gap-6 text-center md:text-left">
                 <div class="flex items-center gap-4">
                     <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
                     <img src="{{ asset('images/r9.png') }}" alt="Region IX Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
                 </div>
-                <div class="flex flex-col font-cinzel text-white items-center md:items-start">
+                <div class=" flex-col font-cinzel text-white items-center md:items-start hidden md:flex">
                     <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
                     <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
                     <div class="w-full border-b-[2px] border-white my-1"></div>
