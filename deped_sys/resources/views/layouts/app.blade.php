@@ -81,6 +81,42 @@
                 </div>
 
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
+                    <span>K to 12</span>
+                    <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-2xl border border-gray-200 py-2 z-50">
+                        <div class="relative group/sub">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>About</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="{{ route('k12.about.curriculum') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">K to 12 Basic Education Curriculum</a>
+                                <a href="{{ route('k12.about.faq') }}" class="block px-6 py-3 hover:bg-gray-100">FAQ</a>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('k12.learning-materials') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Learning Materials</a>
+
+                        <div class="relative group/sub">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>Alternative Learning System (ALS)</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="{{ route('k12.als.about') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
+                                <a href="{{ route('k12.als.stats') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Enrollment Statistics</a>
+                                <a href="{{ route('k12.als.stories') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">ALS Stories</a>
+                                <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Modules</a>
+                                <a href="{{ route('k12.als.implementer') }}" class="block px-6 py-3 hover:bg-gray-100">Featured ALS Implementer of the Month</a>
+                            </div>
+                        </div>
+
+                        <a href="{{ route('k12.junior-high') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Junior High School</a>
+                        <a href="{{ route('k12.senior-high') }}" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">Senior High School</a>
+                    </div>
+                </div>
+
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 hover:bg-white cursor-pointer flex items-center justify-center transition-colors">
                     <span>Procurement</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-max bg-white shadow-2xl border border-gray-200 py-2 z-50">
@@ -101,17 +137,13 @@
         @yield('content')
     </main>
 
-    {{-- RECENT UPDATES - SIMPLE BULLET LINK FORM --}}
+    {{-- RECENT UPDATES SECTION --}}
     <div class="w-full bg-white py-16 border-t border-gray-200">
         <div class="container mx-auto px-6 lg:px-20 max-w-full">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12">
-                
-                {{-- Column 1: Recent Division Advisories --}}
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center mb-6 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">
-                            Recent Division Advisories
-                        </h3>
+                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">Recent Division Advisories</h3>
                     </div>
                     <ul class="space-y-4">
                         @forelse(collect($globalRecentAdvisories ?? [])->take(3) as $adv)
@@ -127,12 +159,9 @@
                     </ul>
                 </div>
 
-                {{-- Column 2: Recent Division Memoranda --}}
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center mb-6 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">
-                             Recent Division Memoranda
-                        </h3>
+                        <h3 class="text-xl font-bold text-gray-800 uppercase tracking-tight">Recent Division Memoranda</h3>
                     </div>
                     <ul class="space-y-4">
                         @forelse(collect($globalRecentMemoranda ?? [])->take(3) as $memo)
@@ -178,8 +207,6 @@
             </div>
             <div class="w-full md:w-1/6 flex flex-col items-center md:items-end justify-between self-stretch">
                 <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="h-16 w-auto object-contain">
-                
-                {{-- ADMIN LOGIN ICON - BOTTOM RIGHT --}}
                 <button @click="loginModal = true" class="mt-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
