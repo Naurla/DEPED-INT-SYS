@@ -113,7 +113,7 @@
                 {{-- Column 1: Recent Division Advisories --}}
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center mb-8 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight">
+                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight pl-5">
                             Recent Division Advisories
                         </h3>
                         
@@ -140,7 +140,7 @@
                 {{-- Column 2: Recent Division Memoranda --}}
                 <div class="flex flex-col">
                     <div class="flex justify-between items-center mb-8 border-b pb-3">
-                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight">
+                        <h3 class="text-xl font-bold text-gray-800 uppercase flex items-center tracking-tight pl-5">
                              Recent Division Memoranda
                         </h3>
         
