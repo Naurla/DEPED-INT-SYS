@@ -13,10 +13,14 @@ use App\Models\Banner;
 use App\Models\Advisory; 
 use App\Models\Faq; // Imported FAQ Model
 
-// Import the new Curriculum Controllers and alias them to avoid conflicts
+// Import the Curriculum Controllers and alias them to avoid conflicts
 use App\Http\Controllers\Frontend\CurriculumController as FrontendCurriculumController;
 use App\Http\Controllers\Admin\CurriculumController as AdminCurriculumController;
 use App\Http\Controllers\Admin\FaqController; // Imported Admin Faq Controller
+
+// NEW: Import Learning Materials Controllers
+use App\Http\Controllers\Frontend\LearningMaterialsController as FrontendLearningMaterialsController;
+use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMaterialsController;
 
 // ==========================================
 // PUBLIC ROUTES
@@ -58,6 +62,10 @@ Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->na
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
+// NEW: Frontend Learning Materials Routes
+Route::get('/k-to-12/learning-materials', [FrontendLearningMaterialsController::class, 'index'])->name('learning_materials.index');
+Route::get('/k-to-12/learning-materials/{id}', [FrontendLearningMaterialsController::class, 'show'])->name('learning_materials.show');
+
 // K to 12 Nested Routes
 Route::prefix('k-to-12')->name('k12.')->group(function () {
     
@@ -72,8 +80,6 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
             return view('curriculum.faq', compact('faqs'));
         })->name('faq');
     });
-
-    Route::get('/learning-materials', [IssuanceController::class, 'k12Content'])->name('learning-materials');
 
     // Alternative Learning System (ALS) under K to 12
     Route::prefix('als')->name('als.')->group(function () {
@@ -112,8 +118,12 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-        // NEW: FAQ Management Admin Route
+        // FAQ Management Admin Route
         Route::resource('faq', FaqController::class)->except(['create', 'show', 'edit']);
+
+        // NEW: Learning Materials Admin Routes
+        Route::resource('learning-materials', AdminLearningMaterialsController::class);
+        Route::get('get-learning-materials-data', [AdminLearningMaterialsController::class, 'getData'])->name('learning_materials.data');
 
         // Curriculum Management Admin Routes
         Route::prefix('curriculum')->name('curriculum.')->group(function () {
