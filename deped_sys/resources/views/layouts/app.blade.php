@@ -110,7 +110,7 @@
                                 <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div class="hidden group-hover/sub:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
-                                <a href="{{ route('k12.als.about') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
+                                <a href="https://www.deped.gov.ph/about-als/" target="_blank" rel="noopener noreferrer" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
                                 <a href="{{ route('k12.als.stats') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Enrollment Statistics</a>
                                 <a href="{{ route('k12.als.stories') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">ALS Stories</a>
                                 <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Modules</a>
