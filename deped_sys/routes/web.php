@@ -11,22 +11,26 @@ use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
 use App\Models\Banner;
 use App\Models\Advisory; 
-use App\Models\Faq; // Imported FAQ Model
+use App\Models\Faq; 
 
-// Import the Curriculum Controllers and alias them to avoid conflicts
+// Curriculum Controllers
 use App\Http\Controllers\Frontend\CurriculumController as FrontendCurriculumController;
 use App\Http\Controllers\Admin\CurriculumController as AdminCurriculumController;
-use App\Http\Controllers\Admin\FaqController; // Imported Admin Faq Controller
+use App\Http\Controllers\Admin\FaqController; 
 
-// NEW: Import Learning Materials Controllers
+// Learning Materials Controllers
 use App\Http\Controllers\Frontend\LearningMaterialsController as FrontendLearningMaterialsController;
 use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMaterialsController;
+
+// NEW: Modules Controllers
+use App\Http\Controllers\Frontend\ModulesController as FrontendModulesController;
+use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
 
-// NEW: Foolproof Image Route (Bypasses Windows Storage Link issues)
+// Foolproof Image Route
 Route::get('/serve-image/{path}', function($path) {
     $absolutePath = storage_path('app/public/' . $path);
     if (!file_exists($absolutePath)) {
@@ -62,7 +66,7 @@ Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->na
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
-// NEW: Frontend Learning Materials Routes
+// Frontend Learning Materials Routes
 Route::get('/k-to-12/learning-materials', [FrontendLearningMaterialsController::class, 'index'])->name('learning_materials.index');
 Route::get('/k-to-12/learning-materials/{id}', [FrontendLearningMaterialsController::class, 'show'])->name('learning_materials.show');
 
@@ -71,22 +75,23 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     
     // About under K to 12
     Route::prefix('about')->name('about.')->group(function () {
-        // UPDATED: Now points to the new dynamic Frontend CurriculumController
         Route::get('/curriculum', [FrontendCurriculumController::class, 'index'])->name('curriculum');
-        
-        // UPDATED: Frontend dynamic FAQ Route
         Route::get('/faq', function () {
             $faqs = Faq::where('is_active', true)->get();
             return view('curriculum.faq', compact('faqs'));
         })->name('faq');
     });
 
-    // Alternative Learning System (ALS) under K to 12
+    // Alternative Learning System (ALS)
     Route::prefix('als')->name('als.')->group(function () {
         Route::get('/about', [IssuanceController::class, 'alsContent'])->name('about');
         Route::get('/statistics', [IssuanceController::class, 'alsContent'])->name('stats');
         Route::get('/stories', [IssuanceController::class, 'alsContent'])->name('stories');
-        Route::get('/modules', [IssuanceController::class, 'alsContent'])->name('modules');
+        
+        // UPDATED: Now points to the dynamic Modules Controller
+        Route::get('/modules', [FrontendModulesController::class, 'index'])->name('modules');
+        Route::get('/modules/{id}', [FrontendModulesController::class, 'show'])->name('modules.show');
+        
         Route::get('/implementer-of-the-month', [IssuanceController::class, 'alsContent'])->name('implementer');
     });
 
@@ -109,7 +114,7 @@ Route::middleware(['auth'])->group(function () {
     // LOGOUT ROUTE
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
 
-    // Secure File Access (Now works for all categories!)
+    // Secure File Access
     Route::get('/procurement/file/{id}/{type}', [FileAccessController::class, 'show'])
         ->name('procurement.file.access');
 
@@ -118,25 +123,24 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-        // FAQ Management Admin Route
+        // FAQ Management
         Route::resource('faq', FaqController::class)->except(['create', 'show', 'edit']);
 
-        // NEW: Learning Materials Admin Routes
+        // Learning Materials Admin
         Route::resource('learning-materials', AdminLearningMaterialsController::class);
         Route::get('get-learning-materials-data', [AdminLearningMaterialsController::class, 'getData'])->name('learning_materials.data');
 
-        // Curriculum Management Admin Routes
+        // NEW: Modules Admin
+        Route::resource('modules', AdminModulesController::class);
+        Route::get('get-modules-data', [AdminModulesController::class, 'getData'])->name('modules.data');
+
+        // Curriculum Management
         Route::prefix('curriculum')->name('curriculum.')->group(function () {
-            // Main Page Content
             Route::get('/', [AdminCurriculumController::class, 'index'])->name('index');
             Route::post('/page', [AdminCurriculumController::class, 'updatePage'])->name('update_page');
-
-            // Learning Strands
             Route::post('/strands', [AdminCurriculumController::class, 'storeStrand'])->name('strands.store');
             Route::put('/strands/{strand}', [AdminCurriculumController::class, 'updateStrand'])->name('strands.update');
             Route::delete('/strands/{strand}', [AdminCurriculumController::class, 'destroyStrand'])->name('strands.destroy');
-
-            // Learning Materials (PDFs)
             Route::post('/materials', [AdminCurriculumController::class, 'storeMaterial'])->name('materials.store');
             Route::delete('/materials/{material}', [AdminCurriculumController::class, 'destroyMaterial'])->name('materials.destroy');
         });
@@ -148,7 +152,7 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         });
 
-        // Info Office: Advisories & Banners
+        // Info Office
         Route::middleware(['role:info-office'])->group(function () {
             Route::get('/advisories', [AdvisoryController::class, 'index'])->name('advisory.index');
             Route::post('/advisories/store', [AdvisoryController::class, 'store'])->name('advisories.store');
@@ -175,5 +179,5 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/{id}', [ProcurementController::class, 'update'])->name('update');
             Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
         });
-    }); // End of admin prefix group
-}); // End of auth
+    }); 
+});

@@ -86,7 +86,7 @@
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Enrollment Statistics</a>
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">ALS Stories</a>
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Modules</a>
+                            <a href="{{ route('admin.modules.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.modules.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Modules</a>
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Featured Implementer</a>
                         </div>
                     </div>
