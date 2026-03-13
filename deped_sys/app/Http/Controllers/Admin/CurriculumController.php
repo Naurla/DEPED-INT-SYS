@@ -13,10 +13,8 @@ class CurriculumController extends Controller
 {
     public function index()
     {
-        // Get or create the single curriculum page record
-        $pageData = CurriculumPage::firstOrCreate([], [
-            'description' => 'Enter your curriculum description here.'
-        ]);
+        // Get or create the single curriculum page record (removed description default)
+        $pageData = CurriculumPage::firstOrCreate([]);
         
         $strands = LearningStrand::with('materials')->orderBy('sort_order')->get();
 
@@ -25,17 +23,25 @@ class CurriculumController extends Controller
 
     public function updatePage(Request $request)
     {
+        // Validating the image and the new remove_image flag (description removed)
         $request->validate([
-            'description' => 'nullable|string',
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'remove_image' => 'nullable|boolean',
         ]);
 
-        $page = CurriculumPage::first();
-        $page->description = $request->description;
+        $page = CurriculumPage::firstOrCreate([]);
+
+        // Handle Image Removal (Triggered when the "Remove Picture" button is clicked)
+        if ($request->input('remove_image') == 1) {
+            if ($page->banner_image_path) {
+                Storage::disk('public')->delete($page->banner_image_path);
+                $page->banner_image_path = null;
+            }
+        }
 
         // Handle Image Upload & Replace
         if ($request->hasFile('banner_image')) {
-            // Delete old image if it exists
+            // Delete old image if it exists before saving the new one
             if ($page->banner_image_path) {
                 Storage::disk('public')->delete($page->banner_image_path);
             }
@@ -46,7 +52,7 @@ class CurriculumController extends Controller
 
         $page->save();
 
-        return back()->with('success', 'Curriculum page updated successfully.');
+        return back()->with('success', 'Curriculum banner updated successfully.');
     }
 
     public function storeStrand(Request $request)
