@@ -103,21 +103,22 @@
             @endforelse
         </div>
     </div>
-
-    {{-- Element 3: External Links --}}
+{{-- Element 3: External Links (Dynamic) --}}
+    <h3 class="font-cinzel font-bold text-3xl text-gray-900 uppercase tracking-wider border-b-2 border-gray-200 pb-4 mb-8 text-center md:text-left">
+        Curriculum Guide
+    </h3>
+    
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <a href="https://www.deped.gov.ph/k-to-12/about/k-to-12-basic-education-curriculum/academic-track/" target="_blank" class="flex items-center justify-center p-6 bg-white border border-gray-200 text-[#003366] hover:bg-[#003366] hover:text-white rounded-2xl font-bold font-cinzel text-lg shadow-sm hover:shadow-xl transition-all duration-300 text-center group">
-            Academic Track
-        </a>
-        <a href="https://www.deped.gov.ph/k-to-12/about/k-to-12-basic-education-curriculum/academic-track/" target="_blank" class="flex items-center justify-center p-6 bg-white border border-gray-200 text-[#003366] hover:bg-[#003366] hover:text-white rounded-2xl font-bold font-cinzel text-lg shadow-sm hover:shadow-xl transition-all duration-300 text-center group">
-            Technical-Vocational-Livelihood Track
-        </a>
-        <a href="https://www.deped.gov.ph/k-to-12/about/k-to-12-basic-education-curriculum/academic-track/" target="_blank" class="flex items-center justify-center p-6 bg-white border border-gray-200 text-[#003366] hover:bg-[#003366] hover:text-white rounded-2xl font-bold font-cinzel text-lg shadow-sm hover:shadow-xl transition-all duration-300 text-center group">
-            Sports Track
-        </a>
-        <a href="https://www.deped.gov.ph/k-to-12/about/k-to-12-basic-education-curriculum/academic-track/" target="_blank" class="flex items-center justify-center p-6 bg-white border border-gray-200 text-[#003366] hover:bg-[#003366] hover:text-white rounded-2xl font-bold font-cinzel text-lg shadow-sm hover:shadow-xl transition-all duration-300 text-center group">
-            Arts and Design Track
-        </a>
+        @forelse($guides as $guide)
+            <a href="{{ $guide->link }}" target="_blank" rel="noopener noreferrer" 
+               class="flex items-center justify-center p-6 bg-white border border-gray-200 text-[#003366] hover:bg-[#003366] hover:text-white rounded-2xl font-bold font-cinzel text-lg shadow-sm hover:shadow-xl transition-all duration-300 text-center group min-h-[100px]">
+                {{ $guide->title }}
+            </a>
+        @empty
+            <div class="col-span-full text-center py-8 text-gray-400 font-sans italic">
+                No curriculum guides currently available.
+            </div>
+        @endforelse
     </div>
 
 </div>

@@ -143,6 +143,9 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/strands/{strand}', [AdminCurriculumController::class, 'destroyStrand'])->name('strands.destroy');
             Route::post('/materials', [AdminCurriculumController::class, 'storeMaterial'])->name('materials.store');
             Route::delete('/materials/{material}', [AdminCurriculumController::class, 'destroyMaterial'])->name('materials.destroy');
+            Route::post('/guides', [AdminCurriculumController::class, 'storeGuide'])->name('guides.store');
+            Route::put('/guides/{guide}', [AdminCurriculumController::class, 'updateGuide'])->name('guides.update');
+            Route::delete('/guides/{guide}', [AdminCurriculumController::class, 'destroyGuide'])->name('guides.destroy');
         });
 
         // Super Admin: User Management

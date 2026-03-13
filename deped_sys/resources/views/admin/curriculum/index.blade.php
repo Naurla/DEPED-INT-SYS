@@ -4,6 +4,7 @@
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
     .font-cinzel { font-family: 'Cinzel', serif; }
+    [x-cloak] { display: none !important; }
 </style>
 
 <div class="container mx-auto p-4">
@@ -41,7 +42,6 @@
                      @mouseleave="hovering = false">
                     
                     <div class="w-full relative">
-                        {{-- FIX: Removed object-cover and max-h so the whole picture shows naturally --}}
                         <img :src="imageUrl" alt="Banner Preview" class="w-full h-auto block rounded">
                         
                         <div x-show="hovering" 
@@ -141,7 +141,7 @@
         </div>
 
         {{-- MODAL: Add New Learning Strand --}}
-        <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-cloak>
             <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                 <div x-show="showModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showModal = false"></div>
 
@@ -159,17 +159,14 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1">Title <span class="text-gray-400 font-normal">(e.g., LEARNING STRAND 1)</span></label>
                             <input type="text" name="name" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" required>
                         </div>
-                        
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Content Title <span class="text-gray-400 font-normal">(e.g., COMMUNICATION SKILLS)</span></label>
                             <input type="text" name="content_title" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2">
                         </div>
-
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Content Description</label>
                             <textarea name="content_description" rows="4" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2"></textarea>
                         </div>
-
                         <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                             <button type="button" @click="showModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
                             <button type="submit" class="px-4 py-2 bg-[#003366] text-white rounded hover:bg-[#002244] font-bold shadow-sm transition">Save Strand</button>
@@ -180,7 +177,7 @@
         </div>
 
         {{-- MODAL: Add New File --}}
-        <div x-show="showFileModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;">
+        <div x-show="showFileModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-cloak>
             <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                 <div x-show="showFileModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showFileModal = false"></div>
 
@@ -195,17 +192,14 @@
                     <form action="{{ route('admin.curriculum.materials.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4 font-sans">
                         @csrf
                         <input type="hidden" name="learning_strand_id" x-bind:value="activeStrandId">
-                        
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">PDF Title</label>
                             <input type="text" name="title" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-green-600 focus:border-green-600 p-2" required>
                         </div>
-
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Select File (.pdf)</label>
                             <input type="file" name="pdf_file" accept=".pdf" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 border border-gray-300 rounded-md p-1" required>
                         </div>
-
                         <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                             <button type="button" @click="showFileModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
                             <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 font-bold shadow-sm transition">Upload</button>
@@ -215,6 +209,114 @@
             </div>
         </div>
     </div>
+
+
+    {{-- Section 3: Curriculum Guides (NEW SECTION) --}}
+    <div class="bg-gray-50 p-6 rounded shadow-sm border border-gray-200" x-data="{ showEditModal: false, editId: '', editTitle: '', editLink: '', editAction: '' }">
+        <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
+            <h3 class="text-2xl font-bold font-cinzel text-gray-800">Curriculum Guides</h3>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {{-- Add New Guide Form --}}
+            <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm h-fit">
+                <h4 class="font-bold text-gray-700 uppercase text-sm mb-4 font-cinzel border-b pb-2">Add New Guide</h4>
+                <form action="{{ route('admin.curriculum.guides.store') }}" method="POST" class="space-y-4">
+                    @csrf
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">Track/Guide Title</label>
+                        <input type="text" name="title" required placeholder="e.g. Academic Track" class="w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-[#003366] focus:border-[#003366]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">External Link (URL)</label>
+                        <input type="url" name="link" required placeholder="https://..." class="w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-[#003366] focus:border-[#003366]">
+                    </div>
+                    <button type="submit" class="w-full bg-[#003366] hover:bg-[#002244] text-white font-bold uppercase text-xs py-2.5 rounded shadow transition font-sans tracking-wide">
+                        Save Guide
+                    </button>
+                </form>
+            </div>
+
+            {{-- Table of Guides --}}
+            <div class="lg:col-span-2 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-gray-100 text-gray-600 uppercase font-bold text-xs">
+                            <tr>
+                                <th class="px-5 py-3 border-b">Guide Title</th>
+                                <th class="px-5 py-3 border-b">Redirect Link</th>
+                                <th class="px-5 py-3 border-b text-center w-28">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100 text-gray-700">
+                            @forelse($guides ?? [] as $guide)
+                                <tr class="hover:bg-gray-50 transition-colors">
+                                    <td class="px-5 py-4 font-bold">{{ $guide->title }}</td>
+                                    <td class="px-5 py-4 text-blue-600 truncate max-w-[200px]">
+                                        <a href="{{ $guide->link }}" target="_blank" class="hover:underline flex items-center">
+                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                            {{ $guide->link }}
+                                        </a>
+                                    </td>
+                                    <td class="px-5 py-4 flex justify-center gap-2">
+                                        <button @click="showEditModal = true; editId = '{{ $guide->id }}'; editTitle = '{{ addslashes($guide->title) }}'; editLink = '{{ addslashes($guide->link) }}'; editAction = '/admin/curriculum/guides/{{ $guide->id }}'" 
+                                                class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition" title="Edit">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                        </button>
+                                        <form action="{{ route('admin.curriculum.guides.destroy', $guide->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this guide?');">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded transition" title="Delete">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="3" class="px-5 py-8 text-center text-gray-500 italic">No curriculum guides added yet.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {{-- MODAL: Edit Guide --}}
+        <div x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-cloak>
+            <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showEditModal = false"></div>
+
+                <div x-show="showEditModal" x-transition class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-blue-500">
+                    <div class="flex justify-between items-center mb-5 border-b pb-3">
+                        <h3 class="text-xl font-bold text-gray-900 font-cinzel">Edit Curriculum Guide</h3>
+                        <button type="button" @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <form :action="editAction" method="POST" class="space-y-4 font-sans">
+                        @csrf
+                        @method('PUT')
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Track/Guide Title</label>
+                            <input type="text" name="title" x-model="editTitle" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2" required>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">External Link (URL)</label>
+                            <input type="url" name="link" x-model="editLink" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2" required>
+                        </div>
+                        <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                            <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold shadow-sm transition">Update Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 
 <script>

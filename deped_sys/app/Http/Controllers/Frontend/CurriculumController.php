@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CurriculumPage;
 use App\Models\LearningStrand;
 use Illuminate\Http\Request;
+use App\Models\CurriculumGuide;
 
 class CurriculumController extends Controller
 {
@@ -16,8 +17,9 @@ class CurriculumController extends Controller
         
         // Eager load the materials to prevent N+1 query issues
         $strands = LearningStrand::with('materials')->orderBy('sort_order')->get();
+        $guides = CurriculumGuide::all(); // Fetch the guides
 
         // Make sure to create this view file next!
-        return view('curriculum.index', compact('pageData', 'strands'));
+        return view('curriculum.index', compact('pageData', 'strands', 'guides'));
     }
 }

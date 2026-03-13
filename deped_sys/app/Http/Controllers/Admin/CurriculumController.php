@@ -8,22 +8,25 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\CurriculumPage;
 use App\Models\LearningStrand;
 use App\Models\LearningMaterial;
+use App\Models\CurriculumGuide; // This import is required
 
 class CurriculumController extends Controller
 {
     public function index()
     {
-        // Get or create the single curriculum page record (removed description default)
+        // Get or create the single curriculum page record
         $pageData = CurriculumPage::firstOrCreate([]);
         
         $strands = LearningStrand::with('materials')->orderBy('sort_order')->get();
+        
+        // Fetch the guides for the new section
+        $guides = CurriculumGuide::all();
 
-        return view('admin.curriculum.index', compact('pageData', 'strands'));
+        return view('admin.curriculum.index', compact('pageData', 'strands', 'guides'));
     }
 
     public function updatePage(Request $request)
     {
-        // Validating the image and the new remove_image flag (description removed)
         $request->validate([
             'banner_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'remove_image' => 'nullable|boolean',
@@ -31,7 +34,7 @@ class CurriculumController extends Controller
 
         $page = CurriculumPage::firstOrCreate([]);
 
-        // Handle Image Removal (Triggered when the "Remove Picture" button is clicked)
+        // Handle Image Removal
         if ($request->input('remove_image') == 1) {
             if ($page->banner_image_path) {
                 Storage::disk('public')->delete($page->banner_image_path);
@@ -41,11 +44,9 @@ class CurriculumController extends Controller
 
         // Handle Image Upload & Replace
         if ($request->hasFile('banner_image')) {
-            // Delete old image if it exists before saving the new one
             if ($page->banner_image_path) {
                 Storage::disk('public')->delete($page->banner_image_path);
             }
-            // Store new image
             $path = $request->file('banner_image')->store('curriculum/banners', 'public');
             $page->banner_image_path = $path;
         }
@@ -57,14 +58,12 @@ class CurriculumController extends Controller
 
     public function storeStrand(Request $request)
     {
-        // Added validation for the new fields
         $request->validate([
             'name' => 'required|string|max:255',
             'content_title' => 'nullable|string|max:255',
             'content_description' => 'nullable|string',
         ]);
 
-        // Included new fields in the creation array
         LearningStrand::create([
             'name' => $request->name,
             'content_title' => $request->content_title,
@@ -76,14 +75,12 @@ class CurriculumController extends Controller
 
     public function updateStrand(Request $request, LearningStrand $strand)
     {
-        // Added validation for the new fields
         $request->validate([
             'name' => 'required|string|max:255',
             'content_title' => 'nullable|string|max:255',
             'content_description' => 'nullable|string',
         ]);
 
-        // Included new fields in the update array
         $strand->update([
             'name' => $request->name,
             'content_title' => $request->content_title,
@@ -95,7 +92,6 @@ class CurriculumController extends Controller
 
     public function destroyStrand(LearningStrand $strand)
     {
-        // Delete all associated PDF files first
         foreach ($strand->materials as $material) {
             Storage::disk('public')->delete($material->file_path);
         }
@@ -108,7 +104,7 @@ class CurriculumController extends Controller
         $request->validate([
             'learning_strand_id' => 'required|exists:learning_strands,id',
             'title' => 'required|string|max:255',
-            'pdf_file' => 'required|file|mimes:pdf|max:10000', // Max 10MB PDF
+            'pdf_file' => 'required|file|mimes:pdf|max:10000', 
         ]);
 
         $path = $request->file('pdf_file')->store('curriculum/materials', 'public');
@@ -124,10 +120,44 @@ class CurriculumController extends Controller
 
     public function destroyMaterial(LearningMaterial $material)
     {
-        // Delete the physical file, then the database record
         Storage::disk('public')->delete($material->file_path);
         $material->delete();
 
         return back()->with('success', 'Material deleted.');
+    }
+
+    // ==========================================
+    // NEW CURRICULUM GUIDES METHODS
+    // ==========================================
+
+    public function storeGuide(Request $request)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'link' => 'required|url|max:255'
+        ]);
+
+        CurriculumGuide::create($request->all());
+
+        return redirect()->back()->with('success', 'Curriculum Guide added successfully!');
+    }
+
+    public function updateGuide(Request $request, CurriculumGuide $guide)
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'link' => 'required|url|max:255'
+        ]);
+
+        $guide->update($request->all());
+
+        return redirect()->back()->with('success', 'Curriculum Guide updated successfully!');
+    }
+
+    public function destroyGuide(CurriculumGuide $guide)
+    {
+        $guide->delete();
+
+        return redirect()->back()->with('success', 'Curriculum Guide deleted successfully!');
     }
 }
