@@ -11,10 +11,12 @@ use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
 use App\Models\Banner;
 use App\Models\Advisory; 
+use App\Models\Faq; // Imported FAQ Model
 
 // Import the new Curriculum Controllers and alias them to avoid conflicts
 use App\Http\Controllers\Frontend\CurriculumController as FrontendCurriculumController;
 use App\Http\Controllers\Admin\CurriculumController as AdminCurriculumController;
+use App\Http\Controllers\Admin\FaqController; // Imported Admin Faq Controller
 
 // ==========================================
 // PUBLIC ROUTES
@@ -63,7 +65,12 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     Route::prefix('about')->name('about.')->group(function () {
         // UPDATED: Now points to the new dynamic Frontend CurriculumController
         Route::get('/curriculum', [FrontendCurriculumController::class, 'index'])->name('curriculum');
-        Route::get('/faq', [IssuanceController::class, 'k12Content'])->name('faq');
+        
+        // UPDATED: Frontend dynamic FAQ Route
+        Route::get('/faq', function () {
+            $faqs = Faq::where('is_active', true)->get();
+            return view('curriculum.faq', compact('faqs'));
+        })->name('faq');
     });
 
     Route::get('/learning-materials', [IssuanceController::class, 'k12Content'])->name('learning-materials');
@@ -105,7 +112,10 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
-        // NEW: Curriculum Management Admin Routes
+        // NEW: FAQ Management Admin Route
+        Route::resource('faq', FaqController::class)->except(['create', 'show', 'edit']);
+
+        // Curriculum Management Admin Routes
         Route::prefix('curriculum')->name('curriculum.')->group(function () {
             // Main Page Content
             Route::get('/', [AdminCurriculumController::class, 'index'])->name('index');
