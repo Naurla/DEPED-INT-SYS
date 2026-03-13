@@ -57,15 +57,39 @@ class CurriculumController extends Controller
 
     public function storeStrand(Request $request)
     {
-        $request->validate(['name' => 'required|string|max:255']);
-        LearningStrand::create(['name' => $request->name]);
+        // Added validation for the new fields
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'content_title' => 'nullable|string|max:255',
+            'content_description' => 'nullable|string',
+        ]);
+
+        // Included new fields in the creation array
+        LearningStrand::create([
+            'name' => $request->name,
+            'content_title' => $request->content_title,
+            'content_description' => $request->content_description,
+        ]);
+        
         return back()->with('success', 'Strand added successfully.');
     }
 
     public function updateStrand(Request $request, LearningStrand $strand)
     {
-        $request->validate(['name' => 'required|string|max:255']);
-        $strand->update(['name' => $request->name]);
+        // Added validation for the new fields
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'content_title' => 'nullable|string|max:255',
+            'content_description' => 'nullable|string',
+        ]);
+
+        // Included new fields in the update array
+        $strand->update([
+            'name' => $request->name,
+            'content_title' => $request->content_title,
+            'content_description' => $request->content_description,
+        ]);
+        
         return back()->with('success', 'Strand updated successfully.');
     }
 

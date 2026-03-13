@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class LearningStrand extends Model
 {
-    protected $fillable = ['name', 'sort_order'];
+    // Added content_title and content_description
+    protected $fillable = ['name', 'content_title', 'content_description', 'sort_order'];
 
     public function materials()
     {
