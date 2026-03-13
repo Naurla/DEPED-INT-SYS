@@ -22,7 +22,7 @@ class AdminController extends Controller
             'memos'      => 0, // Replace with Memo::count() when the model exists
         ];
 
-        return view('admin.dashboard', compact('banners', 'advisories', 'counts'));
+        return view('admin.dashboard.index', compact('banners', 'advisories', 'counts'));
     }
 
     public function login(Request $request)
