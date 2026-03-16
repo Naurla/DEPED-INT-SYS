@@ -17,13 +17,17 @@ class FaqController extends Controller
     {
         $request->validate([
             'question' => 'required|string|max:255',
-            'answer' => 'required|string',
+            'answer' => 'required|array', // Validating as an array now
+            'answer.*' => 'nullable|string', 
             'is_active' => 'boolean'
         ]);
 
+        // Filter out any empty bullet points and implode with a newline
+        $formattedAnswer = implode("\n", array_filter($request->answer, fn($val) => !is_null($val) && $val !== ''));
+
         Faq::create([
             'question' => $request->question,
-            'answer' => $request->answer,
+            'answer' => $formattedAnswer,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 
@@ -34,13 +38,17 @@ class FaqController extends Controller
     {
         $request->validate([
             'question' => 'required|string|max:255',
-            'answer' => 'required|string',
+            'answer' => 'required|array', // Validating as an array now
+            'answer.*' => 'nullable|string',
             'is_active' => 'boolean'
         ]);
 
+        // Filter out any empty bullet points and implode with a newline
+        $formattedAnswer = implode("\n", array_filter($request->answer, fn($val) => !is_null($val) && $val !== ''));
+
         $faq->update([
             'question' => $request->question,
-            'answer' => $request->answer,
+            'answer' => $formattedAnswer,
             'is_active' => $request->has('is_active') ? 1 : 0,
         ]);
 

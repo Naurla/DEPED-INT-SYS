@@ -3,12 +3,20 @@
 @section('page_title', 'FAQ Management')
 
 @section('content')
+<style>
+    [x-cloak] { display: none !important; }
+</style>
+
 <div x-data="{ 
     showAddModal: false, 
     showEditModal: false, 
-    editData: { id: '', question: '', answer: '', is_active: 1 },
+    editData: { id: '', question: '', is_active: 1 },
+    editAnswers: [''], // Array for edit modal bullet points
     openEdit(faq) {
         this.editData = faq;
+        // Split the stored newline string back into an array for editing
+        this.editAnswers = faq.answer ? faq.answer.split('\n').filter(a => a.trim() !== '') : [''];
+        if (this.editAnswers.length === 0) this.editAnswers = [''];
         this.showEditModal = true;
     }
 }">
@@ -94,13 +102,11 @@
                                     <button @click="openEdit({{ $faq->toJson() }})" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                     </button>
-                                    <form action="{{ route('admin.faq.destroy', $faq) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this FAQ?');" class="inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded transition-colors" title="Delete">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                        </button>
-                                    </form>
+                                    
+                                    {{-- Delete triggered by global modal event --}}
+                                    <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.faq.destroy', $faq) }}', title: 'Are you sure you want to delete this FAQ?' })" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded transition-colors" title="Delete">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
                                 </div>
                             </td>
                         </tr>
@@ -118,6 +124,7 @@
         </div>
     </div>
 
+    {{-- MODAL: ADD FAQ --}}
     <div x-show="showAddModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div x-show="showAddModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showAddModal = false"></div>
@@ -137,11 +144,28 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Question</label>
                             <input type="text" name="question" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Answer (Press Enter for new bullet points)</label>
-                            <textarea name="answer" rows="5" required placeholder="Point 1&#10;Point 2&#10;Point 3..." class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"></textarea>
+                        
+                        {{-- Dynamic Descriptions Input (Add) --}}
+                        <div x-data="{ answers: [''] }">
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Answer (Bulleted List)</label>
+                            <div class="space-y-2">
+                                <template x-for="(ans, index) in answers" :key="index">
+                                    <div class="flex items-start gap-2">
+                                        <div class="pt-2 text-gray-400">•</div>
+                                        <textarea x-model="answers[index]" name="answer[]" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500" placeholder="Enter a bullet point answer..."></textarea>
+                                        <button type="button" @click="answers.splice(index, 1)" x-show="answers.length > 1" class="text-red-500 hover:bg-red-50 p-2 rounded mt-1" title="Remove bullet">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" @click="answers.push('')" class="mt-2 text-sm text-[#a52a2a] font-bold hover:underline flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add another bullet point
+                            </button>
                         </div>
-                        <div class="flex items-center">
+
+                        <div class="flex items-center pt-2">
                             <input type="checkbox" name="is_active" id="is_active" value="1" checked class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
                             <label for="is_active" class="ml-2 block text-sm text-gray-900">Active Status</label>
                         </div>
@@ -156,6 +180,7 @@
         </div>
     </div>
 
+    {{-- MODAL: EDIT FAQ --}}
     <div x-show="showEditModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
             <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showEditModal = false"></div>
@@ -176,12 +201,29 @@
                             <label class="block text-sm font-medium text-gray-700 mb-1">Question</label>
                             <input type="text" name="question" x-model="editData.question" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
                         </div>
+
+                        {{-- Dynamic Descriptions Input (Edit) --}}
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">Answer (Press Enter for new bullet points)</label>
-                            <textarea name="answer" x-model="editData.answer" rows="5" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"></textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Answer (Bulleted List)</label>
+                            <div class="space-y-2">
+                                <template x-for="(ans, index) in editAnswers" :key="index">
+                                    <div class="flex items-start gap-2">
+                                        <div class="pt-2 text-gray-400">•</div>
+                                        <textarea x-model="editAnswers[index]" name="answer[]" rows="2" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500" placeholder="Enter a bullet point answer..."></textarea>
+                                        <button type="button" @click="editAnswers.splice(index, 1)" x-show="editAnswers.length > 1" class="text-red-500 hover:bg-red-50 p-2 rounded mt-1" title="Remove bullet">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" @click="editAnswers.push('')" class="mt-2 text-sm text-[#a52a2a] font-bold hover:underline flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add another bullet point
+                            </button>
                         </div>
-                        <div class="flex items-center">
-                            <input type="checkbox" name="is_active" id="edit_is_active" value="1" :checked="editData.is_active" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
+
+                        <div class="flex items-center pt-2">
+                            <input type="checkbox" name="is_active" id="edit_is_active" value="1" :checked="editData.is_active == 1" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
                             <label for="edit_is_active" class="ml-2 block text-sm text-gray-900">Active Status</label>
                         </div>
                     </div>
@@ -190,6 +232,48 @@
                         <button type="button" @click="showEditModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
                         <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#a52a2a] border border-transparent rounded-lg hover:bg-red-800">Update FAQ</button>
                     </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- GLOBAL MODAL: Delete Confirmation --}}
+    <div x-data="{ showDeleteModal: false, deleteAction: '', deleteTitle: '' }" 
+         @open-delete-modal.window="showDeleteModal = true; deleteAction = $event.detail.action; deleteTitle = $event.detail.title"
+         x-show="showDeleteModal" class="fixed inset-0 z-[100] overflow-y-auto" style="display: none;" x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div x-show="showDeleteModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showDeleteModal = false"></div>
+
+            <div x-show="showDeleteModal" x-transition class="inline-block w-full max-w-sm p-6 my-8 overflow-hidden text-center align-middle transition-all transform bg-white shadow-2xl rounded-2xl relative z-10">
+                
+                {{-- Close X --}}
+                <div class="absolute top-4 right-4 cursor-pointer text-gray-400 hover:text-gray-600" @click="showDeleteModal = false">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </div>
+
+                <div class="flex flex-col items-center justify-center mt-2">
+                    {{-- Red Exclamation Icon --}}
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-16 w-16 mb-4 text-red-500">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-16 h-16">
+                            <circle cx="12" cy="12" r="10" stroke-width="1.5"></circle>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 px-4" x-text="deleteTitle"></h3>
+                </div>
+                
+                <form :action="deleteAction" method="POST" class="flex flex-col gap-3 font-sans w-full">
+                    @csrf
+                    @method('DELETE')
+                    
+                    <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-3 bg-[#111827] text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition">
+                        Yes, Delete
+                    </button>
+                    
+                    <button type="button" @click="showDeleteModal = false" class="w-full inline-flex justify-center rounded-lg border border-red-500 px-4 py-3 bg-white text-base font-medium text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+                        Cancel
+                    </button>
                 </form>
             </div>
         </div>

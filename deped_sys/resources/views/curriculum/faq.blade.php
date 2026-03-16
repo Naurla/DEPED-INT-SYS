@@ -17,8 +17,13 @@
                 
                 <div x-show="expanded" x-collapse x-cloak>
                     <div class="px-8 pb-5 pt-2 border-t border-gray-100">
-                        <ul class="list-disc space-y-2 text-gray-600 leading-relaxed marker:text-gray-400">
-                            @foreach(explode("\n", $faq->answer) as $line)
+                        <ul class="list-disc pl-5 space-y-2 text-gray-600 leading-relaxed marker:text-gray-400">
+                            {{-- Check if it's an array (JSON cast) or a string (Newline separated) --}}
+                            @php
+                                $answers = is_array($faq->answer) ? $faq->answer : explode("\n", $faq->answer);
+                            @endphp
+
+                            @foreach($answers as $line)
                                 @if(trim($line) != '')
                                     <li>{{ $line }}</li>
                                 @endif
