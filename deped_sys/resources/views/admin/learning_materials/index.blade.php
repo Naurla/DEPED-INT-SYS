@@ -34,8 +34,8 @@
             </button>
         </div>
 
-        <div class="p-4 overflow-x-auto">
-            <table id="learningMaterialsTable" class="w-full text-left text-sm whitespace-nowrap">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-gray-50 text-gray-700 border-b border-gray-200">
                     <tr>
                         <th class="px-6 py-3 font-semibold">#</th>
@@ -46,8 +46,49 @@
                         <th class="px-6 py-3 font-semibold text-center">Action</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 text-gray-600"></tbody>
+                <tbody class="divide-y divide-gray-200 text-gray-600">
+                    @forelse($materials as $index => $material)
+                        <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="px-6 py-4 text-gray-500">{{ $materials->firstItem() + $index }}</td>
+                            <td class="px-6 py-4 font-medium text-gray-900">{{ $material->title }}</td>
+                            <td class="px-6 py-4 truncate max-w-[200px]">{{ $material->description }}</td>
+                            <td class="px-6 py-4 font-bold uppercase text-xs text-gray-500">{{ $material->file_type }}</td>
+                            <td class="px-6 py-4">{{ $material->created_at ? $material->created_at->format('Y-m-d H:i:s') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex justify-center space-x-2">
+                                    <button type="button" 
+                                        @click="
+                                            $dispatch('open-modal', { isEdit: true });
+                                            document.getElementById('materialForm').action = '/admin/learning-materials/{{ $material->id }}';
+                                            if(!document.getElementById('methodInput')) document.getElementById('materialForm').insertAdjacentHTML('beforeend', '<input type=\'hidden\' name=\'_method\' value=\'PUT\' id=\'methodInput\'>');
+                                            document.getElementById('title').value = '{{ addslashes($material->title) }}';
+                                            document.getElementById('description').value = '{{ addslashes($material->description) }}';
+                                        "
+                                        class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                                    </button>
+                                    
+                                    <button type="button" 
+                                        @click="$dispatch('open-delete-modal', { id: {{ $material->id }}, title: '{{ addslashes($material->title) }}' })"
+                                        class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded transition-colors" title="Delete">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                                No learning materials found. Click "Upload New" to get started!
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
             </table>
+        </div>
+        
+        <div class="p-4 border-t border-gray-200">
+            {{ $materials->links() }}
         </div>
     </div>
 
@@ -102,9 +143,14 @@
                 </div>
                 <h3 class="text-lg leading-6 font-medium text-gray-900">Confirm Deletion</h3>
                 <p class="text-sm text-gray-500 mt-2">Are you sure you want to delete <span class="font-bold text-gray-800" x-text="deleteTitle"></span>? This action cannot be undone.</p>
-                <div class="mt-6 flex justify-center space-x-3">
-                    <button @click="showDeleteModal = false" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Cancel</button>
-                    <button @click="confirmDelete(deleteId)" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Yes, Delete</button>
+              <div class="mt-6 flex justify-center space-x-3">
+                    <button @click="showDeleteModal = false" type="button" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Cancel</button>
+                    
+                    <form :action="`/admin/learning-materials/${deleteId}`" method="POST" class="m-0 p-0">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Yes, Delete</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -114,20 +160,13 @@
 @endsection
 
 @push('styles')
-<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
 <style>
-    .dataTables_wrapper .dataTables_length select, .dataTables_wrapper .dataTables_filter input {
-        border: 1px solid #e5e7eb; border-radius: 0.375rem; padding: 0.25rem 0.5rem; outline: none;
-    }
-    .dataTables_wrapper .dataTables_filter input:focus { border-color: #a52a2a; }
-    table.dataTable.no-footer { border-bottom: 1px solid #e5e7eb; }
     [x-cloak] { display: none !important; }
 </style>
 @endpush
 
 @push('scripts')
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
     // Global function for the Alpine.js Delete Button
@@ -139,57 +178,12 @@
             success: function(response) {
                 location.reload(); 
             },
-            error: function() { alert('Error deleting material.'); }
+            error: function() { alert('Error deleting material. Please try again.'); }
         });
     }
 
     $(document).ready(function() {
-        var table = $('#learningMaterialsTable').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{ route('admin.learning_materials.data') }}",
-            columns: [
-                { data: 'id', name: 'id' },
-                { data: 'title', name: 'title', className: 'px-6 py-4 font-medium text-gray-900' },
-                { data: 'description', name: 'description', orderable: false, searchable: false, className: 'px-6 py-4 truncate max-w-[200px]' },
-                { data: 'file_type', name: 'file_type', orderable: false, searchable: false, className: 'px-6 py-4 font-bold uppercase text-xs text-gray-500' },
-                { data: 'created_at', name: 'created_at', className: 'px-6 py-4' },
-                { data: 'action', name: 'action', orderable: false, searchable: false, className: 'px-6 py-4 text-center' }
-            ],
-            order: [[4, 'desc']],
-            createdRow: function(row, data, dataIndex) {
-                var editBtn = `<button type="button" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors edit-material mr-2" data-id="${data.id}" data-title="${data.title}" data-description="${data.description}" title="Edit"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>`;
-                var deleteBtn = `<button type="button" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded transition-colors delete-trigger" data-id="${data.id}" data-title="${data.title}" title="Delete"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>`;
-                $('td:eq(5)', row).html(`<div class="flex justify-center">${editBtn}${deleteBtn}</div>`);
-            }
-        });
-
-        table.on('draw.dt', function () {
-            var info = table.page.info();
-            table.column(0, { search: 'applied', order: 'applied', page: 'applied' }).nodes().each(function (cell, i) {
-                cell.innerHTML = i + 1 + info.start;
-                cell.className = 'px-6 py-4 text-gray-500';
-            });
-        });
-
-        // Edit Button
-        $('#learningMaterialsTable').on('click', '.edit-material', function() {
-            var id = $(this).data('id');
-            $('#materialForm').attr('action', `/admin/learning-materials/${id}`);
-            if(!$('#methodInput').length) $('#materialForm').append('<input type="hidden" name="_method" value="PUT" id="methodInput">');
-            $('#title').val($(this).data('title'));
-            $('#description').val($(this).data('description'));
-            window.dispatchEvent(new CustomEvent('open-modal', { detail: { isEdit: true } }));
-        });
-
-        // Delete Trigger (Custom Modal)
-        $('#learningMaterialsTable').on('click', '.delete-trigger', function() {
-            window.dispatchEvent(new CustomEvent('open-delete-modal', { 
-                detail: { id: $(this).data('id'), title: $(this).data('title') } 
-            }));
-        });
-
-        // Form Submit
+        // Handle Form Submission (Create & Update) via AJAX
         $('#materialForm').submit(function(e) {
             e.preventDefault();
             var formData = new FormData(this);

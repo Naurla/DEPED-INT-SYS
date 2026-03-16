@@ -2,20 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class LearningMaterials extends Model
 {
-    use HasFactory;
-
-    // Optional: Explicitly define the table name if Laravel gets confused by the plural model name
+    // Explicitly point to the K-12 table
     protected $table = 'k12_learning_materials';
 
+    // Add the correct columns from your migration
     protected $fillable = [
         'title',
         'description',
         'file_path',
-        'file_type',
+        'file_type'
     ];
 }
