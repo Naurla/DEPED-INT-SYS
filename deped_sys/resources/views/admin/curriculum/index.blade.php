@@ -16,50 +16,77 @@
         </div>
     @endif
 
-    {{-- Section 1: Main Banner --}}
-    <div class="bg-white p-6 rounded shadow-sm border border-gray-200 mb-8" x-data="imageUploader('{{ $pageData->banner_image_path ? asset('storage/' . $pageData->banner_image_path) : '' }}')">
+    {{-- Section 1: Main Banner (Collapsible) --}}
+    <div class="bg-white rounded shadow-sm border border-gray-200 mb-8" 
+         x-data="imageUploader('{{ $pageData->banner_image_path ? asset('storage/' . $pageData->banner_image_path) : '' }}')">
         
-        <div class="flex justify-between items-center mb-4">
+        {{-- Clickable Header --}}
+        <div class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 transition" 
+             @click="isExpanded = !isExpanded">
             <h3 class="text-xl font-bold font-cinzel">Main Page Banner</h3>
             
-            <template x-if="!imageUrl">
-                <button type="button" @click="$refs.fileInput.click()" class="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900 font-bold shadow flex items-center gap-2 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Add Page Banner
-                </button>
-            </template>
+            <div class="flex items-center gap-4">
+                <template x-if="!imageUrl && isExpanded">
+                    <button type="button" @click.stop="$refs.fileInput.click()" class="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900 font-bold shadow flex items-center gap-2 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Page Banner
+                    </button>
+                </template>
+                
+                {{-- Dropdown Arrow --}}
+                <svg class="w-6 h-6 text-gray-500 transform transition-transform duration-300" 
+                     :class="{'rotate-180': isExpanded}" 
+                     fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
         </div>
 
-        <form action="{{ route('admin.curriculum.update_page') }}" method="POST" enctype="multipart/form-data" x-ref="bannerForm">
-            @csrf
-            
-            <input type="file" name="banner_image" x-ref="fileInput" @change="fileChosen" class="hidden" accept="image/png, image/jpeg, image/jpg">
-            <input type="hidden" name="remove_image" x-model="removeFlag">
-
-            <template x-if="imageUrl">
-                <div class="relative w-full rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden group shadow-sm"
-                     @mouseenter="hovering = true" 
-                     @mouseleave="hovering = false">
+        {{-- Collapsible Content --}}
+        <div x-show="isExpanded" x-collapse x-cloak>
+            <div class="px-6 pb-6 border-t border-gray-100 pt-6">
+                <form action="{{ route('admin.curriculum.update_page') }}" method="POST" enctype="multipart/form-data" x-ref="bannerForm">
+                    @csrf
                     
-                    <div class="w-full relative">
-                        <img :src="imageUrl" alt="Banner Preview" class="w-full h-auto block rounded">
-                        
-                        <div x-show="hovering" 
-                             x-transition.opacity.duration.200ms
-                             class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-4">
+                    <input type="file" name="banner_image" x-ref="fileInput" @change="fileChosen" class="hidden" accept="image/png, image/jpeg, image/jpg">
+                    <input type="hidden" name="remove_image" x-model="removeFlag">
+
+                    <template x-if="imageUrl">
+                        <div class="relative w-full rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden group shadow-sm"
+                             @mouseenter="hovering = true" 
+                             @mouseleave="hovering = false">
                             
-                            <button type="button" @click.stop="$refs.fileInput.click()" class="bg-white text-gray-900 px-6 py-2 rounded font-bold hover:bg-gray-200 shadow transition">
-                                Replace
-                            </button>
-                            
-                            <button type="button" @click.stop="removeImage" class="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 shadow transition">
-                                Remove
+                            <div class="w-full relative">
+                                <img :src="imageUrl" alt="Banner Preview" class="w-full h-auto block rounded">
+                                
+                                <div x-show="hovering" 
+                                     x-transition.opacity.duration.200ms
+                                     class="absolute inset-0 bg-black bg-opacity-60 flex items-center justify-center gap-4">
+                                    
+                                    <button type="button" @click.stop="$refs.fileInput.click()" class="bg-white text-gray-900 px-6 py-2 rounded font-bold hover:bg-gray-200 shadow transition">
+                                        Replace
+                                    </button>
+                                    
+                                    <button type="button" @click.stop="removeImage" class="bg-red-600 text-white px-6 py-2 rounded font-bold hover:bg-red-700 shadow transition">
+                                        Remove
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <template x-if="!imageUrl">
+                        <div class="text-center py-10 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
+                             <p class="text-gray-500 font-sans italic">No banner currently uploaded.</p>
+                             <button type="button" @click="$refs.fileInput.click()" class="mt-4 bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900 font-bold shadow inline-flex items-center gap-2 transition">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Upload Banner
                             </button>
                         </div>
-                    </div>
-                </div>
-            </template>
-        </form>
+                    </template>
+                </form>
+            </div>
+        </div>
     </div>
 
     {{-- Section 2: Learning Strands and Materials --}}
@@ -211,7 +238,7 @@
     </div>
 
 
-    {{-- Section 3: Curriculum Guides (NEW SECTION) --}}
+    {{-- Section 3: Curriculum Guides --}}
     <div class="bg-gray-50 p-6 rounded shadow-sm border border-gray-200" x-data="{ showEditModal: false, editId: '', editTitle: '', editLink: '', editAction: '' }">
         <div class="flex justify-between items-center mb-6 border-b border-gray-200 pb-4">
             <h3 class="text-2xl font-bold font-cinzel text-gray-800">Curriculum Guides</h3>
@@ -325,6 +352,7 @@
             imageUrl: initialImage,
             removeFlag: 0,
             hovering: false,
+            isExpanded: false, // Added state for dropdown
             fileChosen(event) {
                 const file = event.target.files[0];
                 if (file) {
