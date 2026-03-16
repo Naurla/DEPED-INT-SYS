@@ -17,7 +17,7 @@
     @endif
 
     {{-- Section 1: Main Banner (Collapsible) --}}
-    <div class="bg-white rounded shadow-sm border border-gray-200 mb-8" 
+    <div class="bg-white rounded shadow-sm border border-gray-200 mb-8 " 
          x-data="imageUploader('{{ $pageData->banner_image_path ? asset('storage/' . $pageData->banner_image_path) : '' }}')">
         
         {{-- Clickable Header --}}
@@ -25,7 +25,7 @@
              @click="isExpanded = !isExpanded">
             <h3 class="text-xl font-bold font-cinzel">Main Page Banner</h3>
             
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-4 ">
                 <template x-if="!imageUrl && isExpanded">
                     <button type="button" @click.stop="$refs.fileInput.click()" class="bg-blue-800 text-white px-4 py-2 rounded hover:bg-blue-900 font-bold shadow flex items-center gap-2 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -100,20 +100,28 @@
 
         <div class="space-y-6">
             @forelse($strands as $strand)
-                <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row overflow-hidden relative">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row overflow-hidden relative"
+                     x-data="{ 
+                        showEditStrand: false, 
+                        descriptions: {{ json_encode(is_array($strand->content_description) && count($strand->content_description) > 0 ? $strand->content_description : (is_string($strand->content_description) && !empty(trim($strand->content_description)) ? [$strand->content_description] : [''])) }} 
+                     }">
                     
-                    {{-- Delete Strand Button --}}
-                    <form action="{{ route('admin.curriculum.strands.destroy', $strand->id) }}" method="POST" onsubmit="return confirm('Delete this strand and ALL its PDFs?');" class="absolute top-4 right-4 z-10">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded transition" title="Delete Strand">
+                    {{-- Action Buttons (Edit & Delete) --}}
+                    <div class="absolute top-4 right-4 z-10 flex gap-2">
+                        {{-- Edit Strand Button --}}
+                        <button type="button" @click="showEditStrand = true" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition" title="Edit Strand">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        </button>
+
+                        {{-- Delete Strand Button (Triggers Global Modal) --}}
+                        <button type="button" @click="$dispatch('open-delete-modal', { action: '{{ route('admin.curriculum.strands.destroy', $strand->id) }}', title: 'Are you sure you want to delete this Strand?' })" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded transition" title="Delete Strand">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
-                    </form>
+                    </div>
 
                     {{-- Left Side: Text Content --}}
                     <div class="p-6 md:w-2/3 border-b md:border-b-0 md:border-r border-gray-200">
-                        <div class="mb-4">
+                        <div class="mb-4 pr-20"> {{-- pr-20 prevents text overlapping with buttons --}}
                             <span class="bg-green-50 text-green-700 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">TITLE</span>
                             <h4 class="text-xl font-bold text-gray-900 font-cinzel">{{ $strand->name }}</h4>
                         </div>
@@ -125,9 +133,19 @@
                         
                         <div>
                             <span class="bg-green-50 text-green-700 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">CONTENT DESCRIPTIONS</span>
-                            <p class="text-gray-600 mt-1 leading-relaxed font-sans">
-                                {{ $strand->content_description ?: 'No description provided.' }}
-                            </p>
+                            @if(is_array($strand->content_description) && count($strand->content_description) > 0)
+                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1 font-sans">
+                                    @foreach($strand->content_description as $desc)
+                                        @if(!empty($desc))
+                                            <li>{{ $desc }}</li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            @elseif(is_string($strand->content_description) && !empty($strand->content_description))
+                                <p class="text-gray-600 mt-1 leading-relaxed font-sans">{{ $strand->content_description }}</p>
+                            @else
+                                <p class="text-gray-400 mt-1 italic font-sans">No descriptions provided.</p>
+                            @endif
                         </div>
                     </div>
 
@@ -143,13 +161,10 @@
                                             <span class="text-sm font-semibold truncate font-sans" title="{{ $material->title }}">{{ $material->title }}</span>
                                         </a>
                                         
-                                        <form action="{{ route('admin.curriculum.materials.destroy', $material->id) }}" method="POST" onsubmit="return confirm('Delete this PDF?');" class="flex-shrink-0">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-1" title="Remove PDF">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                            </button>
-                                        </form>
+                                        {{-- Delete Material Button (Triggers Global Modal) --}}
+                                        <button type="button" @click="$dispatch('open-delete-modal', { action: '{{ route('admin.curriculum.materials.destroy', $material->id) }}', title: 'Are you sure you want to delete this PDF?' })" class="text-gray-400 hover:text-red-600 opacity-0 group-hover:opacity-100 transition p-1" title="Remove PDF">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                        </button>
                                     </li>
                                 @empty
                                     <li class="text-sm text-gray-500 italic font-sans">No files attached yet.</li>
@@ -160,6 +175,60 @@
                         <button @click="showFileModal = true; activeStrandId = {{ $strand->id }}" class="w-full border-2 border-dashed border-gray-300 bg-white text-gray-600 font-bold py-2 rounded hover:border-blue-500 hover:text-blue-600 hover:bg-blue-50 transition flex justify-center items-center gap-2 mt-4 text-sm font-cinzel tracking-wide">
                             <span class="text-xl leading-none font-sans">+</span> ADD NEW FILE
                         </button>
+                    </div>
+
+                    {{-- MODAL: Edit Learning Strand (Inside the loop to easily bind data) --}}
+                    <div x-show="showEditStrand" class="fixed inset-0 z-50 overflow-y-auto" style="display: none;" x-cloak>
+                        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+                            <div x-show="showEditStrand" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showEditStrand = false"></div>
+
+                            <div x-show="showEditStrand" x-transition class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-blue-500">
+                                <div class="flex justify-between items-center mb-5 border-b pb-3">
+                                    <h3 class="text-xl font-bold text-gray-900 font-cinzel">Edit Learning Strand</h3>
+                                    <button type="button" @click="showEditStrand = false" class="text-gray-400 hover:text-gray-600">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    </button>
+                                </div>
+
+                                <form action="{{ route('admin.curriculum.strands.update', $strand->id) }}" method="POST" class="space-y-4 font-sans">
+                                    @csrf
+                                    @method('PUT')
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
+                                        <input type="text" name="name" value="{{ $strand->name }}" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2" required>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-1">Content Title</label>
+                                        <input type="text" name="content_title" value="{{ $strand->content_title }}" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2">
+                                    </div>
+                                    
+                                    {{-- Dynamic Descriptions Input (Edit) --}}
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-1">Content Descriptions (Bulleted List)</label>
+                                        <div class="space-y-2">
+                                            <template x-for="(desc, index) in descriptions" :key="index">
+                                                <div class="flex items-start gap-2">
+                                                    <div class="pt-2 text-gray-400">•</div>
+                                                    <textarea x-model="descriptions[index]" name="content_description[]" rows="2" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 p-2" placeholder="Enter a bullet point description..."></textarea>
+                                                    <button type="button" @click="descriptions.splice(index, 1)" x-show="descriptions.length > 1" class="text-red-500 hover:bg-red-50 p-2 rounded mt-1" title="Remove bullet">
+                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                                    </button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                        <button type="button" @click="descriptions.push('')" class="mt-2 text-sm text-blue-600 font-bold hover:underline flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                            Add another bullet point
+                                        </button>
+                                    </div>
+
+                                    <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
+                                        <button type="button" @click="showEditStrand = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
+                                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 font-bold shadow-sm transition">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
                     </div>
                 </div>
             @empty
@@ -190,10 +259,27 @@
                             <label class="block text-sm font-bold text-gray-700 mb-1">Content Title <span class="text-gray-400 font-normal">(e.g., COMMUNICATION SKILLS)</span></label>
                             <input type="text" name="content_title" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2">
                         </div>
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Content Description</label>
-                            <textarea name="content_description" rows="4" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2"></textarea>
+                        
+                        {{-- Dynamic Descriptions Input --}}
+                        <div x-data="{ descriptions: [''] }">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Content Descriptions (Bulleted List)</label>
+                            <div class="space-y-2">
+                                <template x-for="(desc, index) in descriptions" :key="index">
+                                    <div class="flex items-start gap-2">
+                                        <div class="pt-2 text-gray-400">•</div>
+                                        <textarea x-model="descriptions[index]" name="content_description[]" rows="2" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" placeholder="Enter a bullet point description..."></textarea>
+                                        <button type="button" @click="descriptions.splice(index, 1)" x-show="descriptions.length > 1" class="text-red-500 hover:bg-red-50 p-2 rounded mt-1" title="Remove bullet">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </div>
+                            <button type="button" @click="descriptions.push('')" class="mt-2 text-sm text-[#003366] font-bold hover:underline flex items-center gap-1">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                Add another bullet point
+                            </button>
                         </div>
+
                         <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                             <button type="button" @click="showModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
                             <button type="submit" class="px-4 py-2 bg-[#003366] text-white rounded hover:bg-[#002244] font-bold shadow-sm transition">Save Strand</button>
@@ -291,12 +377,11 @@
                                                 class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition" title="Edit">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         </button>
-                                        <form action="{{ route('admin.curriculum.guides.destroy', $guide->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this guide?');">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded transition" title="Delete">
-                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                            </button>
-                                        </form>
+                                        
+                                        {{-- Delete Guide Button (Triggers Global Modal) --}}
+                                        <button type="button" @click="$dispatch('open-delete-modal', { action: '{{ route('admin.curriculum.guides.destroy', $guide->id) }}', title: 'Are you sure you want to delete this Guide?' })" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-1.5 rounded transition" title="Delete">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                        </button>
                                     </td>
                                 </tr>
                             @empty
@@ -343,6 +428,48 @@
             </div>
         </div>
     </div>
+    
+    {{-- GLOBAL MODAL: Delete Confirmation --}}
+    <div x-data="{ showDeleteModal: false, deleteAction: '', deleteTitle: '' }" 
+         @open-delete-modal.window="showDeleteModal = true; deleteAction = $event.detail.action; deleteTitle = $event.detail.title"
+         x-show="showDeleteModal" class="fixed inset-0 z-[100] overflow-y-auto" style="display: none;" x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
+            <div x-show="showDeleteModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showDeleteModal = false"></div>
+
+            <div x-show="showDeleteModal" x-transition class="inline-block w-full max-w-sm p-6 my-8 overflow-hidden text-center align-middle transition-all transform bg-white shadow-2xl rounded-2xl relative z-10">
+                
+                {{-- Close X --}}
+                <div class="absolute top-4 right-4 cursor-pointer text-gray-400 hover:text-gray-600" @click="showDeleteModal = false">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </div>
+
+                <div class="flex flex-col items-center justify-center mt-2">
+                    {{-- Red Exclamation Icon --}}
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-16 w-16 mb-4 text-red-500">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" class="w-16 h-16">
+                            <circle cx="12" cy="12" r="10" stroke-width="1.5"></circle>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01"></path>
+                        </svg>
+                    </div>
+                    
+                    <h3 class="text-xl font-bold text-gray-900 mb-6 px-4" x-text="deleteTitle"></h3>
+                </div>
+                
+                <form :action="deleteAction" method="POST" class="flex flex-col gap-3 font-sans w-full">
+                    @csrf
+                    @method('DELETE')
+                    
+                    <button type="submit" class="w-full inline-flex justify-center rounded-lg border border-transparent shadow-sm px-4 py-3 bg-[#111827] text-base font-medium text-white hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-900 transition">
+                        Yes, Delete
+                    </button>
+                    
+                    <button type="button" @click="showDeleteModal = false" class="w-full inline-flex justify-center rounded-lg border border-red-500 px-4 py-3 bg-white text-base font-medium text-red-500 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition">
+                        Cancel
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
 </div>
 
@@ -352,7 +479,7 @@
             imageUrl: initialImage,
             removeFlag: 0,
             hovering: false,
-            isExpanded: false, // Added state for dropdown
+            isExpanded: false,
             fileChosen(event) {
                 const file = event.target.files[0];
                 if (file) {

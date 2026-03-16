@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\CurriculumPage;
 use App\Models\LearningStrand;
 use App\Models\LearningMaterial;
-use App\Models\CurriculumGuide; // This import is required
+use App\Models\CurriculumGuide;
 
 class CurriculumController extends Controller
 {
@@ -61,13 +61,19 @@ class CurriculumController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'content_title' => 'nullable|string|max:255',
-            'content_description' => 'nullable|string',
+            'content_description' => 'nullable|array', // Now expects an array
+            'content_description.*' => 'nullable|string', // Validates each bullet point
         ]);
+
+        // Clean out any empty strings from the array and re-index
+        $descriptions = $request->content_description 
+            ? array_values(array_filter($request->content_description, fn($val) => !is_null($val) && trim($val) !== '')) 
+            : [];
 
         LearningStrand::create([
             'name' => $request->name,
             'content_title' => $request->content_title,
-            'content_description' => $request->content_description,
+            'content_description' => $descriptions, // Pass the clean array
         ]);
         
         return back()->with('success', 'Strand added successfully.');
@@ -78,13 +84,19 @@ class CurriculumController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'content_title' => 'nullable|string|max:255',
-            'content_description' => 'nullable|string',
+            'content_description' => 'nullable|array', // Now expects an array
+            'content_description.*' => 'nullable|string',
         ]);
+
+        // Clean out any empty strings from the array and re-index
+        $descriptions = $request->content_description 
+            ? array_values(array_filter($request->content_description, fn($val) => !is_null($val) && trim($val) !== '')) 
+            : [];
 
         $strand->update([
             'name' => $request->name,
             'content_title' => $request->content_title,
-            'content_description' => $request->content_description,
+            'content_description' => $descriptions, // Pass the clean array
         ]);
         
         return back()->with('success', 'Strand updated successfully.');

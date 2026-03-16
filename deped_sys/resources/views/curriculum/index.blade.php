@@ -13,7 +13,7 @@
         <div class="flex justify-center mb-12">
             <img src="{{ asset('storage/' . $pageData->banner_image_path) }}" 
                  alt="Curriculum Banner" 
-                 class="w-full max-w-4xl h-auto rounded-2xl shadow-md border border-gray-200">
+                 class="w-full max-w-2xl h-auto rounded-2xl shadow-md border border-gray-200">
         </div>
     @endif
 
@@ -66,9 +66,22 @@
                             </h5>
                         @endif
                         
-                        <p class="text-gray-700 font-sans leading-relaxed text-base">
-                            {{ $strand->content_description ?: 'No description provided at this time.' }}
-                        </p>
+                        {{-- DYNAMIC CONTENT DESCRIPTION DISPLAY --}}
+                        <div class="text-gray-700 font-sans leading-relaxed text-base">
+                            @if(is_array($strand->content_description) && count($strand->content_description) > 0)
+                                <ul class="list-disc list-outside ml-5 space-y-1.5">
+                                    @foreach($strand->content_description as $desc)
+                                        @if(!empty(trim($desc)))
+                                            <li>{{ $desc }}</li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            @elseif(is_string($strand->content_description) && !empty(trim($strand->content_description)))
+                                <p>{{ $strand->content_description }}</p>
+                            @else
+                                <p class="text-gray-400 italic">No description provided at this time.</p>
+                            @endif
+                        </div>
                     </div>
 
                     {{-- Card Footer: PDF Files as Black Boxes --}}
@@ -103,7 +116,8 @@
             @endforelse
         </div>
     </div>
-{{-- Element 3: External Links (Dynamic) --}}
+
+    {{-- Element 3: External Links (Dynamic) --}}
     <h3 class="font-cinzel font-bold text-3xl text-gray-900 uppercase tracking-wider border-b-2 border-gray-200 pb-4 mb-8 text-center md:text-left">
         Curriculum Guide
     </h3>
