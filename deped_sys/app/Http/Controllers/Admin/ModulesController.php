@@ -6,27 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Modules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Yajra\DataTables\Facades\DataTables;
 
 class ModulesController extends Controller {
+    
     public function index() {
-        return view('admin.modules.index');
-    }
-
-    public function getData(Request $request) {
-        if ($request->ajax()) {
-            $data = Modules::query();
-            return DataTables::eloquent($data)
-                ->addColumn('action', function ($row) {
-                    $title = htmlspecialchars($row->title ?? '', ENT_QUOTES, 'UTF-8');
-                    $desc = htmlspecialchars($row->description ?? '', ENT_QUOTES, 'UTF-8');
-                    return '<div class="flex justify-center">
-                        <button type="button" class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded edit-module mr-2" data-id="'.$row->id.'" data-title="'.$title.'" data-description="'.$desc.'"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg></button>
-                        <button type="button" class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded delete-module" data-id="'.$row->id.'"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-                    </div>';
-                })
-                ->rawColumns(['action'])->make(true);
-        }
+        // Fetch modules with standard Laravel pagination (10 per page)
+        $modules = Modules::latest()->paginate(10);
+        
+        return view('admin.modules.index', compact('modules'));
     }
 
     public function store(Request $request) {
@@ -52,10 +39,13 @@ class ModulesController extends Controller {
     }
 
     public function update(Request $request, Modules $module) {
-        $data = $request->validate(['title' => 'required', 'description' => 'required']);
+        $data = $request->validate([
+            'title' => 'required|string|max:255',
+            'description' => 'required|string'
+        ]);
         
         if ($request->hasFile('file')) {
-            Storage::disk('public')->delete($module->file_path);
+            if($module->file_path) Storage::disk('public')->delete($module->file_path);
             $data['file_path'] = $request->file('file')->store('modules/files', 'public');
             $data['file_type'] = $request->file('file')->getClientOriginalExtension();
         }
@@ -70,8 +60,16 @@ class ModulesController extends Controller {
     }
 
     public function destroy(Modules $module) {
-        Storage::disk('public')->delete([$module->file_path, $module->image_path]);
+        // Use array_filter to avoid passing null paths to Storage::delete
+        $filesToDelete = array_filter([$module->file_path, $module->image_path]);
+        if (!empty($filesToDelete)) {
+            Storage::disk('public')->delete($filesToDelete);
+        }
+        
         $module->delete();
-        return response()->json(['success' => 'Deleted!']);
+        
+        // Standard Laravel redirect instead of JSON response
+        return redirect()->route('admin.modules.index')
+                         ->with('success', 'Module deleted successfully!');
     }
 }
