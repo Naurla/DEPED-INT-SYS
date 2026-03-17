@@ -78,9 +78,9 @@
             @endif
 
             @if(auth()->user()->hasPermission('about'))
-            <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') ? 'true' : 'false' }} }" class="relative mt-2">
+            <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/about*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -95,13 +95,13 @@
                 <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-3 mt-1 space-y-3 bg-red-900/30 rounded-lg shadow-inner">
                     
                     {{-- Profile Submenu --}}
-                    <div x-data="{ subOpen: {{ request()->is('admin/about/profile*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <div x-data="{ subOpen: {{ request()->is('admin/about/profile*') || request()->routeIs('admin.qms.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">
                             <span>Profile</span>
                             <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">QMS Scope & Policy</a>
+                            <a href="{{ route('admin.qms.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.qms.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">QMS Scope & Policy</a>
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Vision & Mission</a>
                         </div>
                     </div>
@@ -137,6 +137,7 @@
                 </div>
             </div>
             @endif
+            
             @if(auth()->user()->hasPermission('advisories'))
             <a href="{{ route('admin.advisory.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">

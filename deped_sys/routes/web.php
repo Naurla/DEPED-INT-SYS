@@ -29,6 +29,10 @@ use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 // Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
 
+// QMS Controller
+use App\Http\Controllers\Admin\QmsController;
+use App\Models\Qms;
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -61,6 +65,12 @@ Route::get('/', function () {
 
 // Admin Login
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+
+// Quality Management System (QMS) Public Route
+Route::get('/qms', function () {
+    $qms = Qms::first();
+    return view('qms.index', compact('qms'));
+})->name('qms.index');
 
 // Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
@@ -124,10 +134,14 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         });
 
-        // Site Settings
+        // Site Settings & QMS Management
         Route::middleware(['permission:settings'])->group(function () {
             Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
             Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
+            
+            // Dedicated QMS Routes (Grouped under settings permission for convenience)
+            Route::get('/qms', [QmsController::class, 'index'])->name('qms.index');
+            Route::post('/qms', [QmsController::class, 'update'])->name('qms.update');
         });
 
         // Site Logos
