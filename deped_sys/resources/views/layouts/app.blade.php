@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepEd Zamboanga City Division</title>
+    <title>{{ $site_settings->header_title ?? 'DepEd Zamboanga City Division' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
@@ -20,29 +20,50 @@
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
     x-data="{ 
-        loginModal: false, 
+        loginModal: {{ $errors->any() ? 'true' : 'false' }}, 
         mobileMenu: false
     }">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
-        <div class="container mx-auto flex flex-row lg:flex-row items-center justify-between gap-6">
-            <div class="flex flex-row md:flex-row items-start gap-4 md:gap-6 text-center md:text-left">
-                <div class="flex items-center gap-4">
+    <div class="container mx-auto flex flex-row lg:flex-row items-center justify-between gap-6">
+        
+        <div class="flex flex-row md:flex-row items-start gap-4 md:gap-6 text-center md:text-left">
+            
+            <div class="flex items-center gap-4">
+                @php $leftLogos = isset($site_logos) ? $site_logos->where('position', 'left') : collect(); @endphp
+                
+                @if($leftLogos->isNotEmpty())
+                    @foreach($leftLogos as $logo)
+                        <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-14 md:h-20 w-auto drop-shadow-md">
+                    @endforeach
+                @else
                     <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
                     <img src="{{ asset('images/r9.png') }}" alt="Region IX Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
-                </div>
-                <div class=" flex-col font-cinzel text-white items-center md:items-start hidden md:flex">
-                    <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
-                    <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
-                    <div class="w-full border-b-[2px] border-white my-1"></div>
-                    <h1 class="text-xl md:text-[25px] tracking-wide pt-0 font-black">Zamboanga City Division</h1>
-                </div>
+                @endif
             </div>
-            <div class="flex items-center">
-                <img src="{{ asset('images/ts.png') }}" alt="Transparency Seal" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
+
+            <div class=" flex-col font-cinzel text-white items-center md:items-start hidden md:flex">
+                <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
+                <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
+                <div class="w-full border-b-[2px] border-white my-1"></div>
+                <h1 class="text-xl md:text-[25px] tracking-wide pt-0 font-black">{{ $site_settings->header_title ?? 'Zamboanga City Division' }}</h1>
             </div>
         </div>
-    </header>
+
+        <div class="flex items-center gap-4">
+            @php $rightLogos = isset($site_logos) ? $site_logos->where('position', 'right') : collect(); @endphp
+            
+            @if($rightLogos->isNotEmpty())
+                @foreach($rightLogos as $logo)
+                    <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
+                @endforeach
+            @else
+                <img src="{{ asset('images/ts.png') }}" alt="Transparency Seal" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
+            @endif
+        </div>
+
+    </div>
+</header>
 
     <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-50">
         <div class="flex md:hidden items-center justify-between px-6 py-3">
@@ -189,38 +210,110 @@
     </div>
 
     <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300 mt-auto">
-        <div class="container mx-auto px-6 lg:px-20 flex flex-wrap md:flex-nowrap items-start gap-8">
-            <div class="w-full md:w-1/6 flex justify-center md:justify-start">
-                <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[150px] h-auto object-contain">
+        <div class="container mx-auto px-6 lg:px-20 flex flex-wrap lg:flex-nowrap items-start gap-8 justify-between">
+            
+            <div class="w-full lg:w-auto flex flex-col items-center md:items-start gap-4 flex-shrink-0">
+                @php $footerLeftLogos = isset($site_logos) ? $site_logos->where('position', 'footer_left') : collect(); @endphp
+                @if($footerLeftLogos->isNotEmpty())
+                    @foreach($footerLeftLogos as $logo)
+                        <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="w-[150px] h-auto object-contain">
+                    @endforeach
+                @else
+                    <img src="{{ asset('images/rnp.png') }}" alt="PH Seal" class="w-[150px] h-auto object-contain">
+                @endif
             </div>
-            <div class="w-full md:w-1/4 text-center md:text-left">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
-                <p class="text-[13px] leading-relaxed">All content is in the public domain unless otherwise stated.</p>
-            </div>
-            <div class="w-full md:w-1/5 text-center md:text-left">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
-                <ul class="text-[13px] space-y-1">
-                    <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
-                    <li><a href="#" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
-                    <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
-                </ul>
-            </div>
-            <div class="w-full md:w-1/4 text-center md:text-left">
-                <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Contact Us</h2>
-                <div class="text-[13px] space-y-3">
-                    <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
-                    <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
-                    <p><strong>Phone:</strong><br>(062) 991-1234</p>
+
+            <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:flex gap-8 justify-around w-full">
+                
+                <div class="text-center md:text-left max-w-[250px]">
+                    <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Republic of the Philippines</h2>
+                    <p class="text-[13px] leading-relaxed whitespace-pre-line">{{ $site_settings->footer_about ?? 'All content is in the public domain unless otherwise stated.' }}</p>
                 </div>
+
+                @if(!empty($site_settings->footer_sections))
+                    @foreach($site_settings->footer_sections as $section)
+                        <div class="text-center md:text-left max-w-[300px]">
+                            <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">{{ $section['title'] }}</h2>
+                            
+                            {{-- NEW: Show the paragraph text if the admin typed it in --}}
+                            @if(!empty($section['content']))
+                                <p class="text-[13px] leading-relaxed mb-3 whitespace-pre-line">{{ $section['content'] }}</p>
+                            @endif
+
+                            {{-- Show links if the admin added any --}}
+                            @if(!empty($section['links']) && count($section['links']) > 0)
+                                <ul class="text-[13px] space-y-1">
+                                    @foreach($section['links'] as $link)
+                                        <li><a href="{{ $link['url'] ?? '#' }}" class="hover:text-red-700 transition-colors">{{ $link['label'] }}</a></li>
+                                    @endforeach
+                                </ul>
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center md:text-left">
+                        <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
+                        <ul class="text-[13px] space-y-1">
+                            <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
+                            <li><a href="#" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
+                            <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
+                        </ul>
+                    </div>
+                @endif
+
+                <div class="text-center md:text-left">
+                    <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">Contact Us</h2>
+                    <div class="text-[13px] space-y-4">
+                        @if(!empty($site_settings->address))
+                        <div>
+                            <strong>Address:</strong><br>
+                            @foreach($site_settings->address as $address)
+                                <span class="block">{{ $address }}</span>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        @if(!empty($site_settings->contact_email))
+                        <div>
+                            <strong>Email:</strong><br>
+                            @foreach($site_settings->contact_email as $email)
+                                <a href="mailto:{{ $email }}" class="block hover:text-red-700 transition-colors">{{ $email }}</a>
+                            @endforeach
+                        </div>
+                        @endif
+
+                        @if(!empty($site_settings->contact_phone))
+                        <div>
+                            <strong>Phone:</strong><br>
+                            @foreach($site_settings->contact_phone as $phone)
+                                <span class="block">{{ $phone }}</span>
+                            @endforeach
+                        </div>
+                        @endif
+                    </div>
+                </div>
+
             </div>
-            <div class="w-full md:w-1/6 flex flex-col items-center md:items-end justify-between self-stretch">
-                <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="h-16 w-auto object-contain">
+
+            <div class="w-full lg:w-auto flex flex-col items-center md:items-end justify-between flex-shrink-0">
+                <div class="flex flex-col gap-4 items-center md:items-end">
+                    @php $footerRightLogos = isset($site_logos) ? $site_logos->where('position', 'footer_right') : collect(); @endphp
+                    @if($footerRightLogos->isNotEmpty())
+                        @foreach($footerRightLogos as $logo)
+                            <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-16 w-auto object-contain">
+                        @endforeach
+                    @else
+                        <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="h-16 w-auto object-contain">
+                    @endif
+                </div>
+
                 <button @click="loginModal = true" class="mt-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                     </svg>
                 </button>
             </div>
+
         </div>
     </footer>
 
@@ -235,6 +328,14 @@
             </div>
             <form action="{{ route('admin.login') }}" method="POST" class="p-8">
                 @csrf
+                
+                @if ($errors->any())
+                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm">
+                        <strong class="font-bold">Error:</strong>
+                        <span class="block sm:inline">Invalid email or password. Please try again.</span>
+                    </div>
+                @endif
+
                 <div class="mb-5">
                     <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
                     <input type="email" name="email" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">

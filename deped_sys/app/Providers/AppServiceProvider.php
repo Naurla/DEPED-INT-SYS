@@ -11,6 +11,8 @@ use Google\Client as GoogleClient;
 use Google\Service\Drive as GoogleServiceDrive;
 use Illuminate\Support\Facades\View; // Added for global view sharing
 use App\Models\Issuance;             // Added to fetch recent updates
+use App\Models\SiteSetting;
+use Illuminate\Support\Facades\Cache;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,36 +28,19 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
-        // --- 1. EXISTING GOOGLE DRIVE EXTENSION ---
-        Storage::extend('google', function ($app, $config) {
-            $client = new GoogleClient();
-            $client->setAuthConfig($config['credentials']);
-            $client->addScope(GoogleServiceDrive::DRIVE);
-
-            $service = new GoogleServiceDrive($client);
-            $adapter = new GoogleDriveAdapter($service, $config['folder']);
-
-            return new FilesystemAdapter(
-                new Filesystem($adapter, $config),
-                $adapter,
-                $config
-            );
+{
+    \Illuminate\Support\Facades\View::composer('*', function ($view) {
+        $site_settings = \Illuminate\Support\Facades\Cache::rememberForever('site_settings', function () {
+            return \App\Models\SiteSetting::first();
         });
 
-        // --- 2. GLOBAL RECENT UPDATES FOR APP LAYOUT ---
-        // This ensures $globalRecentAdvisories and $globalRecentMemoranda 
-        // are available in your layouts.app file on every page.
-        View::composer('layouts.app', function ($view) {
-            $view->with('globalRecentAdvisories', Issuance::where('type', 'advisory')
-                ->latest()
-                ->take(5)
-                ->get());
-
-            $view->with('globalRecentMemoranda', Issuance::where('type', 'memorandum')
-                ->latest()
-                ->take(5)
-                ->get());
+        // Fetch all active logos sorted by their order
+        $site_logos = \Illuminate\Support\Facades\Cache::rememberForever('site_logos', function () {
+            return \App\Models\SiteLogo::where('is_active', true)->orderBy('order', 'asc')->get();
         });
-    }
+
+        $view->with('site_settings', $site_settings)
+             ->with('site_logos', $site_logos);
+    });
+}
 }

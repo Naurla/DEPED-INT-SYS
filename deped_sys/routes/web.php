@@ -22,9 +22,12 @@ use App\Http\Controllers\Admin\FaqController;
 use App\Http\Controllers\Frontend\LearningMaterialsController as FrontendLearningMaterialsController;
 use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMaterialsController;
 
-// NEW: Modules Controllers
+// Modules Controllers
 use App\Http\Controllers\Frontend\ModulesController as FrontendModulesController;
 use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
+
+// NEW: Site Settings Controller
+use App\Http\Controllers\Admin\SiteSettingController;
 
 // ==========================================
 // PUBLIC ROUTES
@@ -88,7 +91,7 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
         Route::get('/statistics', [IssuanceController::class, 'alsContent'])->name('stats');
         Route::get('/stories', [IssuanceController::class, 'alsContent'])->name('stories');
         
-        // UPDATED: Now points to the dynamic Modules Controller
+        // Modules Controller
         Route::get('/modules', [FrontendModulesController::class, 'index'])->name('modules');
         Route::get('/modules/{id}', [FrontendModulesController::class, 'show'])->name('modules.show');
         
@@ -123,6 +126,11 @@ Route::middleware(['auth'])->group(function () {
         
         Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
 
+        // NEW: Dynamic Header and Footer Settings
+        Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
+        Route::resource('logos', \App\Http\Controllers\Admin\SiteLogoController::class)->except(['create', 'show', 'edit']);
+
         // FAQ Management
         Route::resource('faq', FaqController::class)->except(['create', 'show', 'edit']);
 
@@ -130,7 +138,7 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('learning-materials', AdminLearningMaterialsController::class);
         Route::get('get-learning-materials-data', [AdminLearningMaterialsController::class, 'getData'])->name('learning_materials.data');
 
-        // NEW: Modules Admin
+        // Modules Admin
         Route::resource('modules', AdminModulesController::class);
         Route::get('get-modules-data', [AdminModulesController::class, 'getData'])->name('modules.data');
 
