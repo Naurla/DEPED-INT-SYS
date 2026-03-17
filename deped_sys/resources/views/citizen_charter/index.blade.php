@@ -25,59 +25,49 @@
             <h1 class="text-2xl md:text-4xl font-black text-gray-900 leading-tight mb-3 uppercase tracking-wide">
                 Citizen's Charter
             </h1>
-            
+
         </div>
 
         {{-- Main Content Section (Rich Text) --}}
         @if(!empty($data->content))
-            <div class="{{ $richTextClasses }} mb-12 max-w-5xl">
+            <div class="{{ $richTextClasses }} mb-8 max-w-5xl">
                 {!! $data->content !!}
             </div>
         @endif
-
-        {{-- DISPLAY PDF PREVIEW (Matched to Reference) --}}
+        {{-- External Links (Bulleted List) --}}
+        @if(!empty($data->links) && count($data->links) > 0)
+            <div class="max-w-5xl pt-2">
+                <h4 class="text-lg font-bold text-gray-900 mb-4 uppercase tracking-wide">Additional Links</h4>
+                <ul class="list-disc pl-5 space-y-2 text-[15px] text-gray-700">
+                    @foreach($data->links as $link)
+                        <li>
+                            <a href="{{ $link['url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-semibold transition-colors">
+                                {{ $link['name'] }}
+                            </a>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+        
+        {{-- Clean Download Link at the Top --}}
         @if(!empty($data->file_path))
-            <div class="w-full bg-gray-100 rounded-lg p-2 shadow-inner mb-12 border border-gray-300 h-[70vh] min-h-[600px]">
+            <div class="mb-4">
+                <a href="{{ asset('storage/' . $data->file_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center font-semibold text-[15px] transition-colors" download>
+                    <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download PDF Document
+                </a>
+            </div>
+        @endif
+
+        {{-- DISPLAY PDF PREVIEW --}}
+        @if(!empty($data->file_path))
+            <div class="w-full bg-gray-100 rounded-lg p-2 shadow-inner mb-10 border border-gray-300 h-[70vh] min-h-[600px]">
                 <iframe 
                     src="{{ asset('storage/' . $data->file_path) }}" 
                     class="w-full h-full rounded bg-white" 
                     title="{{ $data->file_name ?? 'Citizen\'s Charter PDF' }}">
                 </iframe>
-            </div>
-        @endif
-
-        {{-- Resources & External Links Section --}}
-        @if(!empty($data->file_path) || (!empty($data->links) && count($data->links) > 0))
-            <div class="bg-gray-50 border border-gray-200 rounded-lg p-6 mb-8 max-w-5xl">
-                <h4 class="text-lg font-bold text-gray-900 border-b border-gray-300 pb-3 mb-5 uppercase tracking-wide">Resources & Forms</h4>
-                
-                <div class="space-y-4 text-[15px]">
-                    
-                    {{-- Download PDF Link --}}
-                    @if(!empty($data->file_path))
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="font-bold text-gray-700 min-w-[140px]">Download Here:</span>
-                            <a href="{{ asset('storage/' . $data->file_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center font-semibold transition-colors" download>
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                {{ $data->file_name ?? 'Download PDF Document' }}
-                            </a>
-                        </div>
-                    @endif
-
-                    {{-- External Links --}}
-                    @if(!empty($data->links) && count($data->links) > 0)
-                        @foreach($data->links as $link)
-                            <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-bold text-gray-700 min-w-[140px]">{{ $link['name'] }}:</span>
-                                <a href="{{ $link['url'] }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline font-semibold flex items-center transition-colors">
-                                    Click here to access
-                                    <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
-                                </a>
-                            </div>
-                        @endforeach
-                    @endif
-
-                </div>
             </div>
         @endif
         
