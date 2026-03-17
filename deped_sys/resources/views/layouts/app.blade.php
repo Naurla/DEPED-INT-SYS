@@ -25,45 +25,45 @@
     }">
 
     <header class="bg-[#a52a2a] text-white py-4 px-6 md:px-10 shadow-lg">
-    <div class="container mx-auto flex flex-row lg:flex-row items-center justify-between gap-6">
-        
-        <div class="flex flex-row md:flex-row items-start gap-4 md:gap-6 text-center md:text-left">
+        <div class="container mx-auto flex flex-row lg:flex-row items-center justify-between gap-6">
             
-            <div class="flex items-center gap-4">
-                @php $leftLogos = isset($site_logos) ? $site_logos->where('position', 'left') : collect(); @endphp
+            <div class="flex flex-row md:flex-row items-start gap-4 md:gap-6 text-center md:text-left">
                 
-                @if($leftLogos->isNotEmpty())
-                    @foreach($leftLogos as $logo)
-                        <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-14 md:h-20 w-auto drop-shadow-md">
+                <div class="flex items-center gap-4">
+                    @php $leftLogos = isset($site_logos) ? $site_logos->where('position', 'left') : collect(); @endphp
+                    
+                    @if($leftLogos->isNotEmpty())
+                        @foreach($leftLogos as $logo)
+                            <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-14 md:h-20 w-auto drop-shadow-md">
+                        @endforeach
+                    @else
+                        <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
+                        <img src="{{ asset('images/r9.png') }}" alt="Region IX Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
+                    @endif
+                </div>
+
+                <div class=" flex-col font-cinzel text-white items-center md:items-start hidden md:flex">
+                    <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
+                    <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
+                    <div class="w-full border-b-[2px] border-white my-1"></div>
+                    <h1 class="text-xl md:text-[25px] tracking-wide pt-0 font-black">{{ $site_settings->header_title ?? 'Zamboanga City Division' }}</h1>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-4">
+                @php $rightLogos = isset($site_logos) ? $site_logos->where('position', 'right') : collect(); @endphp
+                
+                @if($rightLogos->isNotEmpty())
+                    @foreach($rightLogos as $logo)
+                        <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
                     @endforeach
                 @else
-                    <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
-                    <img src="{{ asset('images/r9.png') }}" alt="Region IX Logo" class="h-14 md:h-20 w-auto drop-shadow-md">
+                    <img src="{{ asset('images/ts.png') }}" alt="Transparency Seal" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
                 @endif
             </div>
 
-            <div class=" flex-col font-cinzel text-white items-center md:items-start hidden md:flex">
-                <span class="text-[10px] md:text-sm tracking-wider leading-tight font-black">Republic of the Philippines</span>
-                <span class="text-[10px] md:text-sm tracking-wider leading-tight pb-0 font-black">Department Of Education</span>
-                <div class="w-full border-b-[2px] border-white my-1"></div>
-                <h1 class="text-xl md:text-[25px] tracking-wide pt-0 font-black">{{ $site_settings->header_title ?? 'Zamboanga City Division' }}</h1>
-            </div>
         </div>
-
-        <div class="flex items-center gap-4">
-            @php $rightLogos = isset($site_logos) ? $site_logos->where('position', 'right') : collect(); @endphp
-            
-            @if($rightLogos->isNotEmpty())
-                @foreach($rightLogos as $logo)
-                    <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
-                @endforeach
-            @else
-                <img src="{{ asset('images/ts.png') }}" alt="Transparency Seal" class="h-14 md:h-20 w-auto opacity-90 hover:opacity-100 transition-opacity">
-            @endif
-        </div>
-
-    </div>
-</header>
+    </header>
 
     <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-50">
         <div class="flex md:hidden items-center justify-between px-6 py-3">
@@ -85,13 +85,54 @@
                 {{-- Home --}}
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] border-r border-gray-300 transition-colors {{ request()->is('/') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">Home</a>
                 
-                {{-- About --}}
+                {{-- About (UPDATED WITH NESTED MENUS) --}}
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->is('about*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-xl border border-gray-200 py-2 z-50">
-                        <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Profile</a>
-                        <a href="#" class="block px-4 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Citizen's Charter</a>
+                    
+                    <div class="hidden group-hover:block absolute left-0 top-full w-80 bg-white shadow-2xl border border-gray-200 py-2 z-50">
+                        
+                        {{-- Profile Submenu --}}
+                        <div class="relative group/sub-profile">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>Profile</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub-profile:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">QMS Scope, Quality Policy, Quality Objective</a>
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100">Vision, Mission, Core Values, and Mandate</a>
+                            </div>
+                        </div>
+
+                        {{-- Organizational Structure Submenu --}}
+                        <div class="relative group/sub-org">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>Organizational Structure</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub-org:block absolute left-full top-0 w-96 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Division Office Organization Structure</a>
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Executive Committee</a>
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Curriculum Implementation Division</a>
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Office of the Schools Division Superintendent</a>
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100">School Governance and Operations Divisions</a>
+                            </div>
+                        </div>
+
+                        {{-- DepEd Data Privacy Submenu --}}
+                        <div class="relative group/sub-privacy">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>DepEd Data Privacy</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub-privacy:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100">Data Privacy Notice</a>
+                            </div>
+                        </div>
+
+                        {{-- Citizen's Charter --}}
+                        <a href="#" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">Citizen's Charter</a>
+
                     </div>
                 </div>
                 
@@ -209,8 +250,7 @@
         </div>
     </div>
 
-    {{-- FOOTER SECTION (Relative container to lock the admin button to bottom right) --}}
-    <footer class="bg-[#f2f2f2] text-gray-700 pt-12 pb-16 border-t border-gray-300 mt-auto relative">
+    <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300 mt-auto">
         <div class="container mx-auto px-6 lg:px-20 flex flex-wrap lg:flex-nowrap items-start gap-8 justify-between">
             
             <div class="w-full lg:w-auto flex flex-col items-center md:items-start gap-4 flex-shrink-0">
@@ -270,6 +310,8 @@
                                 <span class="block">{{ $address }}</span>
                             @endforeach
                         </div>
+                        @else
+                            <p><strong>Address:</strong><br>Pilar Street, Zamboanga City, 7000</p>
                         @endif
 
                         @if(!empty($site_settings->contact_email))
@@ -279,6 +321,8 @@
                                 <a href="mailto:{{ $email }}" class="block hover:text-red-700 transition-colors">{{ $email }}</a>
                             @endforeach
                         </div>
+                        @else
+                            <p><strong>Email:</strong><br>zamboanga.city@deped.gov.ph</p>
                         @endif
 
                         @if(!empty($site_settings->contact_phone))
@@ -288,36 +332,34 @@
                                 <span class="block">{{ $phone }}</span>
                             @endforeach
                         </div>
+                        @else
+                            <p><strong>Phone:</strong><br>(062) 991-1234</p>
                         @endif
                     </div>
                 </div>
 
             </div>
 
-            <div class="w-full lg:w-auto flex flex-col items-center md:items-end flex-shrink-0">
+            <div class="w-full lg:w-auto flex flex-col items-center md:items-end justify-between flex-shrink-0">
                 <div class="flex flex-col gap-4 items-center md:items-end">
                     @php $footerRightLogos = isset($site_logos) ? $site_logos->where('position', 'footer_right') : collect(); @endphp
                     @if($footerRightLogos->isNotEmpty())
                         @foreach($footerRightLogos as $logo)
-                            {{-- Matching the w-[150px] constraint to make it bigger and equal to the left logo --}}
-                            <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="w-[150px] h-auto object-contain">
+                            <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-16 w-auto object-contain">
                         @endforeach
                     @else
-                        {{-- Matching the w-[150px] constraint to make it bigger and equal to the left logo --}}
-                        <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="w-[150px] h-auto object-contain">
+                        <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="h-16 w-auto object-contain">
                     @endif
                 </div>
+
+                <button @click="loginModal = true" class="mt-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </button>
             </div>
 
         </div>
-
-        {{-- Admin Login Button (Absolute Bottom Right) --}}
-        <button @click="loginModal = true" class="absolute bottom-4 right-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-        </button>
-
     </footer>
 
     {{-- LOGIN MODAL --}}
