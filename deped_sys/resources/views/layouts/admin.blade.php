@@ -76,7 +76,67 @@
                 <span x-show="sidebarOpen">Header & Footer Logos</span>
             </a>
             @endif
-            
+
+            @if(auth()->user()->hasPermission('about'))
+            <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') ? 'true' : 'false' }} }" class="relative mt-2">
+                <button @click="dropdownOpen = !dropdownOpen" 
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/about*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                    <div class="flex items-center space-x-3">
+                        <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        <span x-show="sidebarOpen">Manage About</span>
+                    </div>
+                    <svg x-show="sidebarOpen" :class="{'rotate-180': dropdownOpen}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                
+                <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-3 mt-1 space-y-3 bg-red-900/30 rounded-lg shadow-inner">
+                    
+                    {{-- Profile Submenu --}}
+                    <div x-data="{ subOpen: {{ request()->is('admin/about/profile*') ? 'true' : 'false' }} }" class="space-y-1">
+                        <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">
+                            <span>Profile</span>
+                            <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">QMS Scope & Policy</a>
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Vision & Mission</a>
+                        </div>
+                    </div>
+
+                    {{-- Organizational Structure Submenu --}}
+                    <div x-data="{ subOpen: {{ request()->is('admin/about/organization*') ? 'true' : 'false' }} }" class="space-y-1">
+                        <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm leading-tight pr-2 text-gray-200 hover:text-white hover:font-bold transition-all text-left">
+                            <span>Organizational Structure</span>
+                            <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Division Office</a>
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Executive Committee</a>
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Curriculum Implementation</a>
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Office of the SDS</a>
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">School Governance</a>
+                        </div>
+                    </div>
+
+                    {{-- DepEd Data Privacy Submenu --}}
+                    <div x-data="{ subOpen: {{ request()->is('admin/about/privacy*') ? 'true' : 'false' }} }" class="space-y-1">
+                        <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">
+                            <span>DepEd Data Privacy</span>
+                            <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
+                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Data Privacy Notice</a>
+                        </div>
+                    </div>
+
+                    {{-- Citizen's Charter --}}
+                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Citizen's Charter</a>
+                </div>
+            </div>
+            @endif
             @if(auth()->user()->hasPermission('advisories'))
             <a href="{{ route('admin.advisory.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
