@@ -29,9 +29,11 @@ use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 // Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
 
-// QMS Controller
+// QMS & Vision Mission Controllers
 use App\Http\Controllers\Admin\QmsController;
+use App\Http\Controllers\Admin\VisionMissionController;
 use App\Models\Qms;
+use App\Models\VisionMission;
 
 // ==========================================
 // PUBLIC ROUTES
@@ -71,6 +73,12 @@ Route::get('/qms', function () {
     $qms = Qms::first();
     return view('qms.index', compact('qms'));
 })->name('qms.index');
+
+// Vision, Mission, Core Values, Mandate Public Route
+Route::get('/vision-mission', function () {
+    $data = VisionMission::first();
+    return view('vision_mission.index', compact('data'));
+})->name('vision_mission.index');
 
 // Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
@@ -134,7 +142,7 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         });
 
-        // Site Settings & QMS Management
+        // Site Settings, QMS & Vision Mission Management
         Route::middleware(['permission:settings'])->group(function () {
             Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
             Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
@@ -142,6 +150,10 @@ Route::middleware(['auth'])->group(function () {
             // Dedicated QMS Routes (Grouped under settings permission for convenience)
             Route::get('/qms', [QmsController::class, 'index'])->name('qms.index');
             Route::post('/qms', [QmsController::class, 'update'])->name('qms.update');
+
+            // Dedicated Vision & Mission Routes
+            Route::get('/vision-mission', [VisionMissionController::class, 'index'])->name('vision_mission.index');
+            Route::post('/vision-mission', [VisionMissionController::class, 'update'])->name('vision_mission.update');
         });
 
         // Site Logos

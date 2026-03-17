@@ -100,7 +100,7 @@
                             </div>
                             <div class="hidden group-hover/sub-profile:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
                                 <a href="{{ route('qms.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('qms.index') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">QMS Scope, Quality Policy, Quality Objective</a>
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">Vision, Mission, Core Values, and Mandate</a>
+                                <a href="{{ route('vision_mission.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('vision_mission.index') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Vision, Mission, Core Values, and Mandate</a>
                             </div>
                         </div>
 
