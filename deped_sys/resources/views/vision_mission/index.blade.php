@@ -1,100 +1,65 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="bg-gray-100 py-3 border-b border-gray-200">
-    <div class="container mx-auto px-6 lg:px-20 text-sm text-gray-600">
-        <a href="/" class="hover:text-[#a52a2a] transition-colors">Home</a> / 
-        <span class="text-gray-500">About</span> / 
-        <span class="font-semibold text-gray-800">Vision, Mission, Core Values, and Mandate</span>
-    </div>
-</div>
 
-<div class="container mx-auto px-6 lg:px-20 py-10" x-data="{ activeTab: 'mandate' }">
-    <div class="flex flex-col md:flex-row gap-8">
+@php
+    // Inline Tailwind styling for the Rich Text Editor content
+    $richTextClasses = "text-gray-700 text-[15px] leading-relaxed 
+        [&_h1]:text-2xl [&_h1]:font-bold [&_h1]:text-gray-800 [&_h1]:mt-6 [&_h1]:mb-3 
+        [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-800 [&_h2]:mt-6 [&_h2]:mb-3 
+        [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-gray-800 [&_h3]:mt-4 [&_h3]:mb-2 
+        [&_p]:mb-4 
+        [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 
+        [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-4 
+        [&_li]:mb-1 
+        [&_strong]:font-bold [&_strong]:text-gray-900 
+        [&_b]:font-bold [&_b]:text-gray-900 
+        [&_a]:text-[#a52a2a] hover:[&_a]:underline transition-colors duration-200";
+@endphp
+
+
+<div class="container mx-auto px-6 lg:px-20 py-10">
+    <div class="flex flex-col lg:flex-row gap-12">
         
-        <div class="w-full md:w-[30%] lg:w-[25%] flex-shrink-0">
-            <div class="flex flex-col border border-gray-200 bg-[#f8f9fa] shadow-sm">
+        <div class="w-full lg:w-3/4">
+            
+            
+            <div class="mb-12">
+                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Vision</h2>
                 
-                <button @click="activeTab = 'vision'" 
-                        :class="activeTab === 'vision' ? 'bg-[#a52a2a] text-white' : 'text-gray-700 hover:bg-gray-200 bg-transparent'"
-                        class="text-left font-bold py-4 px-5 border-b border-gray-200 transition-all duration-200 focus:outline-none uppercase tracking-wide text-[13px]">
-                    VISION
-                </button>
-                
-                <button @click="activeTab = 'mission'" 
-                        :class="activeTab === 'mission' ? 'bg-[#a52a2a] text-white' : 'text-gray-700 hover:bg-gray-200 bg-transparent'"
-                        class="text-left font-bold py-4 px-5 border-b border-gray-200 transition-all duration-200 focus:outline-none uppercase tracking-wide text-[13px]">
-                    MISSION
-                </button>
-                
-                <button @click="activeTab = 'core_values'" 
-                        :class="activeTab === 'core_values' ? 'bg-[#a52a2a] text-white' : 'text-gray-700 hover:bg-gray-200 bg-transparent'"
-                        class="text-left font-bold py-4 px-5 transition-all duration-200 focus:outline-none uppercase tracking-wide text-[13px]">
-                    CORE VALUES
-                </button>
-
-                <button @click="activeTab = 'mandate'" 
-                        :class="activeTab === 'mandate' ? 'bg-[#a52a2a] text-white' : 'text-gray-700 hover:bg-gray-200 bg-transparent'"
-                        class="text-left font-bold py-4 px-5 border-b border-gray-200 transition-all duration-200 focus:outline-none uppercase tracking-wide text-[13px]">
-                    MANDATE
-                </button>
-                
+                <div class="{{ $richTextClasses }}">
+                    {!! $data->vision ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+                </div>
             </div>
+
+            <div class="mb-12">
+                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Mission</h2>
+                
+                <div class="{{ $richTextClasses }}">
+                    {!! $data->mission ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+                </div>
+            </div>
+
+            <div class="mb-12">
+                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Core Values</h2>
+                
+                <div class="{{ $richTextClasses }}">
+                    {!! $data->core_values ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Mandate</h2>
+                
+                <div class="{{ $richTextClasses }}">
+                    {!! $data->mandate ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+                </div>
+            </div>
+
         </div>
 
-        <div class="w-full md:w-[70%] lg:w-[75%] md:border-l md:border-gray-200 md:pl-8">
-            <div class="bg-transparent min-h-[300px]">
-                
-                <div x-show="activeTab === 'mandate'" x-cloak x-transition.opacity.duration.300ms>
-                    <h3 class="text-[22px] font-bold text-gray-800 mb-2">Mandate</h3>
-                    <div class="w-12 h-1 bg-[#a52a2a] mb-6"></div>
-                    <div class="qms-content text-gray-700 text-[15px] leading-relaxed">
-                        {!! $data->mandate ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                    </div>
-                </div>
-
-                <div x-show="activeTab === 'vision'" x-cloak x-transition.opacity.duration.300ms>
-                    <h3 class="text-[22px] font-bold text-gray-800 mb-2">Vision</h3>
-                    <div class="w-12 h-1 bg-[#a52a2a] mb-6"></div> 
-                    <div class="qms-content text-gray-700 text-[15px] leading-relaxed">
-                        {!! $data->vision ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                    </div>
-                </div>
-
-                <div x-show="activeTab === 'mission'" x-cloak x-transition.opacity.duration.300ms>
-                    <h3 class="text-[22px] font-bold text-gray-800 mb-2">Mission</h3>
-                    <div class="w-12 h-1 bg-[#a52a2a] mb-6"></div> 
-                    <div class="qms-content text-gray-700 text-[15px] leading-relaxed">
-                        {!! $data->mission ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                    </div>
-                </div>
-
-                <div x-show="activeTab === 'core_values'" x-cloak x-transition.opacity.duration.300ms>
-                    <h3 class="text-[22px] font-bold text-gray-800 mb-2">Core Values</h3>
-                    <div class="w-12 h-1 bg-[#a52a2a] mb-6"></div> 
-                    <div class="qms-content text-gray-700 text-[15px] leading-relaxed">
-                        {!! $data->core_values ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                    </div>
-                </div>
-
-            </div>
-        </div>
+        
+        
     </div>
 </div>
-
-@push('styles')
-<style>
-    .qms-content h1, .qms-content h2, .qms-content h3, .qms-content h4 {
-        font-weight: 700; color: #1f2937; margin-top: 1.5rem; margin-bottom: 0.75rem;
-    }
-    .qms-content h1 { font-size: 1.5rem; }
-    .qms-content h2 { font-size: 1.25rem; }
-    .qms-content p { margin-bottom: 1rem; }
-    .qms-content ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1rem; }
-    .qms-content ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1rem; }
-    .qms-content li { margin-bottom: 0.25rem; }
-    .qms-content strong, .qms-content b { font-weight: 700; color: #111827; }
-    .qms-content a { color: #2563eb; text-decoration: underline; }
-</style>
-@endpush
 @endsection
