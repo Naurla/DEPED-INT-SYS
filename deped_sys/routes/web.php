@@ -29,11 +29,15 @@ use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 // Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
 
-// QMS & Vision Mission Controllers
+// QMS, Vision Mission, Data Privacy, and Citizen Charter Controllers
 use App\Http\Controllers\Admin\QmsController;
 use App\Http\Controllers\Admin\VisionMissionController;
+use App\Http\Controllers\Admin\DataPrivacyController;
+use App\Http\Controllers\Admin\CitizenCharterController;
 use App\Models\Qms;
 use App\Models\VisionMission;
+use App\Models\DataPrivacy;
+use App\Models\CitizenCharter;
 
 // ==========================================
 // PUBLIC ROUTES
@@ -79,6 +83,18 @@ Route::get('/vision-mission', function () {
     $data = VisionMission::first();
     return view('vision_mission.index', compact('data'));
 })->name('vision_mission.index');
+
+// Data Privacy Notice Public Route
+Route::get('/data-privacy', function () {
+    $data = DataPrivacy::first();
+    return view('data_privacy.index', compact('data'));
+})->name('data_privacy.index');
+
+// Citizen's Charter Public Route
+Route::get('/citizens-charter', function () {
+    $data = CitizenCharter::first();
+    return view('citizen_charter.index', compact('data'));
+})->name('citizen_charter.index');
 
 // Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
@@ -142,18 +158,26 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         });
 
-        // Site Settings, QMS & Vision Mission Management
+        // Site Settings & "Manage About" Content
         Route::middleware(['permission:settings'])->group(function () {
             Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
             Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
             
-            // Dedicated QMS Routes (Grouped under settings permission for convenience)
+            // Dedicated QMS Routes
             Route::get('/qms', [QmsController::class, 'index'])->name('qms.index');
             Route::post('/qms', [QmsController::class, 'update'])->name('qms.update');
 
             // Dedicated Vision & Mission Routes
             Route::get('/vision-mission', [VisionMissionController::class, 'index'])->name('vision_mission.index');
             Route::post('/vision-mission', [VisionMissionController::class, 'update'])->name('vision_mission.update');
+
+            // Dedicated Data Privacy Route
+            Route::get('/data-privacy', [DataPrivacyController::class, 'index'])->name('data_privacy.index');
+            Route::post('/data-privacy', [DataPrivacyController::class, 'update'])->name('data_privacy.update');
+
+            // Dedicated Citizen's Charter Routes
+            Route::get('/citizens-charter', [CitizenCharterController::class, 'index'])->name('citizen_charter.index');
+            Route::post('/citizens-charter', [CitizenCharterController::class, 'update'])->name('citizen_charter.update');
         });
 
         // Site Logos
