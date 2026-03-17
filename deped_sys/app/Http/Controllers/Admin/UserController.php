@@ -8,8 +8,8 @@ use App\Models\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail; // Add Mail facade
-use App\Mail\UserCreatedMail; // Add our new mail class
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserCreatedMail;
 
 class UserController extends Controller
 {
@@ -26,6 +26,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'role_id' => 'required|exists:roles,id',
+            'permissions' => 'nullable|array', // Validation for checklist array
         ]);
 
         // Generate temporary password
@@ -37,14 +38,33 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($tempPassword),
             'role_id' => $request->role_id,
+            'permissions' => $request->permissions ?? [], // Save the selected permissions
             'requires_password_change' => true,
         ]);
 
         // Send the email with the temporary password
         Mail::to($user->email)->send(new UserCreatedMail($user, $tempPassword));
 
-        // Return a generic success message WITHOUT the password
         return back()->with('success', 'User created successfully! An email with their temporary password has been sent.');
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id, // Ignore current user's email
+            'role_id' => 'required|exists:roles,id',
+            'permissions' => 'nullable|array',
+        ]);
+
+        $user->update([
+            'name' => $request->name,
+            'email' => $request->email,
+            'role_id' => $request->role_id,
+            'permissions' => $request->permissions ?? [],
+        ]);
+
+        return back()->with('success', 'User updated successfully.');
     }
 
     public function destroy(User $user)

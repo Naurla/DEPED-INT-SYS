@@ -26,14 +26,13 @@ use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMater
 use App\Http\Controllers\Frontend\ModulesController as FrontendModulesController;
 use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 
-// NEW: Site Settings Controller
+// Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
 
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
 
-// Foolproof Image Route
 Route::get('/serve-image/{path}', function($path) {
     $absolutePath = storage_path('app/public/' . $path);
     if (!file_exists($absolutePath)) {
@@ -114,36 +113,47 @@ Route::prefix('procurement/{category}')->name('procurement.')->group(function ()
 
 Route::middleware(['auth'])->group(function () {
 
-    // LOGOUT ROUTE
     Route::post('/logout', [AdminController::class, 'logout'])->name('logout');
-
-    // Secure File Access
-    Route::get('/procurement/file/{id}/{type}', [FileAccessController::class, 'show'])
-        ->name('procurement.file.access');
+    Route::get('/procurement/file/{id}/{type}', [FileAccessController::class, 'show'])->name('procurement.file.access');
 
     // Protected Admin Management
     Route::prefix('admin')->name('admin.')->group(function () {
         
-        Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+        // Dashboard
+        Route::middleware(['permission:dashboard'])->group(function () {
+            Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
+        });
 
-        // NEW: Dynamic Header and Footer Settings
-        Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
-        Route::resource('logos', \App\Http\Controllers\Admin\SiteLogoController::class)->except(['create', 'show', 'edit']);
+        // Site Settings
+        Route::middleware(['permission:settings'])->group(function () {
+            Route::get('/settings', [SiteSettingController::class, 'index'])->name('settings.index');
+            Route::post('/settings', [SiteSettingController::class, 'update'])->name('settings.update');
+        });
+
+        // Site Logos
+        Route::middleware(['permission:logos'])->group(function () {
+            Route::resource('logos', \App\Http\Controllers\Admin\SiteLogoController::class)->except(['create', 'show', 'edit']);
+        });
 
         // FAQ Management
-        Route::resource('faq', FaqController::class)->except(['create', 'show', 'edit']);
+        Route::middleware(['permission:faq'])->group(function () {
+            Route::resource('faq', FaqController::class)->except(['create', 'show', 'edit']);
+        });
 
-        // Learning Materials Admin
-        Route::resource('learning-materials', AdminLearningMaterialsController::class);
-        Route::get('get-learning-materials-data', [AdminLearningMaterialsController::class, 'getData'])->name('learning_materials.data');
+        // Learning Materials
+        Route::middleware(['permission:materials'])->group(function () {
+            Route::resource('learning-materials', AdminLearningMaterialsController::class);
+            Route::get('get-learning-materials-data', [AdminLearningMaterialsController::class, 'getData'])->name('learning_materials.data');
+        });
 
-        // Modules Admin
-        Route::resource('modules', AdminModulesController::class);
-        Route::get('get-modules-data', [AdminModulesController::class, 'getData'])->name('modules.data');
+        // ALS Modules
+        Route::middleware(['permission:modules'])->group(function () {
+            Route::resource('modules', AdminModulesController::class);
+            Route::get('get-modules-data', [AdminModulesController::class, 'getData'])->name('modules.data');
+        });
 
         // Curriculum Management
-        Route::prefix('curriculum')->name('curriculum.')->group(function () {
+        Route::middleware(['permission:curriculum'])->prefix('curriculum')->name('curriculum.')->group(function () {
             Route::get('/', [AdminCurriculumController::class, 'index'])->name('index');
             Route::post('/page', [AdminCurriculumController::class, 'updatePage'])->name('update_page');
             Route::post('/strands', [AdminCurriculumController::class, 'storeStrand'])->name('strands.store');
@@ -156,35 +166,59 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/guides/{guide}', [AdminCurriculumController::class, 'destroyGuide'])->name('guides.destroy');
         });
 
-        // Super Admin: User Management
-        Route::middleware(['role:super-admin'])->group(function () {
+        // User Management
+        Route::middleware(['permission:users'])->group(function () {
             Route::get('/users', [UserController::class, 'index'])->name('users.index');
             Route::post('/users', [UserController::class, 'store'])->name('users.store');
+            Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update'); 
             Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
         });
 
-        // Info Office
-        Route::middleware(['role:info-office'])->group(function () {
+        // Advisories
+        Route::middleware(['permission:advisories'])->group(function () {
             Route::get('/advisories', [AdvisoryController::class, 'index'])->name('advisory.index');
             Route::post('/advisories/store', [AdvisoryController::class, 'store'])->name('advisories.store');
             Route::put('/advisories/{advisory}', [AdvisoryController::class, 'update'])->name('advisories.update');
             Route::delete('/advisories/{advisory}', [AdvisoryController::class, 'destroy'])->name('advisories.destroy');
-            
+        });
+
+        // Banners
+        Route::middleware(['permission:banners'])->group(function () {
             Route::get('/banners', [BannerController::class, 'adminIndex'])->name('banners.index');
             Route::post('/banners', [BannerController::class, 'store'])->name('banners.store');
             Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
         });
 
-        // Issuance Manager
-        Route::middleware(['role:issuance-manager'])->prefix('issuances')->name('issuances.')->group(function () {
-            Route::get('/', [IssuanceController::class, 'adminIndex'])->name('index');
-            Route::post('/', [IssuanceController::class, 'store'])->name('store');
-            Route::put('/{issuance}', [IssuanceController::class, 'update'])->name('update');
-            Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
+        // Issuances (Strictly checks the requested type based on specific checklist permissions)
+        Route::prefix('issuances')->name('issuances.')->group(function () {
+            
+            // 1. Intercept the view request and check the specific tab permission
+            Route::get('/', function (\Illuminate\Http\Request $request) {
+                $type = $request->query('type', 'advisory'); // default to advisory if empty
+                
+                $permissionRequired = match($type) {
+                    'memorandum' => 'memoranda',
+                    'hrmpsb'     => 'hrmpsb',
+                    default      => 'advisories'
+                };
+                
+                if (!auth()->user()->hasPermission($permissionRequired)) {
+                    abort(403, 'Unauthorized Access. You do not have permission to view ' . strtoupper($type) . 'S.');
+                }
+                
+                return app(\App\Http\Controllers\IssuanceController::class)->adminIndex($request);
+            })->name('index');
+
+            // 2. Allow modifying records as long as they have at least one issuance permission
+            Route::middleware(['permission:memoranda,hrmpsb,advisories'])->group(function() {
+                Route::post('/', [IssuanceController::class, 'store'])->name('store');
+                Route::put('/{issuance}', [IssuanceController::class, 'update'])->name('update');
+                Route::delete('/{issuance}', [IssuanceController::class, 'destroy'])->name('destroy');
+            });
         });
 
         // Procurement Management
-        Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
+        Route::middleware(['permission:procurement'])->prefix('procurement/{category}')->name('procurement.')->group(function () {
             Route::get('/', [ProcurementController::class, 'index'])->name('index');
             Route::post('/', [ProcurementController::class, 'store'])->name('store');
             Route::put('/{id}', [ProcurementController::class, 'update'])->name('update');
