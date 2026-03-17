@@ -33,12 +33,25 @@
                     <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">Downloadable PDF Document</h3>
                     
                     @if($data->file_path)
-                        <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded flex items-center justify-between">
-                            <div class="flex items-center">
-                                <svg class="w-6 h-6 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
-                                <div>
-                                    <p class="text-sm font-bold text-gray-800">Current File: <a href="{{ asset('storage/' . $data->file_path) }}" target="_blank" class="text-blue-600 hover:underline">{{ $data->file_name }}</a></p>
-                                </div>
+                        <div class="mb-8">
+                            <label class="block text-gray-700 text-xs font-bold mb-3 uppercase">Current Uploaded File</label>
+                            
+                            <div class="relative inline-flex flex-col items-center bg-white border border-gray-200 shadow-sm rounded-xl p-5 w-48 group hover:shadow-md transition-shadow">
+                                
+                                <label class="absolute -top-3 -right-3 bg-white text-gray-400 border border-gray-200 shadow-sm rounded-full p-1.5 cursor-pointer hover:bg-red-50 hover:text-red-600 transition-colors z-10" title="Check to mark for removal">
+                                    <input type="checkbox" name="remove_pdf" value="1" class="hidden peer">
+                                    <svg class="w-4 h-4 peer-checked:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                    <svg class="w-4 h-4 hidden peer-checked:block text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg>
+                                </label>
+
+                                <a href="{{ asset('storage/' . $data->file_path) }}" target="_blank" class="flex flex-col items-center peer-checked:opacity-40 peer-checked:grayscale transition-all duration-200">
+                                    <svg class="w-16 h-16 text-red-600 mb-4 group-hover:scale-105 transition-transform" viewBox="0 0 24 24" fill="currentColor">
+                                        <path d="M11.363 2c4.156 0 2.637 6 2.637 6s6-1.65 6 2.457v11.543h-16v-20h7.363zm.827-2h-10.19v24h20v-14.386c0-2.391-6.648-9.614-9.81-9.614zm4.711 13.009c-1.815-.395-3.32-.42-4.145-.333-.872-.888-1.594-2.149-1.89-3.21-.29-1.042-.266-2.031-.132-2.392.21-.568.868-.696 1.157-.318.175.231.229.627.143 1.137-.161.947-1.144 2.476-1.144 2.476s-.682 1.621-1.385 2.92c-1.288 1.076-2.928 2.059-3.414 2.29-.85.405-1.012.981-.663 1.353.255.27.755.27 1.488-.23 1.332-.907 2.434-2.671 2.434-2.671s2.174-.636 3.864-.817c1.552.924 3.016 1.341 3.791 1.053.477-.179.625-.658.468-1.019-.175-.405-.729-.465-1.572-.239zm-7.662 2.766c-.328.29-.636.438-.85.438-.178 0-.256-.073-.243-.2.02-.191.312-.533 1.093-.822l-.001.584zm2.146-2.115c.616-1.066 1.054-2.106 1.253-2.659-.395 1.154-1.253 2.659-1.253 2.659zm1.318.599c.925.101 1.956.19 2.932.327-.478.291-1.206.452-1.928.324-.306-.055-.635-.152-.989-.283.003-.131-.005-.246-.015-.368zm3.014-1.26c-.463-.099-.958-.112-1.428-.088.374-.183.74-.239 1.04-.15.25.074.348.167.388.238z"/>
+                                    </svg>
+                                    <span class="text-sm font-bold text-gray-800 text-center line-clamp-2 leading-tight w-40" title="{{ $data->file_name }}">
+                                        {{ $data->file_name ?? 'CITIZENS_CHARTER.pdf' }}
+                                    </span>
+                                </a>
                             </div>
                         </div>
                     @endif
