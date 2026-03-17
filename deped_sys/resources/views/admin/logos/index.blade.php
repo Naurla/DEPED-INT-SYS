@@ -18,9 +18,17 @@
         </button>
     </div>
 
-    @if(session('success'))
+   @if(session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
             {{ session('success') }}
+        </div>
+    @endif
+
+    {{-- ADD THIS ERROR BLOCK --}}
+    @if(session('error'))
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-sm">
+            <strong class="font-bold">Oops!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
 
@@ -56,7 +64,7 @@
                             <span class="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-full text-xs font-bold uppercase tracking-wider">
                                 @if($logo->position == 'left') Header Left
                                 @elseif($logo->position == 'right') Header Right
-                                @elseif($logo->position == 'footer_left') Footer Left
+                                @elseif($logo->position == 'footer_left') Footer Left 
                                 @elseif($logo->position == 'footer_right') Footer Right
                                 @endif
                             </span>
@@ -117,8 +125,8 @@
                                     <select name="position" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-[#a52a2a] focus:ring-1 focus:ring-[#a52a2a] bg-white">
                                         <option value="left">Header Left Side</option>
                                         <option value="right">Header Right Side</option>
-                                        <option value="footer_left">Footer Left</option>
-                                        <option value="footer_right">Footer Right</option>
+                                        <option value="footer_left">Footer Left Side</option>
+                                        <option value="footer_right">Footer Right Side</option>
                                     </select>
                                 </div>
                                 <div>

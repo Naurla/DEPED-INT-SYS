@@ -21,10 +21,23 @@ class SiteLogoController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'image' => 'required|image|max:2048',
-           // Change this line in your store() and update() validation rules:
             'position' => 'required|in:left,right,footer_left,footer_right',
             'order' => 'integer'
         ]);
+
+        $order = $request->order ?? 1;
+
+        // Check if a logo already exists in this position with this exact order
+        $existingLogo = SiteLogo::where('position', $request->position)
+                                ->where('order', $order)
+                                ->first();
+
+        // If it exists, redirect back with a user-friendly error message
+        if ($existingLogo) {
+            return redirect()->back()
+                ->withInput() // Keeps the user's typed inputs
+                ->with('error', 'A logo already exists in this section with Sort Order ' . $order . '. Please choose a different order number or edit the existing logo instead.');
+        }
 
         $path = $request->file('image')->store('logos', 'public');
 
@@ -32,7 +45,7 @@ class SiteLogoController extends Controller
             'name' => $request->name,
             'image_path' => $path,
             'position' => $request->position,
-            'order' => $request->order ?? 0,
+            'order' => $order,
             'is_active' => $request->has('is_active'),
         ]);
 
@@ -45,10 +58,23 @@ class SiteLogoController extends Controller
         $request->validate([
             'name' => 'nullable|string|max:255',
             'image' => 'nullable|image|max:2048',
-            // Change this line in your store() and update() validation rules:
             'position' => 'required|in:left,right,footer_left,footer_right',
             'order' => 'integer'
         ]);
+
+        $order = $request->order ?? 1;
+
+        // Check for conflicts, ignoring the current logo being edited
+        $conflictLogo = SiteLogo::where('position', $request->position)
+                                ->where('order', $order)
+                                ->where('id', '!=', $logo->id)
+                                ->first();
+        
+        if ($conflictLogo) {
+            return redirect()->back()
+                ->withInput()
+                ->with('error', 'Another logo already exists in this section with Sort Order ' . $order . '. Please choose a different order number.');
+        }
 
         if ($request->hasFile('image')) {
             if (Storage::disk('public')->exists($logo->image_path)) {
@@ -59,7 +85,7 @@ class SiteLogoController extends Controller
 
         $logo->name = $request->name;
         $logo->position = $request->position;
-        $logo->order = $request->order ?? 0;
+        $logo->order = $order;
         $logo->is_active = $request->has('is_active');
         $logo->save();
 

@@ -209,7 +209,8 @@
         </div>
     </div>
 
-    <footer class="bg-[#f2f2f2] text-gray-700 py-12 border-t border-gray-300 mt-auto">
+    {{-- FOOTER SECTION (Relative container to lock the admin button to bottom right) --}}
+    <footer class="bg-[#f2f2f2] text-gray-700 pt-12 pb-16 border-t border-gray-300 mt-auto relative">
         <div class="container mx-auto px-6 lg:px-20 flex flex-wrap lg:flex-nowrap items-start gap-8 justify-between">
             
             <div class="w-full lg:w-auto flex flex-col items-center md:items-start gap-4 flex-shrink-0">
@@ -235,12 +236,10 @@
                         <div class="text-center md:text-left max-w-[300px]">
                             <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">{{ $section['title'] }}</h2>
                             
-                            {{-- NEW: Show the paragraph text if the admin typed it in --}}
                             @if(!empty($section['content']))
                                 <p class="text-[13px] leading-relaxed mb-3 whitespace-pre-line">{{ $section['content'] }}</p>
                             @endif
 
-                            {{-- Show links if the admin added any --}}
                             @if(!empty($section['links']) && count($section['links']) > 0)
                                 <ul class="text-[13px] space-y-1">
                                     @foreach($section['links'] as $link)
@@ -295,26 +294,30 @@
 
             </div>
 
-            <div class="w-full lg:w-auto flex flex-col items-center md:items-end justify-between flex-shrink-0">
+            <div class="w-full lg:w-auto flex flex-col items-center md:items-end flex-shrink-0">
                 <div class="flex flex-col gap-4 items-center md:items-end">
                     @php $footerRightLogos = isset($site_logos) ? $site_logos->where('position', 'footer_right') : collect(); @endphp
                     @if($footerRightLogos->isNotEmpty())
                         @foreach($footerRightLogos as $logo)
-                            <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="h-16 w-auto object-contain">
+                            {{-- Matching the w-[150px] constraint to make it bigger and equal to the left logo --}}
+                            <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="w-[150px] h-auto object-contain">
                         @endforeach
                     @else
-                        <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="h-16 w-auto object-contain">
+                        {{-- Matching the w-[150px] constraint to make it bigger and equal to the left logo --}}
+                        <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="w-[150px] h-auto object-contain">
                     @endif
                 </div>
-
-                <button @click="loginModal = true" class="mt-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                    </svg>
-                </button>
             </div>
 
         </div>
+
+        {{-- Admin Login Button (Absolute Bottom Right) --}}
+        <button @click="loginModal = true" class="absolute bottom-4 right-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+            </svg>
+        </button>
+
     </footer>
 
     {{-- LOGIN MODAL --}}
