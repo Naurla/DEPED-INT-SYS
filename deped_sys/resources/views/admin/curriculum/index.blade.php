@@ -23,11 +23,11 @@
         {{-- Clickable Header --}}
         <div class="flex justify-between items-center p-6 cursor-pointer hover:bg-gray-50 transition" 
              @click="isExpanded = !isExpanded">
-            <h3 class="text-xl font-bold font-cinzel text-[#003366]">Main Page Banner</h3>
+            <h3 class="text-xl font-bold font-cinzel text-[#a52a2a]">Main Page Banner</h3>
             
             <div class="flex items-center gap-4 ">
                 <template x-if="!imageUrl && isExpanded">
-                    <button type="button" @click.stop="$refs.fileInput.click()" class="bg-[#003366] text-white px-4 py-2 rounded hover:bg-[#002244] font-bold shadow flex items-center gap-2 transition">
+                    <button type="button" @click.stop="$refs.fileInput.click()" class="bg-[#a52a2a] text-white px-4 py-2 rounded hover:bg-[#801a1a] font-bold shadow flex items-center gap-2 transition">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                         Add Page Banner
                     </button>
@@ -78,7 +78,7 @@
                     <template x-if="!imageUrl">
                         <div class="text-center py-10 bg-gray-50 rounded-lg border-2 border-dashed border-gray-300">
                              <p class="text-gray-500 font-sans italic">No banner currently uploaded.</p>
-                             <button type="button" @click="$refs.fileInput.click()" class="mt-4 bg-[#003366] text-white px-4 py-2 rounded hover:bg-[#002244] font-bold shadow inline-flex items-center gap-2 transition">
+                             <button type="button" @click="$refs.fileInput.click()" class="mt-4 bg-[#a52a2a] text-white px-4 py-2 rounded hover:bg-[#801a1a] font-bold shadow inline-flex items-center gap-2 transition">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                 Upload Banner
                             </button>
@@ -93,7 +93,7 @@
     <div class="bg-gray-50 p-6 rounded shadow-sm border border-gray-200 mb-8" x-data="{ showModal: false, showFileModal: false, activeStrandId: null }">
         <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-bold font-cinzel text-gray-800">Learning Strands</h3>
-            <button @click="showModal = true" class="bg-[#003366] text-white px-6 py-2 rounded shadow hover:bg-[#002244] transition font-bold font-cinzel tracking-wide">
+            <button @click="showModal = true" class="bg-[#a52a2a] text-white px-6 py-2 rounded shadow hover:bg-[#801a1a] transition font-bold font-cinzel tracking-wide">
                 + ADD NEW LEARNING STRAND
             </button>
         </div>
@@ -109,7 +109,7 @@
                     {{-- Action Buttons (Edit & Delete) --}}
                     <div class="absolute top-4 right-4 z-10 flex gap-2">
                         {{-- Edit Strand Button --}}
-                        <button type="button" @click="showEditStrand = true" class="text-[#003366] hover:text-[#002244] bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition" title="Edit Strand">
+                        <button type="button" @click="showEditStrand = true" class="text-[#a52a2a] hover:text-[#801a1a] bg-gray-100 hover:bg-gray-200 p-1.5 rounded transition" title="Edit Strand">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                         </button>
 
@@ -122,17 +122,17 @@
                     {{-- Left Side: Text Content --}}
                     <div class="p-6 md:w-2/3 border-b md:border-b-0 md:border-r border-gray-200">
                         <div class="mb-4 pr-20"> {{-- pr-20 prevents text overlapping with buttons --}}
-                            <span class="bg-blue-50 text-[#003366] border border-[#003366]/20 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">TITLE</span>
+                            <span class="bg-red-50 text-[#a52a2a] border border-[#a52a2a]/20 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">TITLE</span>
                             <h4 class="text-xl font-bold text-gray-900 font-cinzel">{{ $strand->name }}</h4>
                         </div>
                         
                         <div class="mb-4">
-                            <span class="bg-blue-50 text-[#003366] border border-[#003366]/20 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">CONTENT TITLE</span>
+                            <span class="bg-red-50 text-[#a52a2a] border border-[#a52a2a]/20 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">CONTENT TITLE</span>
                             <h5 class="text-lg font-bold text-gray-800 font-cinzel">{{ $strand->content_title ?: 'No Content Title' }}</h5>
                         </div>
                         
                         <div>
-                            <span class="bg-blue-50 text-[#003366] border border-[#003366]/20 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">CONTENT DESCRIPTIONS</span>
+                            <span class="bg-red-50 text-[#a52a2a] border border-[#a52a2a]/20 text-xs font-bold px-2 py-1 rounded inline-block mb-1 tracking-wider font-sans">CONTENT DESCRIPTIONS</span>
                             @if(is_array($strand->content_description) && count($strand->content_description) > 0)
                                 <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1 font-sans">
                                     @foreach($strand->content_description as $desc)
@@ -155,8 +155,8 @@
                             <h6 class="font-bold text-gray-700 mb-4 border-b border-gray-200 pb-2 font-cinzel">Attached Materials</h6>
                             <ul class="space-y-2 mb-4">
                                 @forelse($strand->materials as $material)
-                                    <li class="flex items-center justify-between group bg-white px-3 py-2 rounded border border-gray-200 shadow-sm hover:border-[#003366] transition">
-                                        <a href="{{ asset('storage/' . $material->file_path) }}" target="_blank" class="flex items-center text-[#003366] hover:text-[#002244] transition flex-grow overflow-hidden pr-2">
+                                    <li class="flex items-center justify-between group bg-white px-3 py-2 rounded border border-gray-200 shadow-sm hover:border-[#a52a2a] transition">
+                                        <a href="{{ asset('storage/' . $material->file_path) }}" target="_blank" class="flex items-center text-[#a52a2a] hover:text-[#801a1a] transition flex-grow overflow-hidden pr-2">
                                             <span class="text-[#a52a2a] mr-2 text-lg">📄</span>
                                             <span class="text-sm font-semibold truncate font-sans" title="{{ $material->title }}">{{ $material->title }}</span>
                                         </a>
@@ -182,9 +182,9 @@
                         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                             <div x-show="showEditStrand" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showEditStrand = false"></div>
 
-                            <div x-show="showEditStrand" x-transition class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#003366]">
+                            <div x-show="showEditStrand" x-transition class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#a52a2a]">
                                 <div class="flex justify-between items-center mb-5 border-b pb-3">
-                                    <h3 class="text-xl font-bold text-[#003366] font-cinzel">Edit Learning Strand</h3>
+                                    <h3 class="text-xl font-bold text-[#a52a2a] font-cinzel">Edit Learning Strand</h3>
                                     <button type="button" @click="showEditStrand = false" class="text-gray-400 hover:text-gray-600">
                                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                     </button>
@@ -195,11 +195,11 @@
                                     @method('PUT')
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                                        <input type="text" name="name" value="{{ $strand->name }}" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" required>
+                                        <input type="text" name="name" value="{{ $strand->name }}" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2" required>
                                     </div>
                                     <div>
                                         <label class="block text-sm font-bold text-gray-700 mb-1">Content Title</label>
-                                        <input type="text" name="content_title" value="{{ $strand->content_title }}" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2">
+                                        <input type="text" name="content_title" value="{{ $strand->content_title }}" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2">
                                     </div>
                                     
                                     {{-- Dynamic Descriptions Input (Edit) --}}
@@ -208,15 +208,15 @@
                                         <div class="space-y-2">
                                             <template x-for="(desc, index) in descriptions" :key="index">
                                                 <div class="flex items-start gap-2">
-                                                    <div class="pt-2 text-[#003366]">•</div>
-                                                    <textarea x-model="descriptions[index]" name="content_description[]" rows="2" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" placeholder="Enter a bullet point description..."></textarea>
+                                                    <div class="pt-2 text-[#a52a2a]">•</div>
+                                                    <textarea x-model="descriptions[index]" name="content_description[]" rows="2" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2" placeholder="Enter a bullet point description..."></textarea>
                                                     <button type="button" @click="descriptions.splice(index, 1)" x-show="descriptions.length > 1" class="text-red-500 hover:bg-red-50 p-2 rounded mt-1" title="Remove bullet">
                                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                     </button>
                                                 </div>
                                             </template>
                                         </div>
-                                        <button type="button" @click="descriptions.push('')" class="mt-2 text-sm text-[#003366] font-bold hover:underline flex items-center gap-1">
+                                        <button type="button" @click="descriptions.push('')" class="mt-2 text-sm text-[#a52a2a] font-bold hover:underline flex items-center gap-1">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                             Add another bullet point
                                         </button>
@@ -224,7 +224,7 @@
 
                                     <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                                         <button type="button" @click="showEditStrand = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
-                                        <button type="submit" class="px-4 py-2 bg-[#003366] text-white rounded hover:bg-[#002244] font-bold shadow-sm transition">Save Changes</button>
+                                        <button type="submit" class="px-4 py-2 bg-[#a52a2a] text-white rounded hover:bg-[#801a1a] font-bold shadow-sm transition">Save Changes</button>
                                     </div>
                                 </form>
                             </div>
@@ -241,9 +241,9 @@
             <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                 <div x-show="showModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showModal = false"></div>
 
-                <div x-show="showModal" x-transition class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#003366]">
+                <div x-show="showModal" x-transition class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#a52a2a]">
                     <div class="flex justify-between items-center mb-5 border-b pb-3">
-                        <h3 class="text-xl font-bold text-[#003366] font-cinzel">Create New Learning Strand</h3>
+                        <h3 class="text-xl font-bold text-[#a52a2a] font-cinzel">Create New Learning Strand</h3>
                         <button type="button" @click="showModal = false" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -253,11 +253,11 @@
                         @csrf
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Title <span class="text-gray-400 font-normal">(e.g., LEARNING STRAND 1)</span></label>
-                            <input type="text" name="name" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" required>
+                            <input type="text" name="name" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2" required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Content Title <span class="text-gray-400 font-normal">(e.g., COMMUNICATION SKILLS)</span></label>
-                            <input type="text" name="content_title" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2">
+                            <input type="text" name="content_title" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2">
                         </div>
                         
                         {{-- Dynamic Descriptions Input --}}
@@ -266,15 +266,15 @@
                             <div class="space-y-2">
                                 <template x-for="(desc, index) in descriptions" :key="index">
                                     <div class="flex items-start gap-2">
-                                        <div class="pt-2 text-[#003366]">•</div>
-                                        <textarea x-model="descriptions[index]" name="content_description[]" rows="2" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" placeholder="Enter a bullet point description..."></textarea>
+                                        <div class="pt-2 text-[#a52a2a]">•</div>
+                                        <textarea x-model="descriptions[index]" name="content_description[]" rows="2" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2" placeholder="Enter a bullet point description..."></textarea>
                                         <button type="button" @click="descriptions.splice(index, 1)" x-show="descriptions.length > 1" class="text-red-500 hover:bg-red-50 p-2 rounded mt-1" title="Remove bullet">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>
                                 </template>
                             </div>
-                            <button type="button" @click="descriptions.push('')" class="mt-2 text-sm text-[#003366] font-bold hover:underline flex items-center gap-1">
+                            <button type="button" @click="descriptions.push('')" class="mt-2 text-sm text-[#a52a2a] font-bold hover:underline flex items-center gap-1">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                                 Add another bullet point
                             </button>
@@ -282,7 +282,7 @@
 
                         <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                             <button type="button" @click="showModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-[#003366] text-white rounded hover:bg-[#002244] font-bold shadow-sm transition">Save Strand</button>
+                            <button type="submit" class="px-4 py-2 bg-[#a52a2a] text-white rounded hover:bg-[#801a1a] font-bold shadow-sm transition">Save Strand</button>
                         </div>
                     </form>
                 </div>
@@ -296,7 +296,7 @@
 
                 <div x-show="showFileModal" x-transition class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#a52a2a]">
                     <div class="flex justify-between items-center mb-5 border-b pb-3">
-                        <h3 class="text-xl font-bold text-[#003366] font-cinzel">Upload PDF Material</h3>
+                        <h3 class="text-xl font-bold text-[#a52a2a] font-cinzel">Upload PDF Material</h3>
                         <button type="button" @click="showFileModal = false" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -334,18 +334,18 @@
             
             {{-- Add New Guide Form --}}
             <div class="bg-white p-6 rounded-lg border border-gray-200 shadow-sm h-fit">
-                <h4 class="font-bold text-[#003366] uppercase text-sm mb-4 font-cinzel border-b pb-2">Add New Guide</h4>
+                <h4 class="font-bold text-[#a52a2a] uppercase text-sm mb-4 font-cinzel border-b pb-2">Add New Guide</h4>
                 <form action="{{ route('admin.curriculum.guides.store') }}" method="POST" class="space-y-4">
                     @csrf
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">Track/Guide Title</label>
-                        <input type="text" name="title" required placeholder="e.g. Academic Track" class="w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-[#003366] focus:border-[#003366]">
+                        <input type="text" name="title" required placeholder="e.g. Academic Track" class="w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-[#a52a2a] focus:border-[#a52a2a]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-600 uppercase tracking-widest mb-1">External Link (URL)</label>
-                        <input type="url" name="link" required placeholder="https://..." class="w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-[#003366] focus:border-[#003366]">
+                        <input type="url" name="link" required placeholder="https://..." class="w-full border border-gray-300 rounded-md shadow-sm p-2 text-sm focus:ring-[#a52a2a] focus:border-[#a52a2a]">
                     </div>
-                    <button type="submit" class="w-full bg-[#003366] hover:bg-[#002244] text-white font-bold uppercase text-xs py-2.5 rounded shadow transition font-sans tracking-wide">
+                    <button type="submit" class="w-full bg-[#a52a2a] hover:bg-[#801a1a] text-white font-bold uppercase text-xs py-2.5 rounded shadow transition font-sans tracking-wide">
                         Save Guide
                     </button>
                 </form>
@@ -355,7 +355,7 @@
             <div class="lg:col-span-2 bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm">
-                        <thead class="bg-[#f0f4f8] text-[#003366] uppercase font-bold text-xs border-b border-[#003366]/10">
+                        <thead class="bg-red-50 text-[#a52a2a] uppercase font-bold text-xs border-b border-[#a52a2a]/10">
                             <tr>
                                 <th class="px-5 py-3 border-b">Guide Title</th>
                                 <th class="px-5 py-3 border-b">Redirect Link</th>
@@ -366,15 +366,15 @@
                             @forelse($guides ?? [] as $guide)
                                 <tr class="hover:bg-gray-50 transition-colors">
                                     <td class="px-5 py-4 font-bold">{{ $guide->title }}</td>
-                                    <td class="px-5 py-4 text-[#003366] truncate max-w-[200px]">
-                                        <a href="{{ $guide->link }}" target="_blank" class="hover:underline flex items-center hover:text-[#a52a2a] transition-colors">
+                                    <td class="px-5 py-4 text-[#a52a2a] truncate max-w-[200px]">
+                                        <a href="{{ $guide->link }}" target="_blank" class="hover:underline flex items-center hover:text-[#801a1a] transition-colors">
                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
                                             {{ $guide->link }}
                                         </a>
                                     </td>
                                     <td class="px-5 py-4 flex justify-center gap-2">
                                         <button @click="showEditModal = true; editId = '{{ $guide->id }}'; editTitle = '{{ addslashes($guide->title) }}'; editLink = '{{ addslashes($guide->link) }}'; editAction = '/admin/curriculum/guides/{{ $guide->id }}'" 
-                                                class="text-[#003366] hover:text-[#002244] bg-blue-50 hover:bg-blue-100 p-1.5 rounded transition" title="Edit">
+                                                class="text-[#a52a2a] hover:text-[#801a1a] bg-gray-100 hover:bg-gray-200 p-1.5 rounded transition" title="Edit">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
                                         </button>
                                         
@@ -400,9 +400,9 @@
             <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
                 <div x-show="showEditModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75" @click="showEditModal = false"></div>
 
-                <div x-show="showEditModal" x-transition class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#003366]">
+                <div x-show="showEditModal" x-transition class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border-t-4 border-[#a52a2a]">
                     <div class="flex justify-between items-center mb-5 border-b pb-3">
-                        <h3 class="text-xl font-bold text-[#003366] font-cinzel">Edit Curriculum Guide</h3>
+                        <h3 class="text-xl font-bold text-[#a52a2a] font-cinzel">Edit Curriculum Guide</h3>
                         <button type="button" @click="showEditModal = false" class="text-gray-400 hover:text-gray-600">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                         </button>
@@ -413,15 +413,15 @@
                         @method('PUT')
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">Track/Guide Title</label>
-                            <input type="text" name="title" x-model="editTitle" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" required>
+                            <input type="text" name="title" x-model="editTitle" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2" required>
                         </div>
                         <div>
                             <label class="block text-sm font-bold text-gray-700 mb-1">External Link (URL)</label>
-                            <input type="url" name="link" x-model="editLink" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#003366] focus:border-[#003366] p-2" required>
+                            <input type="url" name="link" x-model="editLink" class="w-full border border-gray-300 rounded-md shadow-sm focus:ring-[#a52a2a] focus:border-[#a52a2a] p-2" required>
                         </div>
                         <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100">
                             <button type="button" @click="showEditModal = false" class="px-4 py-2 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 font-bold transition">Cancel</button>
-                            <button type="submit" class="px-4 py-2 bg-[#003366] text-white rounded hover:bg-[#002244] font-bold shadow-sm transition">Update Changes</button>
+                            <button type="submit" class="px-4 py-2 bg-[#a52a2a] text-white rounded hover:bg-[#801a1a] font-bold shadow-sm transition">Update Changes</button>
                         </div>
                     </form>
                 </div>
@@ -437,7 +437,7 @@
             <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="showDeleteModal = false"></div>
 
             <div x-show="showDeleteModal" x-transition class="bg-white rounded-2xl p-8 shadow-2xl z-[70] w-full max-w-sm transform transition-all relative">
-                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                <div class="w-16 h-16 bg-red-100 text-[#a52a2a] rounded-full flex items-center justify-center mx-auto mb-4">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
@@ -446,7 +446,7 @@
                 <h3 class="text-xl font-bold text-gray-800 mb-2 font-cinzel">Confirm Deletion</h3>
                 <p class="text-gray-500 text-sm mb-6 font-sans" x-text="deleteTitle"></p>
                 
-                <div class="flex space-x-3 font-sans">
+                <div class="flex space-x-3 font-sans w-full">
                     <button @click="showDeleteModal = false" type="button" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
                         Cancel
                     </button>
@@ -454,7 +454,7 @@
                     <form :action="deleteAction" method="POST" class="flex-1 m-0 p-0">
                         @csrf
                         @method('DELETE')
-                        <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition">
+                        <button type="submit" class="w-full px-4 py-2 bg-[#a52a2a] text-white rounded-xl font-bold hover:bg-[#801a1a] shadow-lg shadow-red-200 transition">
                             Yes, Delete
                         </button>
                     </form>
