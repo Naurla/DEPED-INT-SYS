@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $site_settings->header_title ?? 'DepEd Zamboanga City Division' }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -199,6 +199,15 @@
                         <a href="{{ route('procurement.index', ['category' => 'pre-bid-minutes']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Minutes of Pre-Bid</a>
                     </div>
                 </div>
+
+                {{-- NEW: INFINITE RECURSIVE DYNAMIC PAGES --}}
+                @if(isset($navPages) && $navPages->isNotEmpty())
+                    @foreach($navPages as $navPage)
+                        @include('partials.frontend_menu_item', ['page' => $navPage])
+                    @endforeach
+                @endif
+                {{-- END DYNAMIC PAGES --}}
+                
             </div>
         </div>
     </nav>

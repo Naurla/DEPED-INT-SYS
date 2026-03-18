@@ -39,6 +39,11 @@ use App\Models\VisionMission;
 use App\Models\DataPrivacy;
 use App\Models\CitizenCharter;
 
+// --- NEW IMPORTS FOR DYNAMIC PAGES ---
+use App\Http\Controllers\Admin\PageController as AdminPageController;
+use App\Http\Controllers\Frontend\PageController as FrontendPageController;
+// -------------------------------------
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -141,6 +146,11 @@ Route::prefix('procurement/{category}')->name('procurement.')->group(function ()
     Route::get('/{id}', [BidOpportunityController::class, 'show'])->name('show');
 });
 
+// --- NEW PUBLIC ROUTE FOR DYNAMIC PAGES ---
+// Kept at the bottom of public routes so it doesn't conflict with static URLs like /qms
+Route::get('/page/{slug}', [FrontendPageController::class, 'show'])->name('frontend.page');
+// ------------------------------------------
+
 // ==========================================
 // SECURE ROUTES
 // ==========================================
@@ -179,6 +189,12 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/citizens-charter', [CitizenCharterController::class, 'index'])->name('citizen_charter.index');
             Route::post('/citizens-charter', [CitizenCharterController::class, 'update'])->name('citizen_charter.update');
         });
+
+        // --- NEW ADMIN ROUTE FOR DYNAMIC PAGES ---
+        Route::middleware(['permission:pages'])->group(function () {
+            Route::resource('pages', AdminPageController::class);
+        });
+        // -----------------------------------------
 
         // Site Logos
         Route::middleware(['permission:logos'])->group(function () {

@@ -67,6 +67,18 @@
             </a>
             @endif
 
+            {{-- MANAGE PAGES LINK --}}
+            @if(auth()->user()->hasPermission('pages')) 
+            <a href="{{ route('admin.pages.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.pages.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v10a2 2 0 01-2 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10h6M9 14h6"></path>
+                </svg>
+                <span x-show="sidebarOpen">Manage Pages</span>
+            </a>
+            @endif
+
             @if(auth()->user()->hasPermission('logos'))
             <a href="{{ route('admin.logos.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.logos.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
@@ -248,6 +260,20 @@
                 </div>
             </div>
             @endif
+
+            {{-- DYNAMIC CUSTOM PAGES IN ADMIN SIDEBAR --}}
+            @if(isset($navPages) && $navPages->isNotEmpty())
+                <div class="mt-4 pt-4 border-t border-red-800/50">
+                    <span x-show="sidebarOpen" class="px-4 text-[10px] font-black text-red-300 uppercase tracking-widest">Custom Pages</span>
+                    
+                    @foreach($navPages as $navPage)
+                        {{-- Call the recursive partial for each top-level page --}}
+                        @include('partials.admin_sidebar_item', ['item' => $navPage, 'depth' => 0])
+                    @endforeach
+                </div>
+            @endif
+            {{-- END DYNAMIC CUSTOM PAGES --}}
+
         </nav>
 
         <div class="p-4 border-t border-red-800 shrink-0">
