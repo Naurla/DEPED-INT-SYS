@@ -21,11 +21,11 @@ class DatabaseSeeder extends Seeder
 
         // 2. Find your existing admin account by its email, or create it if it doesn't exist
         // IMPORTANT: Change 'admin@example.com' to the actual email you use to log in!
-        $admin = User::firstOrCreate(
+        $admin = User::updateOrCreate(
             ['email' => 'admin@example.com'], 
             [
                 'name' => 'Super Administrator',
-                'password' => Hash::make('password123'), // Change this if you want a different default password
+                'password' => Hash::make('12345'), // This will now overwrite the old password
                 'requires_password_change' => false
             ]
         );
