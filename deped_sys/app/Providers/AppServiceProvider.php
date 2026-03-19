@@ -42,8 +42,8 @@ class AppServiceProvider extends ServiceProvider
             if (\Illuminate\Support\Facades\Schema::hasTable('pages')) {
                 $navPages = \Illuminate\Support\Facades\Cache::rememberForever('nav_pages', function () {
                     // Only get root pages (no parent) but eager load all nested children
+                    // REMOVED the show_in_nav filter so Admin can see hidden pages
                     return \App\Models\Page::whereNull('parent_id')
-                                ->where('show_in_nav', true)
                                 ->with('children')
                                 ->get();
                 });

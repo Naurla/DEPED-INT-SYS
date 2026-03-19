@@ -203,7 +203,9 @@
                 {{-- NEW: INFINITE RECURSIVE DYNAMIC PAGES --}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
-                        @include('partials.frontend_menu_item', ['page' => $navPage])
+                        @if($navPage->show_in_nav) {{-- ADD THIS CHECK --}}
+                            @include('partials.frontend_menu_item', ['page' => $navPage])
+                        @endif
                     @endforeach
                 @endif
                 {{-- END DYNAMIC PAGES --}}
