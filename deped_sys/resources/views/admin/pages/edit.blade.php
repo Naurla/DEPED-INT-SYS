@@ -76,13 +76,87 @@
 @push('scripts')
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
-    // Only load CKEditor if the text area is actually on the page
+    class MyUploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+
+        upload() {
+            return this.loader.file.then(file => new Promise((resolve, reject) => {
+                this._initRequest();
+                this._initListeners(resolve, reject, file);
+                this._sendRequest(file);
+            }));
+        }
+
+        abort() {
+            if (this.xhr) { this.xhr.abort(); }
+        }
+
+        _initRequest() {
+            const xhr = this.xhr = new XMLHttpRequest();
+            
+            // POINT TO THE NEW UNRESTRICTED ROUTE
+            xhr.open('POST', '{{ route('editor.upload') }}', true);
+            
+            xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+            xhr.responseType = 'json';
+        }
+
+        _initListeners(resolve, reject, file) {
+            const xhr = this.xhr;
+            const loader = this.loader;
+            const genericErrorText = `Couldn't upload file: ${file.name}.`;
+
+            xhr.addEventListener('error', () => reject(genericErrorText));
+            xhr.addEventListener('abort', () => reject());
+            xhr.addEventListener('load', () => {
+                const response = xhr.response;
+
+                // If Laravel throws a 500 error, response will be null/HTML
+                if (!response || response.error) {
+                    return reject(response && response.error ? response.error.message : genericErrorText);
+                }
+
+                // Success! Pass the URL back to the editor
+                resolve({
+                    default: response.url
+                });
+            });
+
+            // Adds a loading bar to the image upload
+            if (xhr.upload) {
+                xhr.upload.addEventListener('progress', evt => {
+                    if (evt.lengthComputable) {
+                        loader.uploadTotal = evt.total;
+                        loader.uploaded = evt.loaded;
+                    }
+                });
+            }
+        }
+
+        _sendRequest(file) {
+            const data = new FormData();
+            data.append('upload', file);
+            data.append('_token', '{{ csrf_token() }}'); // <-- ADD THIS LINE
+            this.xhr.send(data);
+        }
+    }
+
+    function MyCustomUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new MyUploadAdapter(loader);
+        };
+    }
+
     if (document.querySelector('#rich-editor')) {
         ClassicEditor
-            .create( document.querySelector( '#rich-editor' ) )
-            .catch( error => {
-                console.error( error );
-            } );
+            .create(document.querySelector('#rich-editor'), {
+                extraPlugins: [MyCustomUploadAdapterPlugin]
+            })
+            .catch(error => {
+                console.error(error);
+            });
     }
 </script>
 <style>

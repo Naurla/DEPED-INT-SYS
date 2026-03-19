@@ -5,15 +5,16 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
-   public function index()
-{
-    // Fetch ALL pages and load their parent so we can show the hierarchy
-    $pages = Page::with('parent')->get();
-    return view('admin.pages.index', compact('pages'));
-}
+    public function index()
+    {
+        // Fetch ALL pages and load their parent so we can show the hierarchy
+        $pages = Page::with('parent')->get();
+        return view('admin.pages.index', compact('pages'));
+    }
 
     public function create()
     {
@@ -25,7 +26,7 @@ class PageController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'nullable', // Changed from 'required'
+            'content' => 'nullable', 
             'layout_template' => 'required|string'
         ]);
 
@@ -43,7 +44,6 @@ class PageController extends Controller
 
     public function edit(Page $page)
     {
-        // Get all pages EXCEPT the current one (a page cannot be its own parent)
         $allPages = Page::where('id', '!=', $page->id)->get();
         return view('admin.pages.edit', compact('page', 'allPages'));
     }
@@ -52,7 +52,7 @@ class PageController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'nullable', // Changed from 'required'
+            'content' => 'nullable', 
             'layout_template' => 'required|string'
         ]);
 
@@ -73,5 +73,36 @@ class PageController extends Controller
         $page->delete();
         Cache::forget('nav_pages');
         return redirect()->route('admin.pages.index')->with('success', 'Page deleted.');
+    }
+
+    // --- CKEDITOR IMAGE UPLOAD METHOD ---
+    public function uploadImage(Request $request)
+    {
+        try {
+            if ($request->hasFile('upload')) {
+                $file = $request->file('upload');
+                
+                // Using uniqid() ensures no weird filename characters break the upload
+                $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        
+                // Store the image in the public disk
+                $file->storeAs('public/pages/images', $fileName);
+        
+                // Generate the public URL
+                $url = asset('storage/pages/images/' . $fileName);
+        
+                // Return exactly what CKEditor expects
+                return response()->json([
+                    'uploaded' => 1,
+                    'fileName' => $fileName,
+                    'url' => $url
+                ]);
+            }
+            
+            return response()->json(['uploaded' => 0, 'error' => ['message' => 'No file found in request.']]);
+        } catch (\Exception $e) {
+            // If anything goes wrong (like folder permissions), return the exact error
+            return response()->json(['uploaded' => 0, 'error' => ['message' => $e->getMessage()]]);
+        }
     }
 }

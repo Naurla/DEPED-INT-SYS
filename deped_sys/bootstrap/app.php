@@ -16,6 +16,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'permission' => \App\Http\Middleware\CheckPermission::class,
         ]);
+
+        // --- EXEMPT CKEDITOR UPLOAD FROM CSRF STRICTNESS ---
+        $middleware->validateCsrfTokens(except: [
+            'editor/upload-image',
+            'editor/upload-image*'
+        ]);
+        // --------------------------------------------------------
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -48,6 +48,10 @@ use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 // PUBLIC ROUTES
 // ==========================================
 
+// --- BULLETPROOF CKEDITOR UPLOAD ROUTE ---
+Route::post('/editor/upload-image', [AdminPageController::class, 'uploadImage'])->name('editor.upload');
+// -----------------------------------------
+
 Route::get('/serve-image/{path}', function($path) {
     $absolutePath = storage_path('app/public/' . $path);
     if (!file_exists($absolutePath)) {
@@ -190,7 +194,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/citizens-charter', [CitizenCharterController::class, 'update'])->name('citizen_charter.update');
         });
 
-        // --- NEW ADMIN ROUTE FOR DYNAMIC PAGES ---
+        // --- ADMIN ROUTE FOR DYNAMIC PAGES ---
         Route::middleware(['permission:pages'])->group(function () {
             Route::resource('pages', AdminPageController::class);
         });
