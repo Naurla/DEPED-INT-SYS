@@ -406,82 +406,66 @@
     <script async charset="utf-8" src="//cdn.embedly.com/widgets/platform.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-            document.querySelectorAll( 'oembed[url]' ).forEach( element => {
-                const url = element.getAttribute('url');
-                const urlLower = url.toLowerCase();
-                let iframeSrc = '';
-                let isVertical = false;
-
-                // 1. STRICT VERTICAL: YouTube Shorts
-                if (urlLower.includes('youtube.com/shorts/')) {
-                    let videoId = url.split('/shorts/')[1].split('?')[0];
-                    iframeSrc = `https://www.youtube.com/embed/${videoId}`;
-                    isVertical = true;
-                }
-                // 2. STRICT HORIZONTAL: YouTube Standard
-                else if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) {
-                    let videoId = '';
-                    if (urlLower.includes('watch?v=')) {
-                        videoId = url.split('watch?v=')[1].split('&')[0];
-                    } else if (urlLower.includes('youtu.be/')) {
-                        videoId = url.split('youtu.be/')[1].split('?')[0];
-                    }
-                    if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
-                    isVertical = false;
-                }
-                // 3. STRICT VERTICAL: Facebook Reels (Triggers only for /reel/ and /share/r/)
-                else if ((urlLower.includes('facebook.com') || urlLower.includes('fb.watch') || urlLower.includes('fb.me')) && (urlLower.includes('/reel/') || urlLower.includes('/share/r/'))) {
-                    iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
-                    isVertical = true;
-                }
-                // 4. STRICT HORIZONTAL: Facebook Standard (Triggers for /videos/, /watch/, /share/v/)
-                else if (urlLower.includes('facebook.com') || urlLower.includes('fb.watch') || urlLower.includes('fb.me')) {
-                    iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
-                    isVertical = false;
-                }
-                // 5. STRICT VERTICAL: TikTok
-                else if (urlLower.includes('tiktok.com')) {
-                    let matches = url.match(/video\/(\d+)/i);
-                    if (matches && matches[1]) {
-                        iframeSrc = `https://www.tiktok.com/embed/v2/${matches[1]}`;
-                    } else {
-                        iframeSrc = `https://www.tiktok.com/embed/v2/${url.split('/').pop().split('?')[0]}`;
-                    }
-                    isVertical = true;
-                }
-
-                if (iframeSrc) {
-                    const wrapper = document.createElement('div');
-                    wrapper.style.position = 'relative';
-                    wrapper.style.width = '100%';
-                    wrapper.style.margin = '1.5rem auto';
-                    wrapper.style.backgroundColor = '#000'; // This makes the white box deep black!
-                    wrapper.style.overflow = 'hidden';
-                    wrapper.style.borderRadius = '12px';
-                    wrapper.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.15)';
+            // Frontend Watcher: Automagically requests the shape from Laravel and updates the public view
+            document.querySelectorAll('oembed[url]').forEach(async element => {
+                const rawUrl = element.getAttribute('url');
+                
+                try {
+                    const res = await fetch(`/api/video-shape?url=${encodeURIComponent(rawUrl)}`);
+                    const data = await res.json();
                     
-                    if (isVertical) {
-                        wrapper.style.maxWidth = '350px';
-                        wrapper.style.aspectRatio = '9/16';
-                    } else {
-                        wrapper.style.aspectRatio = '16/9';
+                    let iframeSrc = '';
+                    const url = rawUrl.toLowerCase();
+
+                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let videoId = '';
+                        if (url.includes('watch?v=')) videoId = rawUrl.split('watch?v=')[1].split('&')[0];
+                        else if (url.includes('youtu.be/')) videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
+                        else if (url.includes('/shorts/')) videoId = rawUrl.split('/shorts/')[1].split('?')[0];
+                        if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
+                    } else if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.me')) {
+                        iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(rawUrl)}&show_text=false`;
+                    } else if (url.includes('tiktok.com')) {
+                        let matches = rawUrl.match(/video\/(\d+)/i);
+                        if (matches && matches[1]) iframeSrc = `https://www.tiktok.com/embed/v2/${matches[1]}`;
+                        else iframeSrc = `https://www.tiktok.com/embed/v2/${rawUrl.split('/').pop().split('?')[0]}`;
                     }
 
-                    const iframe = document.createElement('iframe');
-                    iframe.setAttribute('src', iframeSrc);
-                    iframe.setAttribute('frameborder', '0');
-                    iframe.setAttribute('allowtransparency', 'true'); // Required so Facebook's background disappears
-                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
-                    iframe.setAttribute('allowfullscreen', 'true');
-                    
-                    iframe.style.position = 'absolute';
-                    iframe.style.top = '0';
-                    iframe.style.left = '0';
-                    iframe.style.width = '100%';
-                    iframe.style.height = '100%';
+                    if (iframeSrc) {
+                        const wrapper = document.createElement('div');
+                        wrapper.style.position = 'relative';
+                        wrapper.style.width = '100%';
+                        wrapper.style.margin = '1.5rem auto';
+                        wrapper.style.backgroundColor = '#000';
+                        wrapper.style.overflow = 'hidden';
+                        wrapper.style.borderRadius = '12px';
+                        wrapper.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.15)';
+                        
+                        if (data.shape === 'vertical') {
+                            wrapper.style.maxWidth = '350px';
+                            wrapper.style.aspectRatio = '9/16';
+                        } else {
+                            wrapper.style.aspectRatio = '16/9';
+                        }
 
-                    wrapper.appendChild(iframe);
-                    element.parentNode.replaceChild(wrapper, element);
+                        const iframe = document.createElement('iframe');
+                        iframe.setAttribute('src', iframeSrc);
+                        iframe.setAttribute('frameborder', '0');
+                        iframe.setAttribute('allowtransparency', 'true');
+                        iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                        iframe.setAttribute('allowfullscreen', 'true');
+                        
+                        iframe.style.position = 'absolute';
+                        iframe.style.top = '0';
+                        iframe.style.left = '0';
+                        iframe.style.width = '100%';
+                        iframe.style.height = '100%';
+
+                        wrapper.appendChild(iframe);
+                        element.parentNode.replaceChild(wrapper, element);
+                    }
+                } catch (e) {
+                    console.error("Video Load Error: ", e);
                 }
             });
         });

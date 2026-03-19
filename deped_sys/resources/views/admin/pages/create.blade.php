@@ -17,7 +17,6 @@
             <input type="text" name="title" value="{{ old('title') }}" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none" required>
         </div>
 
-        {{-- Parent Page Dropdown --}}
         <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Parent Category (Optional)</label>
             <select name="parent_id" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
@@ -33,7 +32,6 @@
             <p class="text-xs text-gray-500 mt-1">If selected, this page will appear as a dropdown under the parent category.</p>
         </div>
 
-        {{-- Layout Template Dropdown --}}
         <div class="mb-4">
             <label class="block text-gray-700 font-bold mb-2">Frontend Layout Style</label>
             <select name="layout_template" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
@@ -119,63 +117,57 @@
                 mediaEmbed: {
                     previewsInData: false,
                     providers: [
-                        // 1. STRICT VERTICAL: YouTube Shorts
                         {
-                            name: 'youtube_shorts',
-                            url: /^.*youtube\.com\/shorts\/([\w-]+).*$/i,
+                            name: 'all_videos',
+                            url: /^.*(youtube\.com|youtu\.be|facebook\.com|fb\.watch|fb\.me|tiktok\.com).*$/i,
                             html: match => {
-                                const id = match[1];
-                                return `<div style="position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.youtube.com/embed/${id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-                            }
-                        },
-                        // 2. STRICT HORIZONTAL: YouTube Standard
-                        {
-                            name: 'youtube',
-                            url: [
-                                /^(?:m\.)?youtube\.com\/watch\?v=([\w-]+)(?:&.*)?$/i,
-                                /^(?:m\.)?youtube\.com\/v\/([\w-]+)(?:\?.*)?$/i,
-                                /^.*youtube\.com\/embed\/([\w-]+)(?:\?.*)?$/i,
-                                /^.*youtu\.be\/([\w-]+)(?:\?.*)?$/i
-                            ],
-                            html: match => {
-                                const id = match[1];
-                                return `<div style="position: relative; width: 100%; aspect-ratio: 16/9; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.youtube.com/embed/${id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-                            }
-                        },
-                        // 3. STRICT VERTICAL: Facebook Reels
-                        {
-                            name: 'facebook_reels',
-                            url: /^.*(?:facebook\.com|fb\.watch|fb\.me).*(?:\/reel\/|\/share\/r\/).*$/i,
-                            html: match => {
-                                const url = match[0];
-                                return `<div style="position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="encrypted-media; web-share" allowfullscreen></iframe></div>`;
-                            }
-                        },
-                        // 4. STRICT HORIZONTAL: Facebook Standard (Catches /videos/, /watch/, /share/v/, etc)
-                        {
-                            name: 'facebook',
-                            url: /^.*(?:facebook\.com|fb\.watch|fb\.me).*$/i,
-                            html: match => {
-                                const url = match[0];
-                                return `<div style="position: relative; width: 100%; aspect-ratio: 16/9; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="encrypted-media; web-share" allowfullscreen></iframe></div>`;
-                            }
-                        },
-                        // 5. STRICT VERTICAL: TikTok
-                        {
-                            name: 'tiktok',
-                            url: /^.*tiktok\.com\/.*$/i,
-                            html: match => {
-                                const url = match[0];
-                                let id = '';
-                                const videoMatch = url.match(/video\/(\d+)/i);
-                                if (videoMatch) { id = videoMatch[1]; } else { id = url.split('/').pop().split('?')[0]; }
-                                return `<div style="position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.tiktok.com/embed/v2/${id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen></iframe></div>`;
+                                return `<div class="async-video-wrapper my-6" data-url="${match[0]}"><div style="width:100%; aspect-ratio:16/9; background:#e5e7eb; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#6b7280; font-weight:bold;">Analyzing Video Shape with Laravel API...</div></div>`;
                             }
                         }
                     ]
                 }
             })
             .catch(error => { console.error(error); });
+            
+        // Editor Watcher: Automagically requests the shape from Laravel and updates the editor preview
+        setInterval(() => {
+            document.querySelectorAll('.async-video-wrapper:not(.loaded)').forEach(async el => {
+                el.classList.add('loaded');
+                const rawUrl = el.getAttribute('data-url');
+                
+                try {
+                    const res = await fetch(`/api/video-shape?url=${encodeURIComponent(rawUrl)}`);
+                    const data = await res.json();
+                    
+                    let iframeSrc = '';
+                    const url = rawUrl.toLowerCase();
+
+                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                        let videoId = '';
+                        if (url.includes('watch?v=')) videoId = rawUrl.split('watch?v=')[1].split('&')[0];
+                        else if (url.includes('youtu.be/')) videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
+                        else if (url.includes('/shorts/')) videoId = rawUrl.split('/shorts/')[1].split('?')[0];
+                        if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
+                    } else if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.me')) {
+                        iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(rawUrl)}&show_text=false`;
+                    } else if (url.includes('tiktok.com')) {
+                        let matches = rawUrl.match(/video\/(\d+)/i);
+                        if (matches && matches[1]) iframeSrc = `https://www.tiktok.com/embed/v2/${matches[1]}`;
+                        else iframeSrc = `https://www.tiktok.com/embed/v2/${rawUrl.split('/').pop().split('?')[0]}`;
+                    }
+
+                    if (iframeSrc) {
+                        const style = data.shape === 'vertical'
+                            ? 'position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);'
+                            : 'position: relative; width: 100%; aspect-ratio: 16/9; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);';
+
+                        el.innerHTML = `<div style="${style}"><iframe src="${iframeSrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+                    }
+                } catch (e) {
+                    el.innerHTML = `<div style="color:red; padding:1rem; border:1px solid red; text-align:center;">API Check Failed</div>`;
+                }
+            });
+        }, 1000);
     }
 </script>
 <style>
@@ -189,8 +181,6 @@
     .ck-content ul { list-style-type: disc !important; }
     .ck-content ol { list-style-type: decimal !important; }
     .ck-content li { margin-bottom: 0.5rem !important; display: list-item !important; }
-    
-    /* PREVENT SQUASHING & ENSURE NO CROPPING */
     .ck-content .ck-media__wrapper { padding-bottom: 0 !important; min-height: auto !important; height: auto !important; }
     .ck-content .ck-media__wrapper iframe { position: relative !important; top: auto !important; left: auto !important; height: auto; }
     .ck-content .media { display: block !important; margin: 1.5rem auto !important; text-align: center; }

@@ -52,6 +52,10 @@ use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 Route::post('/editor/upload-image', [AdminPageController::class, 'uploadImage'])->name('editor.upload');
 // -----------------------------------------
 
+// --- BACKEND VIDEO SHAPE API ---
+Route::get('/api/video-shape', [AdminPageController::class, 'checkVideoShape'])->name('api.video.shape');
+// -------------------------------
+
 Route::get('/serve-image/{path}', function($path) {
     $absolutePath = storage_path('app/public/' . $path);
     if (!file_exists($absolutePath)) {
