@@ -403,6 +403,34 @@
         </div>
     </div>
     
+    <script async charset="utf-8" src="//cdn.embedly.com/widgets/platform.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll( 'oembed[url]' ).forEach( element => {
+                const iframe = document.createElement( 'iframe' );
+                
+                // Convert standard youtube links to embed links
+                let url = element.getAttribute( 'url' );
+                if (url.includes('youtube.com/watch?v=')) {
+                    url = url.replace('watch?v=', 'embed/');
+                } else if (url.includes('youtu.be/')) {
+                    url = url.replace('youtu.be/', 'youtube.com/embed/');
+                }
+                
+                // Build the iframe player
+                iframe.setAttribute( 'src', url );
+                iframe.setAttribute( 'frameborder', '0' );
+                iframe.setAttribute( 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' );
+                iframe.setAttribute( 'allowfullscreen', 'true' );
+                
+                // Add styling to make it responsive
+                iframe.setAttribute( 'style', 'width: 100%; aspect-ratio: 16/9; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);' );
+
+                // Replace the broken oembed tag with the working iframe
+                element.parentNode.replaceChild( iframe, element );
+            } );
+        });
+    </script>
     @stack('scripts')
 </body>
 </html>

@@ -182,6 +182,19 @@
     /* Keep your existing heading fixes here too */
     .ck-content h1 { font-size: 2.5rem !important; font-weight: 800 !important; }
     .ck-content h2 { font-size: 2rem !important; font-weight: 700 !important; }
+
+    /* IMAGE FIX: Prevent Tailwind from hiding or distorting CKEditor images */
+.ck-content .image {
+    max-width: 100%;
+    margin: 1.5rem auto !important;
+    display: block !important;
+}
+.ck-content .image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
 </style>
 @endpush
 @endsection

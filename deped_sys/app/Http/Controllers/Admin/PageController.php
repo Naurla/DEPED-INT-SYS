@@ -85,10 +85,10 @@ class PageController extends Controller
                 // Using uniqid() ensures no weird filename characters break the upload
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
         
-                // Store the image in the public disk
-                $file->storeAs('public/pages/images', $fileName);
+                // FIX: Explicitly set the path to 'pages/images' and the disk to 'public'
+                $file->storeAs('pages/images', $fileName, 'public');
         
-                // Generate the public URL
+                // FIX: Use asset() helper to generate the correct absolute URL
                 $url = asset('storage/pages/images/' . $fileName);
         
                 // Return exactly what CKEditor expects

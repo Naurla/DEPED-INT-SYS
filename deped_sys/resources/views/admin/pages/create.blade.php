@@ -172,6 +172,18 @@
         margin-bottom: 0.5rem !important;
         display: list-item !important; /* Ensures the dots/numbers appear */
     }
+    /* IMAGE FIX: Prevent Tailwind from hiding or distorting CKEditor images */
+.ck-content .image {
+    max-width: 100%;
+    margin: 1.5rem auto !important;
+    display: block !important;
+}
+.ck-content .image img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
 </style>
 @endpush
 @endsection
