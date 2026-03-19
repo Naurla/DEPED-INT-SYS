@@ -88,7 +88,13 @@
                 <span x-show="sidebarOpen">Header & Footer Logos</span>
             </a>
             @endif
-
+               @if(auth()->user()->hasPermission('advisories'))
+            <a href="{{ route('admin.advisory.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span x-show="sidebarOpen">Public Advisories</span>
+            </a>
+            @endif
             @if(auth()->user()->hasPermission('about'))
             <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
@@ -150,13 +156,7 @@
             </div>
             @endif
             
-            @if(auth()->user()->hasPermission('advisories'))
-            <a href="{{ route('admin.advisory.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
-                <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Public Advisories</span>
-            </a>
-            @endif
+         
 
             @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('faq'))
             <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') ? 'true' : 'false' }} }" class="relative mt-2">
