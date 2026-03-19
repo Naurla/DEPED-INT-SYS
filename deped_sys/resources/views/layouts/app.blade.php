@@ -407,28 +407,83 @@
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             document.querySelectorAll( 'oembed[url]' ).forEach( element => {
-                const iframe = document.createElement( 'iframe' );
-                
-                // Convert standard youtube links to embed links
-                let url = element.getAttribute( 'url' );
-                if (url.includes('youtube.com/watch?v=')) {
-                    url = url.replace('watch?v=', 'embed/');
-                } else if (url.includes('youtu.be/')) {
-                    url = url.replace('youtu.be/', 'youtube.com/embed/');
-                }
-                
-                // Build the iframe player
-                iframe.setAttribute( 'src', url );
-                iframe.setAttribute( 'frameborder', '0' );
-                iframe.setAttribute( 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture' );
-                iframe.setAttribute( 'allowfullscreen', 'true' );
-                
-                // Add styling to make it responsive
-                iframe.setAttribute( 'style', 'width: 100%; aspect-ratio: 16/9; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);' );
+                const url = element.getAttribute('url');
+                const urlLower = url.toLowerCase();
+                let iframeSrc = '';
+                let isVertical = false;
 
-                // Replace the broken oembed tag with the working iframe
-                element.parentNode.replaceChild( iframe, element );
-            } );
+                // 1. STRICT VERTICAL: YouTube Shorts
+                if (urlLower.includes('youtube.com/shorts/')) {
+                    let videoId = url.split('/shorts/')[1].split('?')[0];
+                    iframeSrc = `https://www.youtube.com/embed/${videoId}`;
+                    isVertical = true;
+                }
+                // 2. STRICT HORIZONTAL: YouTube Standard
+                else if (urlLower.includes('youtube.com') || urlLower.includes('youtu.be')) {
+                    let videoId = '';
+                    if (urlLower.includes('watch?v=')) {
+                        videoId = url.split('watch?v=')[1].split('&')[0];
+                    } else if (urlLower.includes('youtu.be/')) {
+                        videoId = url.split('youtu.be/')[1].split('?')[0];
+                    }
+                    if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
+                    isVertical = false;
+                }
+                // 3. STRICT VERTICAL: Facebook Reels (Triggers only for /reel/ and /share/r/)
+                else if ((urlLower.includes('facebook.com') || urlLower.includes('fb.watch') || urlLower.includes('fb.me')) && (urlLower.includes('/reel/') || urlLower.includes('/share/r/'))) {
+                    iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
+                    isVertical = true;
+                }
+                // 4. STRICT HORIZONTAL: Facebook Standard (Triggers for /videos/, /watch/, /share/v/)
+                else if (urlLower.includes('facebook.com') || urlLower.includes('fb.watch') || urlLower.includes('fb.me')) {
+                    iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false`;
+                    isVertical = false;
+                }
+                // 5. STRICT VERTICAL: TikTok
+                else if (urlLower.includes('tiktok.com')) {
+                    let matches = url.match(/video\/(\d+)/i);
+                    if (matches && matches[1]) {
+                        iframeSrc = `https://www.tiktok.com/embed/v2/${matches[1]}`;
+                    } else {
+                        iframeSrc = `https://www.tiktok.com/embed/v2/${url.split('/').pop().split('?')[0]}`;
+                    }
+                    isVertical = true;
+                }
+
+                if (iframeSrc) {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.position = 'relative';
+                    wrapper.style.width = '100%';
+                    wrapper.style.margin = '1.5rem auto';
+                    wrapper.style.backgroundColor = '#000'; // This makes the white box deep black!
+                    wrapper.style.overflow = 'hidden';
+                    wrapper.style.borderRadius = '12px';
+                    wrapper.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.15)';
+                    
+                    if (isVertical) {
+                        wrapper.style.maxWidth = '350px';
+                        wrapper.style.aspectRatio = '9/16';
+                    } else {
+                        wrapper.style.aspectRatio = '16/9';
+                    }
+
+                    const iframe = document.createElement('iframe');
+                    iframe.setAttribute('src', iframeSrc);
+                    iframe.setAttribute('frameborder', '0');
+                    iframe.setAttribute('allowtransparency', 'true'); // Required so Facebook's background disappears
+                    iframe.setAttribute('allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share');
+                    iframe.setAttribute('allowfullscreen', 'true');
+                    
+                    iframe.style.position = 'absolute';
+                    iframe.style.top = '0';
+                    iframe.style.left = '0';
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+
+                    wrapper.appendChild(iframe);
+                    element.parentNode.replaceChild(wrapper, element);
+                }
+            });
         });
     </script>
     @stack('scripts')

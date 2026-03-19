@@ -63,10 +63,7 @@
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
     class MyUploadAdapter {
-        constructor(loader) {
-            this.loader = loader;
-        }
-
+        constructor(loader) { this.loader = loader; }
         upload() {
             return this.loader.file.then(file => new Promise((resolve, reject) => {
                 this._initRequest();
@@ -74,116 +71,131 @@
                 this._sendRequest(file);
             }));
         }
-
-        abort() {
-            if (this.xhr) { this.xhr.abort(); }
-        }
-
+        abort() { if (this.xhr) { this.xhr.abort(); } }
         _initRequest() {
             const xhr = this.xhr = new XMLHttpRequest();
-            
-            // POINT TO THE NEW UNRESTRICTED ROUTE
             xhr.open('POST', '{{ route('editor.upload') }}', true);
-            
             xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
             xhr.responseType = 'json';
         }
-
         _initListeners(resolve, reject, file) {
             const xhr = this.xhr;
             const loader = this.loader;
-            const genericErrorText = `Couldn't upload file: ${file.name}.`;
-
-            xhr.addEventListener('error', () => reject(genericErrorText));
+            xhr.addEventListener('error', () => reject(`Couldn't upload file: ${file.name}.`));
             xhr.addEventListener('abort', () => reject());
             xhr.addEventListener('load', () => {
                 const response = xhr.response;
-
-                // If Laravel throws a 500 error, response will be null/HTML
                 if (!response || response.error) {
-                    return reject(response && response.error ? response.error.message : genericErrorText);
+                    return reject(response && response.error ? response.error.message : `Couldn't upload file: ${file.name}.`);
                 }
-
-                // Success! Pass the URL back to the editor
-                resolve({
-                    default: response.url
-                });
+                resolve({ default: response.url });
             });
-
-            // Adds a loading bar to the image upload
             if (xhr.upload) {
                 xhr.upload.addEventListener('progress', evt => {
-                    if (evt.lengthComputable) {
-                        loader.uploadTotal = evt.total;
-                        loader.uploaded = evt.loaded;
-                    }
+                    if (evt.lengthComputable) { loader.uploadTotal = evt.total; loader.uploaded = evt.loaded; }
                 });
             }
         }
-
         _sendRequest(file) {
             const data = new FormData();
             data.append('upload', file);
-            data.append('_token', '{{ csrf_token() }}'); // <-- ADD THIS LINE
+            data.append('_token', '{{ csrf_token() }}');
             this.xhr.send(data);
         }
     }
 
     function MyCustomUploadAdapterPlugin(editor) {
-        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
-            return new MyUploadAdapter(loader);
-        };
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => { return new MyUploadAdapter(loader); };
     }
 
     if (document.querySelector('#rich-editor')) {
         ClassicEditor
             .create(document.querySelector('#rich-editor'), {
-                extraPlugins: [MyCustomUploadAdapterPlugin]
+                extraPlugins: [MyCustomUploadAdapterPlugin],
+                toolbar: [
+                    'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
+                    'outdent', 'indent', '|', 'imageUpload', 'mediaEmbed', 'blockQuote', 'insertTable', '|', 'undo', 'redo'
+                ],
+                mediaEmbed: {
+                    previewsInData: false,
+                    providers: [
+                        // 1. STRICT VERTICAL: YouTube Shorts
+                        {
+                            name: 'youtube_shorts',
+                            url: /^.*youtube\.com\/shorts\/([\w-]+).*$/i,
+                            html: match => {
+                                const id = match[1];
+                                return `<div style="position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.youtube.com/embed/${id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                            }
+                        },
+                        // 2. STRICT HORIZONTAL: YouTube Standard
+                        {
+                            name: 'youtube',
+                            url: [
+                                /^(?:m\.)?youtube\.com\/watch\?v=([\w-]+)(?:&.*)?$/i,
+                                /^(?:m\.)?youtube\.com\/v\/([\w-]+)(?:\?.*)?$/i,
+                                /^.*youtube\.com\/embed\/([\w-]+)(?:\?.*)?$/i,
+                                /^.*youtu\.be\/([\w-]+)(?:\?.*)?$/i
+                            ],
+                            html: match => {
+                                const id = match[1];
+                                return `<div style="position: relative; width: 100%; aspect-ratio: 16/9; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.youtube.com/embed/${id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
+                            }
+                        },
+                        // 3. STRICT VERTICAL: Facebook Reels
+                        {
+                            name: 'facebook_reels',
+                            url: /^.*(?:facebook\.com|fb\.watch|fb\.me).*(?:\/reel\/|\/share\/r\/).*$/i,
+                            html: match => {
+                                const url = match[0];
+                                return `<div style="position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="encrypted-media; web-share" allowfullscreen></iframe></div>`;
+                            }
+                        },
+                        // 4. STRICT HORIZONTAL: Facebook Standard (Catches /videos/, /watch/, /share/v/, etc)
+                        {
+                            name: 'facebook',
+                            url: /^.*(?:facebook\.com|fb\.watch|fb\.me).*$/i,
+                            html: match => {
+                                const url = match[0];
+                                return `<div style="position: relative; width: 100%; aspect-ratio: 16/9; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(url)}&show_text=false" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="encrypted-media; web-share" allowfullscreen></iframe></div>`;
+                            }
+                        },
+                        // 5. STRICT VERTICAL: TikTok
+                        {
+                            name: 'tiktok',
+                            url: /^.*tiktok\.com\/.*$/i,
+                            html: match => {
+                                const url = match[0];
+                                let id = '';
+                                const videoMatch = url.match(/video\/(\d+)/i);
+                                if (videoMatch) { id = videoMatch[1]; } else { id = url.split('/').pop().split('?')[0]; }
+                                return `<div style="position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);"><iframe src="https://www.tiktok.com/embed/v2/${id}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen></iframe></div>`;
+                            }
+                        }
+                    ]
+                }
             })
-            .catch(error => {
-                console.error(error);
-            });
+            .catch(error => { console.error(error); });
     }
 </script>
 <style>
     .ck-editor__editable_inline { min-height: 400px; }
-
-    /* TABLE FIX (Keep this) */
-    .ck-content table { border-collapse: collapse; width: 100%; margin-bottom: 1.5rem; }
-    .ck-content table, .ck-content th, .ck-content td { border: 1px solid #d1d5db; padding: 12px; }
-    .ck-content th { background-color: #f3f4f6; font-weight: bold; }
-
-    /* HEADING FIX (Keep this) */
+    .ck-content table { border-collapse: collapse !important; width: 100% !important; margin-bottom: 1.5rem !important; }
+    .ck-content table, .ck-content th, .ck-content td { border: 1px solid #d1d5db !important; padding: 12px !important; }
+    .ck-content th { background-color: #f3f4f6 !important; font-weight: bold !important; }
     .ck-content h1 { font-size: 2.5rem !important; font-weight: 800 !important; }
     .ck-content h2 { font-size: 2rem !important; font-weight: 700 !important; }
-
-    /* LIST FIX: Force Tailwind to style lists INSIDE the editor */
-    .ck-content ul, .ck-content ol {
-        margin-left: 2rem !important; /* Add indentation */
-        margin-bottom: 1.5rem !important;
-    }
-    .ck-content ul {
-        list-style-type: disc !important; /* Forces Bullet Points */
-    }
-    .ck-content ol {
-        list-style-type: decimal !important; /* Forces Numbers */
-    }
-    .ck-content li {
-        margin-bottom: 0.5rem !important;
-        display: list-item !important; /* Ensures the dots/numbers appear */
-    }
-    /* IMAGE FIX: Prevent Tailwind from hiding or distorting CKEditor images */
-.ck-content .image {
-    max-width: 100%;
-    margin: 1.5rem auto !important;
-    display: block !important;
-}
-.ck-content .image img {
-    max-width: 100%;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
+    .ck-content ul, .ck-content ol { margin-left: 2rem !important; margin-bottom: 1.5rem !important; }
+    .ck-content ul { list-style-type: disc !important; }
+    .ck-content ol { list-style-type: decimal !important; }
+    .ck-content li { margin-bottom: 0.5rem !important; display: list-item !important; }
+    
+    /* PREVENT SQUASHING & ENSURE NO CROPPING */
+    .ck-content .ck-media__wrapper { padding-bottom: 0 !important; min-height: auto !important; height: auto !important; }
+    .ck-content .ck-media__wrapper iframe { position: relative !important; top: auto !important; left: auto !important; height: auto; }
+    .ck-content .media { display: block !important; margin: 1.5rem auto !important; text-align: center; }
+    .ck-content .image { max-width: 100%; margin: 1.5rem auto !important; display: block !important; }
+    .ck-content .image img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 </style>
 @endpush
 @endsection
