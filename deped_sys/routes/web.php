@@ -123,6 +123,10 @@ Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->na
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
+// --- NEW GLOBAL SEARCH ROUTE ---
+Route::get('/search', [IssuanceController::class, 'globalSearch'])->name('search.global');
+// -------------------------------
+
 // Frontend Learning Materials Routes
 Route::get('/k-to-12/learning-materials', [FrontendLearningMaterialsController::class, 'index'])->name('learning_materials.index');
 Route::get('/k-to-12/learning-materials/{id}', [FrontendLearningMaterialsController::class, 'show'])->name('learning_materials.show');

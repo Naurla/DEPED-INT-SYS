@@ -152,4 +152,19 @@ class IssuanceController extends Controller
 
         return back()->with('success', 'Issuance deleted successfully!');
     }
+    public function globalSearch(Request $request)
+    {
+        $query = $request->input('q');
+        
+        // Search across title and description of all issuances
+        $results = \App\Models\Issuance::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
+            
+        // Append the query string to pagination links so they don't break when navigating pages
+        $results->appends(['q' => $query]);
+
+        return view('frontend.search_results', compact('results', 'query'));
+    }
 }

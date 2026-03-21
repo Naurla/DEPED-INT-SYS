@@ -203,15 +203,25 @@
                     </div>
                 </div>
 
-                {{-- NEW: INFINITE RECURSIVE DYNAMIC PAGES --}}
+                {{-- DYNAMIC PAGES --}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
-                        @if($navPage->show_in_nav) {{-- ADD THIS CHECK --}}
+                        @if($navPage->show_in_nav)
                             @include('partials.frontend_menu_item', ['page' => $navPage])
                         @endif
                     @endforeach
                 @endif
                 {{-- END DYNAMIC PAGES --}}
+
+                {{-- 🔍 GLOBAL SEARCH BAR (NEW) 🔍 --}}
+                <div class="w-full md:w-auto md:ml-auto px-4 py-2 flex items-center justify-center">
+                    <form action="/search" method="GET" class="relative w-full md:w-64">
+                        <input type="text" name="q" placeholder="Search memos, advisories..." value="{{ request('q') }}" class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 text-sm focus:outline-none focus:border-[#a52a2a] focus:ring-1 focus:ring-[#a52a2a] shadow-inner transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-700">
+                        <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#a52a2a]">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </button>
+                    </form>
+                </div>
                 
             </div>
         </div>
