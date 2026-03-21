@@ -135,7 +135,7 @@
                             
                             {{-- NEW: Link to Admin Management Page --}}
                             <a href="{{ route('admin.org_chart.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.org_chart.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">
-                                Manage Exec. Committee
+                                Executive Committee
                             </a>
                             
                             {{-- EXISTING: Public Preview Link --}}
