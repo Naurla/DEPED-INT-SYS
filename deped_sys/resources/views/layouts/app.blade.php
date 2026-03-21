@@ -86,7 +86,7 @@
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] border-r border-gray-300 transition-colors {{ request()->is('/') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">Home</a>
                 
                 {{-- About (UPDATED WITH NESTED MENUS) --}}
-                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->is('about*') || request()->routeIs('qms.index') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->is('about*') || request()->routeIs('qms.index') || request()->routeIs('org.chart') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     
@@ -112,7 +112,10 @@
                             </div>
                             <div class="hidden group-hover/sub-org:block absolute left-full top-0 w-96 bg-white shadow-xl border border-gray-200 py-2">
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Division Office Organization Structure</a>
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Executive Committee</a>
+                                
+                                {{-- UPDATED LINK: Executive Committee Dynamic Chart --}}
+                                <a href="{{ route('org.chart') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('org.chart') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Executive Committee</a>
+                                
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Curriculum Implementation Division</a>
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Office of the Schools Division Superintendent</a>
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100">School Governance and Operations Divisions</a>

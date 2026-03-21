@@ -44,6 +44,11 @@ use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
 // -------------------------------------
 
+// --- IMPORTS FOR ORGANIZATIONAL CHART ---
+use App\Http\Controllers\OrgChartController;
+use App\Http\Controllers\Admin\OrgChartAdminController;
+// ----------------------------------------
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -108,6 +113,9 @@ Route::get('/citizens-charter', function () {
     $data = CitizenCharter::first();
     return view('citizen_charter.index', compact('data'));
 })->name('citizen_charter.index');
+
+// Organizational Structure - Executive Committee (Dynamic Chart)
+Route::get('/about/organizational-structure/executive-committee', [OrgChartController::class, 'index'])->name('org.chart');
 
 // Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
@@ -197,6 +205,19 @@ Route::middleware(['auth'])->group(function () {
             Route::get('/citizens-charter', [CitizenCharterController::class, 'index'])->name('citizen_charter.index');
             Route::post('/citizens-charter', [CitizenCharterController::class, 'update'])->name('citizen_charter.update');
         });
+
+        // --- ADMIN ROUTE FOR ORGANIZATIONAL CHART ---
+        Route::middleware(['permission:about'])->group(function () {
+            Route::prefix('org-chart')->name('org_chart.')->group(function () {
+                Route::get('/', [OrgChartAdminController::class, 'index'])->name('index');
+                Route::post('/position', [OrgChartAdminController::class, 'storePosition'])->name('store');
+                Route::delete('/position/{position}', [OrgChartAdminController::class, 'destroyPosition'])->name('destroy');
+                
+                Route::post('/position/{position}/assign', [OrgChartAdminController::class, 'assignSlot'])->name('assign');
+                Route::delete('/assignment/{assignment}', [OrgChartAdminController::class, 'unassignSlot'])->name('unassign');
+            });
+        });
+        // --------------------------------------------
 
         // --- ADMIN ROUTE FOR DYNAMIC PAGES ---
         Route::middleware(['permission:pages'])->group(function () {
