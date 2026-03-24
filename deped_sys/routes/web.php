@@ -26,6 +26,10 @@ use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMater
 use App\Http\Controllers\Frontend\ModulesController as FrontendModulesController;
 use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 
+// Junior High Controllers (NEW)
+use App\Http\Controllers\Admin\JuniorHighController;
+use App\Http\Controllers\Frontend\JuniorHighFrontendController;
+
 // Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
 
@@ -198,7 +202,9 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
         Route::get('/modules/{id}', [FrontendModulesController::class, 'show'])->name('modules.show');
     });
 
-    Route::get('/junior-high', [IssuanceController::class, 'k12Content'])->name('junior-high');
+    // UPDATED JUNIOR HIGH ROUTE
+    Route::get('/junior-high', [JuniorHighFrontendController::class, 'index'])->name('junior-high');
+    
     Route::get('/senior-high', [IssuanceController::class, 'k12Content'])->name('senior-high');
 });
 
@@ -334,6 +340,12 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/guides', [AdminCurriculumController::class, 'storeGuide'])->name('guides.store');
             Route::put('/guides/{guide}', [AdminCurriculumController::class, 'updateGuide'])->name('guides.update');
             Route::delete('/guides/{guide}', [AdminCurriculumController::class, 'destroyGuide'])->name('guides.destroy');
+
+            // NEW JUNIOR HIGH MANAGEMENT ROUTES
+            Route::resource('junior-high-management', JuniorHighController::class)
+                ->names('junior_high')
+                ->parameters(['junior-high-management' => 'juniorHigh'])
+                ->except(['create', 'show', 'edit']);
         });
 
         // User Management

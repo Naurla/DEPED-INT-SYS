@@ -162,6 +162,7 @@
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-2xl border border-gray-200 py-2 z-50">
                         
+                        {{-- About --}}
                         <div class="relative group/sub">
                             <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
                                 <span>About</span>
@@ -175,6 +176,7 @@
 
                         <a href="{{ route('learning_materials.index') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Learning Materials</a>
 
+                        {{-- Alternative Learning System (ALS) --}}
                         <div class="relative group/sub">
                             <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
                                 <span>Alternative Learning System (ALS)</span>
@@ -182,7 +184,6 @@
                             </div>
                             <div class="hidden group-hover/sub:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
                                 <a href="https://www.deped.gov.ph/about-als/" target="_blank" rel="noopener noreferrer" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
-                                
                                 <a href="{{ route('enrollment-statistics.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('enrollment-statistics.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Enrollment Statistics</a>
                                 <a href="{{ route('als-stories.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('als-stories.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">ALS Stories</a>
                                 <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 border-b border-gray-50 hover:bg-gray-100 text-gray-700 transition-colors">Modules</a>
@@ -190,25 +191,25 @@
                             </div>
                         </div>
 
-                        {{-- ADDED JUNIOR HIGH SCHOOL SUBMENU --}}
+                        {{-- JUNIOR HIGH SCHOOL --}}
                         <div class="relative group/sub-jhs">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 transition-colors {{ request()->routeIs('k12.junior-high') ? 'bg-gray-100 text-[#a52a2a] font-bold' : '' }}">
                                 <span>Junior High School</span>
                                 <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div class="hidden group-hover/sub-jhs:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">List of Junior High Schools</a>
+                                <a href="{{ route('k12.junior-high') }}" class="block px-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.junior-high') ? 'text-[#a52a2a] font-bold' : '' }}">List of Junior High Schools</a>
                             </div>
                         </div>
                         
-                        {{-- ADDED SENIOR HIGH SCHOOL SUBMENU --}}
+                        {{-- SENIOR HIGH SCHOOL --}}
                         <div class="relative group/sub-shs">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 transition-colors {{ request()->routeIs('k12.senior-high') ? 'bg-gray-100 text-[#a52a2a] font-bold' : '' }}">
                                 <span>Senior High School</span>
                                 <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div class="hidden group-hover/sub-shs:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">List of Senior High Schools</a>
+                                <a href="{{ route('k12.senior-high') }}" class="block px-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.senior-high') ? 'text-[#a52a2a] font-bold' : '' }}">List of Senior High Schools</a>
                             </div>
                         </div>
 

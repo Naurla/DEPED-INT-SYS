@@ -88,7 +88,7 @@
                 <span x-show="sidebarOpen">Header & Footer Logos</span>
             </a>
             @endif
-               
+                
             @if(auth()->user()->hasPermission('advisories'))
             <a href="{{ route('admin.advisory.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
@@ -122,7 +122,7 @@
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
                             <a href="{{ route('admin.qms.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.qms.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">QMS Scope & Policy</a>
-                           <a href="{{ route('admin.vision_mission.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.vision_mission.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Vision & Mission</a>
+                            <a href="{{ route('admin.vision_mission.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.vision_mission.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Vision & Mission</a>
                         </div>
                     </div>
 
@@ -227,7 +227,11 @@
                         </div>
                     </div>
 
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Junior High School</a>
+                    <a href="{{ route('admin.curriculum.junior_high.index') }}" 
+                       class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.junior_high.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">
+                       Junior High School
+                    </a>
+                    
                     <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Senior High School</a>
                     @endif
                 </div>
