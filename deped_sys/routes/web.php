@@ -28,8 +28,9 @@ use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 
 // Junior & Senior High Controllers
 use App\Http\Controllers\Admin\JuniorHighController;
-use App\Http\Controllers\Admin\SeniorHighController; // ADDED
+use App\Http\Controllers\Admin\SeniorHighController;
 use App\Http\Controllers\Frontend\JuniorHighFrontendController;
+use App\Http\Controllers\Frontend\SeniorHighFrontendController; // <-- ADDED THIS
 
 // Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -203,10 +204,11 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
         Route::get('/modules/{id}', [FrontendModulesController::class, 'show'])->name('modules.show');
     });
 
-    // UPDATED JUNIOR HIGH ROUTE
+    // Junior High Route
     Route::get('/junior-high', [JuniorHighFrontendController::class, 'index'])->name('junior-high');
     
-    Route::get('/senior-high', [IssuanceController::class, 'k12Content'])->name('senior-high');
+    // UPDATED SENIOR HIGH ROUTE <-- CHANGED THIS
+    Route::get('/senior-high', [SeniorHighFrontendController::class, 'index'])->name('senior-high');
 });
 
 // Public Procurement
@@ -347,7 +349,7 @@ Route::middleware(['auth'])->group(function () {
                 ->parameters(['junior-high-management' => 'juniorHigh'])
                 ->except(['create', 'show', 'edit']);
 
-            // SENIOR HIGH MANAGEMENT ROUTES (NEW)
+            // SENIOR HIGH MANAGEMENT ROUTES
             Route::resource('senior-high-management', SeniorHighController::class)
                 ->names('senior_high')
                 ->parameters(['senior-high-management' => 'seniorHigh'])

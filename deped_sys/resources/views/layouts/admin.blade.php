@@ -177,8 +177,6 @@
             </div>
             @endif
             
-         
-
             @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('faq'))
             <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
@@ -232,7 +230,10 @@
                        Junior High School
                     </a>
                     
-                    <a href="#" class="block py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">Senior High School</a>
+                    <a href="{{ route('admin.curriculum.senior_high.index') }}" 
+                       class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.senior_high.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">
+                       Senior High School
+                    </a>
                     @endif
                 </div>
             </div>
