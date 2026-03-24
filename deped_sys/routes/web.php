@@ -26,8 +26,9 @@ use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMater
 use App\Http\Controllers\Frontend\ModulesController as FrontendModulesController;
 use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 
-// Junior High Controllers (NEW)
+// Junior & Senior High Controllers
 use App\Http\Controllers\Admin\JuniorHighController;
+use App\Http\Controllers\Admin\SeniorHighController; // ADDED
 use App\Http\Controllers\Frontend\JuniorHighFrontendController;
 
 // Site Settings Controller
@@ -215,7 +216,6 @@ Route::prefix('procurement/{category}')->name('procurement.')->group(function ()
 });
 
 // NEW PUBLIC ROUTE FOR DYNAMIC PAGES
-// Kept at the bottom of public routes so it doesn't conflict with static URLs like /qms
 Route::get('/page/{slug}', [FrontendPageController::class, 'show'])->name('frontend.page');
 
 // ==========================================
@@ -268,7 +268,7 @@ Route::middleware(['auth'])->group(function () {
                 Route::delete('/assignment/{assignment}', [OrgChartAdminController::class, 'unassignSlot'])->name('unassign');
             });
 
-            // Division Structures (FIXED & UPDATED)
+            // Division Structures
             Route::get('/division-structures', [DivisionStructureController::class, 'index'])->name('division_structures.index');
             Route::post('/division-structures', [DivisionStructureController::class, 'store'])->name('division_structures.store');
             Route::get('/division-structures/{divisionStructure}/edit', [DivisionStructureController::class, 'edit'])->name('division_structures.edit');
@@ -341,10 +341,16 @@ Route::middleware(['auth'])->group(function () {
             Route::put('/guides/{guide}', [AdminCurriculumController::class, 'updateGuide'])->name('guides.update');
             Route::delete('/guides/{guide}', [AdminCurriculumController::class, 'destroyGuide'])->name('guides.destroy');
 
-            // NEW JUNIOR HIGH MANAGEMENT ROUTES
+            // JUNIOR HIGH MANAGEMENT ROUTES
             Route::resource('junior-high-management', JuniorHighController::class)
                 ->names('junior_high')
                 ->parameters(['junior-high-management' => 'juniorHigh'])
+                ->except(['create', 'show', 'edit']);
+
+            // SENIOR HIGH MANAGEMENT ROUTES (NEW)
+            Route::resource('senior-high-management', SeniorHighController::class)
+                ->names('senior_high')
+                ->parameters(['senior-high-management' => 'seniorHigh'])
                 ->except(['create', 'show', 'edit']);
         });
 
@@ -372,27 +378,21 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
         });
 
-        // Issuances (Strictly checks the requested type based on specific checklist permissions)
+        // Issuances
         Route::prefix('issuances')->name('issuances.')->group(function () {
-            
-            // 1. Intercept the view request and check the specific tab permission
             Route::get('/', function (\Illuminate\Http\Request $request) {
-                $type = $request->query('type', 'advisory'); // default to advisory if empty
-                
+                $type = $request->query('type', 'advisory');
                 $permissionRequired = match($type) {
                     'memorandum' => 'memoranda',
                     'hrmpsb'     => 'hrmpsb',
                     default      => 'advisories'
                 };
-                
                 if (!auth()->user()->hasPermission($permissionRequired)) {
-                    abort(403, 'Unauthorized Access. You do not have permission to view ' . strtoupper($type) . 'S.');
+                    abort(403, 'Unauthorized Access.');
                 }
-                
                 return app(\App\Http\Controllers\IssuanceController::class)->adminIndex($request);
             })->name('index');
 
-            // 2. Allow modifying records as long as they have at least one issuance permission
             Route::middleware(['permission:memoranda,hrmpsb,advisories'])->group(function() {
                 Route::post('/', [IssuanceController::class, 'store'])->name('store');
                 Route::put('/{issuance}', [IssuanceController::class, 'update'])->name('update');
