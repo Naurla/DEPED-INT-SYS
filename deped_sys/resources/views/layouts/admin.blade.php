@@ -88,17 +88,19 @@
                 <span x-show="sidebarOpen">Header & Footer Logos</span>
             </a>
             @endif
-               @if(auth()->user()->hasPermission('advisories'))
+               
+            @if(auth()->user()->hasPermission('advisories'))
             <a href="{{ route('admin.advisory.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
                 <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 <span x-show="sidebarOpen">Public Advisories</span>
             </a>
             @endif
+
             @if(auth()->user()->hasPermission('about'))
-            <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'true' : 'false' }} }" class="relative mt-2">
+            <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
                     <div class="flex items-center space-x-3">
                         <svg class="w-5 h-5 text-red-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
@@ -125,13 +127,17 @@
                     </div>
 
                     {{-- Organizational Structure Submenu --}}
-                    <div x-data="{ subOpen: {{ request()->is('admin/about/organization*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'true' : 'false' }} }" class="space-y-1">
+                    <div x-data="{ subOpen: {{ request()->is('admin/about/organization*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm leading-tight pr-2 text-gray-200 hover:text-white hover:font-bold transition-all text-left">
                             <span>Organizational Structure</span>
                             <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Division Office</a>
+                            
+                            {{-- Division Office --}}
+                            <a href="{{ route('admin.division_structures.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.division_structures.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">
+                                Division Office
+                            </a>
                             
                             {{-- Executive Committee --}}
                             <a href="{{ route('admin.org_chart.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.org_chart.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">

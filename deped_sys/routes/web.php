@@ -39,45 +39,39 @@ use App\Models\VisionMission;
 use App\Models\DataPrivacy;
 use App\Models\CitizenCharter;
 
-// --- NEW IMPORTS FOR DYNAMIC PAGES ---
+// --- IMPORTS FOR DYNAMIC PAGES ---
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
-// -------------------------------------
 
-// --- IMPORTS FOR ORGANIZATIONAL CHART ---
+// --- IMPORTS FOR ORGANIZATIONAL CHART & DIVISIONS ---
 use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\Admin\OrgChartAdminController;
-// ----------------------------------------
+use App\Http\Controllers\Admin\DivisionStructureController;
+use App\Http\Controllers\Frontend\DivisionStructureController as FrontendDivisionStructureController;
 
 // --- ENROLLMENT STATISTICS ---
 use App\Http\Controllers\Admin\EnrollmentStatisticController;
 use App\Http\Controllers\Frontend\EnrollmentStatisticController as FrontendEnrollmentStatisticController;
-// -----------------------------
 
 // --- ALS STORIES ---
 use App\Http\Controllers\Admin\AlsStoryController as AdminAlsStoryController;
 use App\Http\Controllers\Frontend\AlsStoryController as FrontendAlsStoryController;
-// -------------------
 
 // --- ALS IMPLEMENTERS ---
 use App\Http\Controllers\Admin\AlsImplementerController as AdminAlsImplementerController;
 use App\Http\Controllers\Frontend\AlsImplementerController as FrontendAlsImplementerController;
-// ------------------------
 
 // --- SGOD ---
 use App\Http\Controllers\Admin\SgodController as AdminSgodController;
 use App\Http\Controllers\Frontend\SgodController as FrontendSgodController;
-// ------------
 
 // --- OSDS ---
 use App\Http\Controllers\Admin\OsdsController as AdminOsdsController;
 use App\Http\Controllers\Frontend\OsdsController as FrontendOsdsController;
-// ------------
 
 // --- CID ---
 use App\Http\Controllers\Admin\CidController as AdminCidController;
 use App\Http\Controllers\Frontend\CidController as FrontendCidController;
-// -----------
 
 // ==========================================
 // PUBLIC ROUTES
@@ -85,11 +79,10 @@ use App\Http\Controllers\Frontend\CidController as FrontendCidController;
 
 // --- BULLETPROOF CKEDITOR UPLOAD ROUTE ---
 Route::post('/editor/upload-image', [AdminPageController::class, 'uploadImage'])->name('editor.upload');
-// -----------------------------------------
 
 // --- BACKEND VIDEO SHAPE API ---
 Route::get('/api/video-shape', [AdminPageController::class, 'checkVideoShape'])->name('api.video.shape');
-// -------------------------------
+
 
 Route::get('/serve-image/{path}', function($path) {
     $absolutePath = storage_path('app/public/' . $path);
@@ -147,6 +140,9 @@ Route::get('/citizens-charter', function () {
 // Organizational Structure - Executive Committee (Dynamic Chart)
 Route::get('/about/organizational-structure/executive-committee', [OrgChartController::class, 'index'])->name('org.chart');
 
+// Organizational Structure - Division Offices (Dynamic Page)
+Route::get('/about/organizational-structure/division-offices', [FrontendDivisionStructureController::class, 'index'])->name('division_offices.index');
+
 // Organizational Structure - SGOD
 Route::get('/about/organizational-structure/sgod', [FrontendSgodController::class, 'index'])->name('sgod.index');
 
@@ -162,9 +158,8 @@ Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->na
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
 Route::get('/issuances/view/{issuance}', [IssuanceController::class, 'show'])->name('issuances.show');
 
-// --- NEW GLOBAL SEARCH ROUTE ---
+// GLOBAL SEARCH ROUTE
 Route::get('/search', [IssuanceController::class, 'globalSearch'])->name('search.global');
-// -------------------------------
 
 // Frontend Learning Materials Routes
 Route::get('/k-to-12/learning-materials', [FrontendLearningMaterialsController::class, 'index'])->name('learning_materials.index');
@@ -213,10 +208,9 @@ Route::prefix('procurement/{category}')->name('procurement.')->group(function ()
     Route::get('/{id}', [BidOpportunityController::class, 'show'])->name('show');
 });
 
-// --- NEW PUBLIC ROUTE FOR DYNAMIC PAGES ---
+// NEW PUBLIC ROUTE FOR DYNAMIC PAGES
 // Kept at the bottom of public routes so it doesn't conflict with static URLs like /qms
 Route::get('/page/{slug}', [FrontendPageController::class, 'show'])->name('frontend.page');
-// ------------------------------------------
 
 // ==========================================
 // SECURE ROUTES
@@ -257,7 +251,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/citizens-charter', [CitizenCharterController::class, 'update'])->name('citizen_charter.update');
         });
 
-        // --- ADMIN ROUTE FOR ORGANIZATIONAL CHART, SGOD, OSDS & CID ---
+        // --- ADMIN ROUTE FOR ORGANIZATIONAL CHART, SGOD, OSDS, CID & DIVISIONS ---
         Route::middleware(['permission:about'])->group(function () {
             Route::prefix('org-chart')->name('org_chart.')->group(function () {
                 Route::get('/', [OrgChartAdminController::class, 'index'])->name('index');
@@ -268,6 +262,14 @@ Route::middleware(['auth'])->group(function () {
                 Route::delete('/assignment/{assignment}', [OrgChartAdminController::class, 'unassignSlot'])->name('unassign');
             });
 
+            // Division Structures (FIXED & UPDATED)
+            Route::get('/division-structures', [DivisionStructureController::class, 'index'])->name('division_structures.index');
+            Route::post('/division-structures', [DivisionStructureController::class, 'store'])->name('division_structures.store');
+            Route::get('/division-structures/{divisionStructure}/edit', [DivisionStructureController::class, 'edit'])->name('division_structures.edit');
+            Route::put('/division-structures/{divisionStructure}', [DivisionStructureController::class, 'update'])->name('division_structures.update');
+            Route::delete('/division-structures/{divisionStructure}', [DivisionStructureController::class, 'destroy'])->name('division_structures.destroy');
+            Route::delete('/division-structures/{divisionStructure}/pdf/{pdfIndex}', [DivisionStructureController::class, 'destroyPdf'])->name('division_structures.destroy_pdf');
+
             // SGOD Management
             Route::resource('sgod', AdminSgodController::class)->except(['create', 'show', 'edit']);
             
@@ -277,13 +279,11 @@ Route::middleware(['auth'])->group(function () {
             // CID Management
             Route::resource('cid', AdminCidController::class)->except(['create', 'show', 'edit']);
         });
-        // --------------------------------------------
 
         // --- ADMIN ROUTE FOR DYNAMIC PAGES ---
         Route::middleware(['permission:pages'])->group(function () {
             Route::resource('pages', AdminPageController::class);
         });
-        // -----------------------------------------
 
         // Site Logos
         Route::middleware(['permission:logos'])->group(function () {
