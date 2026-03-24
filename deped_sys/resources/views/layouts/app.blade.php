@@ -118,7 +118,7 @@
                                 
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Curriculum Implementation Division</a>
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Office of the Schools Division Superintendent</a>
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100">School Governance and Operations Divisions</a>
+                                <a href="{{ route('sgod.index') }}" class="block px-6 py-3 transition-colors {{ request()->routeIs('sgod.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">School Governance and Operations Divisions</a>
                             </div>
                         </div>
 

@@ -145,7 +145,7 @@
                             
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Curriculum Implementation</a>
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Office of the SDS</a>
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">School Governance</a>
+                            <a href="{{ route('admin.sgod.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.sgod.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">SGOD Division</a>
                         </div>
                     </div>
 

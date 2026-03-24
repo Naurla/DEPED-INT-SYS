@@ -28,7 +28,7 @@ class CurriculumController extends Controller
     public function updatePage(Request $request)
     {
         $request->validate([
-            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'banner_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'remove_image' => 'nullable|boolean',
         ]);
 

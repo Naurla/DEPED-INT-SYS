@@ -46,7 +46,7 @@ class OrgChartAdminController extends Controller
         $request->validate([
             'slot_index' => 'required|integer|min:1|max:' . $position->slots_count,
             'employee_name' => 'required|string|max:255',
-            'employee_image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+            'employee_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         // Find existing or start a new assignment for this specific slot

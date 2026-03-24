@@ -20,7 +20,7 @@ class AlsStoryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv,doc,docx|max:10240',
         ]);
 
@@ -44,7 +44,7 @@ class AlsStoryController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv,doc,docx|max:10240',
         ]);
 

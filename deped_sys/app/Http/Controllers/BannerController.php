@@ -22,7 +22,7 @@ class BannerController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
     
         // Stores the file in storage/app/public/banners
@@ -30,8 +30,27 @@ class BannerController extends Controller
         
         Banner::create(['image_path' => $path]);
         
-        // FIXED: Now redirects back to the banners page instead of the dashboard
         return back()->with('success', 'Banner added successfully!');
+    }
+
+    // ADDED THIS NEW METHOD TO HANDLE REPLACING/UPDATING
+    public function update(Request $request, Banner $banner) {
+        $request->validate([
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+        ]);
+
+        // Delete the old image from storage
+        if ($banner->image_path) {
+            Storage::disk('public')->delete($banner->image_path);
+        }
+
+        // Store the new image
+        $path = $request->file('image')->store('banners', 'public');
+        
+        // Update the database record
+        $banner->update(['image_path' => $path]);
+        
+        return back()->with('success', 'Banner replaced successfully!');
     }
 
     public function destroy(Banner $banner) {
@@ -45,7 +64,6 @@ class BannerController extends Controller
     public function adminIndex() {
         $banners = Banner::all(); 
 
-    // UPDATE THIS LINE: Add .index to point to your new folder structure
         return view('admin.banners.index', compact('banners'));
     }
 }

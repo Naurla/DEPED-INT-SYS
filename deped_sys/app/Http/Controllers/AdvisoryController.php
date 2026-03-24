@@ -15,7 +15,7 @@ class AdvisoryController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'pdf' => 'required|mimes:pdf|max:10000',
         ]);
 
@@ -67,7 +67,7 @@ public function update(Request $request, Advisory $advisory)
 {
     $request->validate([
         'title' => 'required|string|max:255',
-        'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         'pdf' => 'nullable|mimes:pdf|max:10000',
     ]);
 

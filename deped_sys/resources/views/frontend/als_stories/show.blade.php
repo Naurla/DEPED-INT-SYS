@@ -39,10 +39,10 @@
 
         {{-- MAIN CONTENT SECTION --}}
         
-        {{-- 1. DISPLAY IMAGE PREVIEW --}}
+        {{-- 1. DISPLAY IMAGE PREVIEW (Background removed) --}}
         @if($item->image_path)
-        <div class="mb-8 w-full flex justify-center bg-gray-50 rounded-lg p-4 border border-gray-200 shadow-inner">
-            <img src="{{ route('serve.image', $item->image_path) }}" alt="{{ $item->title }}" class="max-w-full h-auto rounded shadow-sm border border-gray-300">
+        <div class="mb-8 w-full flex justify-center">
+            <img src="{{ route('serve.image', $item->image_path) }}" alt="{{ $item->title }}" class="max-w-full h-auto">
         </div>
         @endif
 

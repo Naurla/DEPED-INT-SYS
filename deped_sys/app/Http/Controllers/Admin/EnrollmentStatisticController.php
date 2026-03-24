@@ -21,7 +21,7 @@ class EnrollmentStatisticController extends Controller
             'title' => 'required|string|max:255',
             'school_year' => 'nullable|string|max:50',
             'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv|max:10240',
         ]);
 
@@ -46,7 +46,7 @@ class EnrollmentStatisticController extends Controller
             'title' => 'required|string|max:255',
             'school_year' => 'nullable|string|max:50',
             'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv|max:10240',
         ]);
 

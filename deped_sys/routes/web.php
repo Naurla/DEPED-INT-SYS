@@ -64,6 +64,11 @@ use App\Http\Controllers\Admin\AlsImplementerController as AdminAlsImplementerCo
 use App\Http\Controllers\Frontend\AlsImplementerController as FrontendAlsImplementerController;
 // ------------------------
 
+// --- SGOD ---
+use App\Http\Controllers\Admin\SgodController as AdminSgodController;
+use App\Http\Controllers\Frontend\SgodController as FrontendSgodController;
+// ------------
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -131,6 +136,9 @@ Route::get('/citizens-charter', function () {
 
 // Organizational Structure - Executive Committee (Dynamic Chart)
 Route::get('/about/organizational-structure/executive-committee', [OrgChartController::class, 'index'])->name('org.chart');
+
+// Organizational Structure - School Governance and Operations Division
+Route::get('/about/organizational-structure/sgod', [FrontendSgodController::class, 'index'])->name('sgod.index');
 
 // Public Issuances
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
@@ -233,7 +241,7 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/citizens-charter', [CitizenCharterController::class, 'update'])->name('citizen_charter.update');
         });
 
-        // --- ADMIN ROUTE FOR ORGANIZATIONAL CHART ---
+        // --- ADMIN ROUTE FOR ORGANIZATIONAL CHART & SGOD ---
         Route::middleware(['permission:about'])->group(function () {
             Route::prefix('org-chart')->name('org_chart.')->group(function () {
                 Route::get('/', [OrgChartAdminController::class, 'index'])->name('index');
@@ -243,6 +251,9 @@ Route::middleware(['auth'])->group(function () {
                 Route::post('/position/{position}/assign', [OrgChartAdminController::class, 'assignSlot'])->name('assign');
                 Route::delete('/assignment/{assignment}', [OrgChartAdminController::class, 'unassignSlot'])->name('unassign');
             });
+
+            // SGOD Management
+            Route::resource('sgod', AdminSgodController::class)->except(['create', 'show', 'edit']);
         });
         // --------------------------------------------
 
@@ -323,6 +334,8 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware(['permission:banners'])->group(function () {
             Route::get('/banners', [BannerController::class, 'adminIndex'])->name('banners.index');
             Route::post('/banners', [BannerController::class, 'store'])->name('banners.store');
+            // ADDED: PUT route for updating banners
+            Route::put('/banners/{banner}', [BannerController::class, 'update'])->name('banners.update');
             Route::delete('/banners/{banner}', [BannerController::class, 'destroy'])->name('banners.destroy');
         });
 

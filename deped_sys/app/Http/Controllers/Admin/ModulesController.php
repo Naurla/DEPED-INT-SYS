@@ -21,7 +21,7 @@ class ModulesController extends Controller {
             'title' => 'required|string|max:255',
             'description' => 'required|string',
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:20480',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:5120',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $filePath = $request->file('file')->store('modules/files', 'public');
