@@ -59,6 +59,11 @@ use App\Http\Controllers\Admin\AlsStoryController as AdminAlsStoryController;
 use App\Http\Controllers\Frontend\AlsStoryController as FrontendAlsStoryController;
 // -------------------
 
+// --- ALS IMPLEMENTERS ---
+use App\Http\Controllers\Admin\AlsImplementerController as AdminAlsImplementerController;
+use App\Http\Controllers\Frontend\AlsImplementerController as FrontendAlsImplementerController;
+// ------------------------
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -149,6 +154,10 @@ Route::get('/enrollment-statistics/{id}', [FrontendEnrollmentStatisticController
 Route::get('/als-stories', [FrontendAlsStoryController::class, 'index'])->name('als-stories.index');
 Route::get('/als-stories/{id}', [FrontendAlsStoryController::class, 'show'])->name('als-stories.show');
 
+// Public ALS Implementers Routes
+Route::get('/als-implementers', [FrontendAlsImplementerController::class, 'index'])->name('als-implementers.index');
+Route::get('/als-implementers/{id}', [FrontendAlsImplementerController::class, 'show'])->name('als-implementers.show');
+
 // K to 12 Nested Routes
 Route::prefix('k-to-12')->name('k12.')->group(function () {
     
@@ -164,13 +173,10 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     // Alternative Learning System (ALS)
     Route::prefix('als')->name('als.')->group(function () {
         Route::get('/about', [IssuanceController::class, 'alsContent'])->name('about');
-        Route::get('/statistics', [IssuanceController::class, 'alsContent'])->name('stats');
         
         // Modules Controller
         Route::get('/modules', [FrontendModulesController::class, 'index'])->name('modules');
         Route::get('/modules/{id}', [FrontendModulesController::class, 'show'])->name('modules.show');
-        
-        Route::get('/implementer-of-the-month', [IssuanceController::class, 'alsContent'])->name('implementer');
     });
 
     Route::get('/junior-high', [IssuanceController::class, 'k12Content'])->name('junior-high');
@@ -276,6 +282,11 @@ Route::middleware(['auth'])->group(function () {
         // ALS Stories
         Route::middleware(['permission:curriculum'])->group(function () {
             Route::resource('als-stories', AdminAlsStoryController::class)->except(['create', 'show', 'edit']);
+        });
+
+        // ALS Implementers
+        Route::middleware(['permission:curriculum'])->group(function () {
+            Route::resource('als-implementers', AdminAlsImplementerController::class)->except(['create', 'show', 'edit']);
         });
 
         // Curriculum Management

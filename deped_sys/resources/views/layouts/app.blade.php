@@ -150,8 +150,8 @@
                     </div>
                 </div>
 
-                {{-- K to 12 (UPDATED TO INCLUDE ENROLLMENT STATISTICS & ALS STORIES ACTIVE STATE) --}}
-                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->routeIs('k12.*') || request()->routeIs('learning_materials.*') || request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                {{-- K to 12 (UPDATED TO INCLUDE ENROLLMENT STATISTICS, ALS STORIES & ALS IMPLEMENTERS ACTIVE STATE) --}}
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->routeIs('k12.*') || request()->routeIs('learning_materials.*') || request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') || request()->routeIs('als-implementers.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
                     <span>K to 12</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     <div class="hidden group-hover:block absolute left-0 top-full w-72 bg-white shadow-2xl border border-gray-200 py-2 z-50">
@@ -180,11 +180,13 @@
                                 {{-- Enrollment Statistics Link --}}
                                 <a href="{{ route('enrollment-statistics.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('enrollment-statistics.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Enrollment Statistics</a>
                                 
-                                {{-- UPDATED: ALS Stories Link --}}
+                                {{-- ALS Stories Link --}}
                                 <a href="{{ route('als-stories.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('als-stories.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">ALS Stories</a>
                                 
-                                <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Modules</a>
-                                <a href="{{ route('k12.als.implementer') }}" class="block px-6 py-3 hover:bg-gray-100">Featured ALS Implementer of the Month</a>
+                                <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 border-b border-gray-50 hover:bg-gray-100 text-gray-700 transition-colors">Modules</a>
+                                
+                                {{-- UPDATED: ALS Implementer Link --}}
+                                <a href="{{ route('als-implementers.index') }}" class="block px-6 py-3 transition-colors {{ request()->routeIs('als-implementers.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Featured ALS Implementer of the Month</a>
                             </div>
                         </div>
 

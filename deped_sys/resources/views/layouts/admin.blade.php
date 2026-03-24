@@ -212,7 +212,7 @@
                             <a href="{{ route('admin.enrollment-statistics.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.enrollment-statistics.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Enrollment Statistics</a>
                             <a href="{{ route('admin.als-stories.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.als-stories.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">ALS Stories</a>
                             <a href="{{ route('admin.modules.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.modules.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Modules</a>
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Featured Implementer</a>
+                            <a href="{{ route('admin.als-implementers.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.als-implementers.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Featured ALS Implementer</a>
                         </div>
                     </div>
 
