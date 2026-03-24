@@ -40,10 +40,29 @@
             <h2 class="text-2xl font-bold text-[#003366] mb-6 font-cinzel">{{ $structure->name }}</h2>
             
             @if($structure->descriptions)
-                <div class="rich-text-content text-gray-800 text-[15px] leading-relaxed mb-8">
+                <div class="rich-text-content text-gray-800 text-[15px] leading-relaxed mb-6">
                     @foreach($structure->descriptions as $desc)
                         <div>{!! $desc !!}</div>
                     @endforeach
+                </div>
+            @endif
+
+            @if($structure->pdf_documents && count($structure->pdf_documents) > 0)
+                <div class="mt-4 mb-8 bg-blue-50/50 p-4 rounded-lg border border-blue-100">
+                    <h3 class="font-bold text-[#003366] text-sm mb-3 uppercase tracking-wider">Attached Documents</h3>
+                    <ul class="space-y-2">
+                        @foreach($structure->pdf_documents as $pdf)
+                            <li>
+                                <a href="{{ asset('storage/' . $pdf['path']) }}" target="_blank" class="inline-flex items-center text-[#003366] hover:text-[#a52a2a] transition-colors duration-200 group">
+                                    <svg class="w-5 h-5 mr-2 text-red-500 group-hover:text-red-700" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                    </svg>
+                                    <span class="font-semibold underline">{{ $pdf['original_name'] }}</span>
+                                    <span class="text-xs text-gray-500 ml-2 no-underline">({{ $pdf['size'] }})</span>
+                                </a>
+                            </li>
+                        @endforeach
+                    </ul>
                 </div>
             @endif
 
