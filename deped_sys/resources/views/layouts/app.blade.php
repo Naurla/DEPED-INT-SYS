@@ -190,8 +190,28 @@
                             </div>
                         </div>
 
-                        <a href="{{ route('k12.junior-high') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Junior High School</a>
-                        <a href="{{ route('k12.senior-high') }}" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">Senior High School</a>
+                        {{-- ADDED JUNIOR HIGH SCHOOL SUBMENU --}}
+                        <div class="relative group/sub-jhs">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50">
+                                <span>Junior High School</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub-jhs:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">List of Junior High Schools</a>
+                            </div>
+                        </div>
+                        
+                        {{-- ADDED SENIOR HIGH SCHOOL SUBMENU --}}
+                        <div class="relative group/sub-shs">
+                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700">
+                                <span>Senior High School</span>
+                                <svg class="w-3 h-3 -rotate-90" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                            </div>
+                            <div class="hidden group-hover/sub-shs:block absolute left-full top-0 w-72 bg-white shadow-xl border border-gray-200 py-2">
+                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 text-gray-700">List of Senior High Schools</a>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
 
