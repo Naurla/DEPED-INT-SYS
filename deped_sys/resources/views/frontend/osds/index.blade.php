@@ -10,7 +10,7 @@
                 Organizational Structure
             </h1>
             <h2 class="text-xl md:text-2xl font-bold text-[#a52a2a] uppercase tracking-wide">
-                School Governance and Operations Division
+                Office of the Schools Division Superintendent
             </h2>
         </div>
 

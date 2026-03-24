@@ -86,7 +86,7 @@
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] border-r border-gray-300 transition-colors {{ request()->is('/') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">Home</a>
                 
                 {{-- About (UPDATED WITH NESTED MENUS) --}}
-                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->is('about*') || request()->routeIs('qms.index') || request()->routeIs('org.chart') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->is('about*') || request()->routeIs('qms.index') || request()->routeIs('org.chart') || request()->routeIs('sgod.*') || request()->routeIs('osds.*') || request()->routeIs('cid.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
                     <span>About</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     
@@ -113,11 +113,15 @@
                             <div class="hidden group-hover/sub-org:block absolute left-full top-0 w-96 bg-white shadow-xl border border-gray-200 py-2">
                                 <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Division Office Organization Structure</a>
                                 
-                                {{-- UPDATED LINK: Executive Committee Dynamic Chart --}}
                                 <a href="{{ route('org.chart') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('org.chart') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Executive Committee</a>
                                 
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Curriculum Implementation Division</a>
-                                <a href="#" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">Office of the Schools Division Superintendent</a>
+                                {{-- UPDATED CID LINK --}}
+                                <a href="{{ route('cid.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('cid.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Curriculum Implementation Division</a>
+                                
+                                {{-- OSDS LINK --}}
+                                <a href="{{ route('osds.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('osds.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Office of the Schools Division Superintendent</a>
+                                
+                                {{-- SGOD LINK --}}
                                 <a href="{{ route('sgod.index') }}" class="block px-6 py-3 transition-colors {{ request()->routeIs('sgod.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">School Governance and Operations Divisions</a>
                             </div>
                         </div>
@@ -150,7 +154,7 @@
                     </div>
                 </div>
 
-                {{-- K to 12 (UPDATED TO INCLUDE ENROLLMENT STATISTICS, ALS STORIES & ALS IMPLEMENTERS ACTIVE STATE) --}}
+                {{-- K to 12 --}}
                 <div class="group relative w-full md:w-auto px-6 py-[14px] border-r border-gray-300 cursor-pointer flex items-center justify-center transition-colors {{ request()->routeIs('k12.*') || request()->routeIs('learning_materials.*') || request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') || request()->routeIs('als-implementers.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
                     <span>K to 12</span>
                     <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
@@ -177,15 +181,9 @@
                             <div class="hidden group-hover/sub:block absolute left-full top-0 w-80 bg-white shadow-xl border border-gray-200 py-2">
                                 <a href="https://www.deped.gov.ph/about-als/" target="_blank" rel="noopener noreferrer" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
                                 
-                                {{-- Enrollment Statistics Link --}}
                                 <a href="{{ route('enrollment-statistics.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('enrollment-statistics.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Enrollment Statistics</a>
-                                
-                                {{-- ALS Stories Link --}}
                                 <a href="{{ route('als-stories.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('als-stories.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">ALS Stories</a>
-                                
                                 <a href="{{ route('k12.als.modules') }}" class="block px-6 py-3 border-b border-gray-50 hover:bg-gray-100 text-gray-700 transition-colors">Modules</a>
-                                
-                                {{-- UPDATED: ALS Implementer Link --}}
                                 <a href="{{ route('als-implementers.index') }}" class="block px-6 py-3 transition-colors {{ request()->routeIs('als-implementers.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Featured ALS Implementer of the Month</a>
                             </div>
                         </div>
