@@ -209,8 +209,8 @@
                             <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Enrollment Statistics</a>
-                            <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">ALS Stories</a>
+                            <a href="{{ route('admin.enrollment-statistics.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.enrollment-statistics.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Enrollment Statistics</a>
+                            <a href="{{ route('admin.als-stories.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.als-stories.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">ALS Stories</a>
                             <a href="{{ route('admin.modules.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.modules.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Modules</a>
                             <a href="#" class="block text-xs text-gray-300 hover:text-white transition-all">Featured Implementer</a>
                         </div>

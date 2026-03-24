@@ -49,6 +49,16 @@ use App\Http\Controllers\OrgChartController;
 use App\Http\Controllers\Admin\OrgChartAdminController;
 // ----------------------------------------
 
+// --- ENROLLMENT STATISTICS ---
+use App\Http\Controllers\Admin\EnrollmentStatisticController;
+use App\Http\Controllers\Frontend\EnrollmentStatisticController as FrontendEnrollmentStatisticController;
+// -----------------------------
+
+// --- ALS STORIES ---
+use App\Http\Controllers\Admin\AlsStoryController as AdminAlsStoryController;
+use App\Http\Controllers\Frontend\AlsStoryController as FrontendAlsStoryController;
+// -------------------
+
 // ==========================================
 // PUBLIC ROUTES
 // ==========================================
@@ -131,6 +141,14 @@ Route::get('/search', [IssuanceController::class, 'globalSearch'])->name('search
 Route::get('/k-to-12/learning-materials', [FrontendLearningMaterialsController::class, 'index'])->name('learning_materials.index');
 Route::get('/k-to-12/learning-materials/{id}', [FrontendLearningMaterialsController::class, 'show'])->name('learning_materials.show');
 
+// Public Enrollment Statistics Routes
+Route::get('/enrollment-statistics', [FrontendEnrollmentStatisticController::class, 'index'])->name('enrollment-statistics.index');
+Route::get('/enrollment-statistics/{id}', [FrontendEnrollmentStatisticController::class, 'show'])->name('enrollment-statistics.show');
+
+// Public ALS Stories Routes
+Route::get('/als-stories', [FrontendAlsStoryController::class, 'index'])->name('als-stories.index');
+Route::get('/als-stories/{id}', [FrontendAlsStoryController::class, 'show'])->name('als-stories.show');
+
 // K to 12 Nested Routes
 Route::prefix('k-to-12')->name('k12.')->group(function () {
     
@@ -147,7 +165,6 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     Route::prefix('als')->name('als.')->group(function () {
         Route::get('/about', [IssuanceController::class, 'alsContent'])->name('about');
         Route::get('/statistics', [IssuanceController::class, 'alsContent'])->name('stats');
-        Route::get('/stories', [IssuanceController::class, 'alsContent'])->name('stories');
         
         // Modules Controller
         Route::get('/modules', [FrontendModulesController::class, 'index'])->name('modules');
@@ -249,6 +266,16 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware(['permission:modules'])->group(function () {
             Route::resource('modules', AdminModulesController::class);
             Route::get('get-modules-data', [AdminModulesController::class, 'getData'])->name('modules.data');
+        });
+
+        // Enrollment Statistics
+        Route::middleware(['permission:curriculum'])->group(function () {
+            Route::resource('enrollment-statistics', EnrollmentStatisticController::class)->except(['create', 'show', 'edit']);
+        });
+
+        // ALS Stories
+        Route::middleware(['permission:curriculum'])->group(function () {
+            Route::resource('als-stories', AdminAlsStoryController::class)->except(['create', 'show', 'edit']);
         });
 
         // Curriculum Management
