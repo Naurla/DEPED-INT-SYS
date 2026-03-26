@@ -78,7 +78,7 @@
 
         <div :class="mobileMenu ? 'block' : 'hidden'" class="w-full md:flex flex-col md:flex-row items-center text-[14px] text-gray-800">
             <div class="w-full md:w-auto py-3 px-10 bg-white border-r border-gray-300 text-center md:text-left">
-                <a href="http://www.gov.ph" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">GOVPH</a>
+                <a href="http://www.gov.ph" target="_blank" rel="noopener noreferrer" class="hover:text-blue-800 font-bold tracking-tight uppercase text-lg">GOVPH</a>
             </div>
             <div class="flex flex-col md:flex-row items-center flex-grow justify-center md:justify-start w-full">
                 
@@ -252,6 +252,45 @@
     </nav>
 
     <main class="flex-grow">
+        {{-- GLOBAL PAGE NAVIGATION TRACKER (BREADCRUMBS) --}}
+        @unless(request()->is('/')) {{-- Automatically hide this banner on the Home page --}}
+            @hasSection('page_title')
+                <div class="w-full bg-[#a52a2a] py-6 shadow-md border-b-4 border-[#FBBF24] relative z-40">
+                    <div class="container mx-auto px-6 lg:px-20">
+                        {{-- Page Title --}}
+                        <h1 class="text-2xl md:text-3xl font-bold text-white font-cinzel tracking-wide uppercase drop-shadow-sm mb-2">
+                            @yield('page_title')
+                        </h1>
+                        
+                        {{-- Breadcrumb Navigation --}}
+                        <nav class="flex text-[13px] md:text-sm text-gray-200 font-medium tracking-wide">
+                            <ol class="inline-flex items-center space-x-1 md:space-x-2">
+                                <li class="inline-flex items-center">
+                                    <a href="/" class="hover:text-white transition-colors inline-flex items-center gap-1.5">
+                                        <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                                        Home
+                                    </a>
+                                </li>
+                                
+                                @hasSection('breadcrumbs')
+                                    {{-- Render custom breadcrumbs if provided --}}
+                                    @yield('breadcrumbs')
+                                @else
+                                    {{-- Default fallback if only title is provided --}}
+                                    <li>
+                                        <div class="flex items-center">
+                                            <svg class="w-4 h-4 text-gray-300 mx-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                            <span class="text-white">@yield('page_title')</span>
+                                        </div>
+                                    </li>
+                                @endif
+                            </ol>
+                        </nav>
+                    </div>
+                </div>
+            @endif
+        @endunless
+
         @yield('content')
     </main>
 
@@ -341,9 +380,9 @@
                     <div class="text-center md:text-left">
                         <h2 class="font-bold text-sm uppercase mb-4 tracking-wider text-gray-800">About GOVPH</h2>
                         <ul class="text-[13px] space-y-1">
-                            <li><a href="https://www.gov.ph" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
-                            <li><a href="#" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
-                            <li><a href="#" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
+                            <li><a href="https://www.gov.ph" target="_blank" rel="noopener noreferrer" class="hover:text-red-700 transition-colors">GOV.PH</a></li>
+                            <li><a href="#" target="_blank" rel="noopener noreferrer" class="hover:text-red-700 transition-colors">Open Data Portal</a></li>
+                            <li><a href="#" target="_blank" rel="noopener noreferrer" class="hover:text-red-700 transition-colors">Official Gazette</a></li>
                         </ul>
                     </div>
                 @endif
