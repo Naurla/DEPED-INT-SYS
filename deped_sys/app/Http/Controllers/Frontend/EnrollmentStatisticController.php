@@ -11,7 +11,7 @@ class EnrollmentStatisticController extends Controller
     public function index()
     {
         // Paginate the statistics (10 per page)
-        $items = EnrollmentStatistic::latest()->paginate(10);
+        $items = EnrollmentStatistic::latest()->paginate(5);
         $type_name = 'Enrollment Statistics';
         
         return view('frontend.enrollment_statistics.index', compact('items', 'type_name'));

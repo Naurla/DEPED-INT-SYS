@@ -40,7 +40,10 @@
             @endforelse
         </div>
 
-        {{-- Add pagination if necessary, e.g., {{ $materials->links() }} --}}
+        {{-- Pagination Links Added Here --}}
+        <div class="mt-12">
+            {{ $materials->links() }}
+        </div>
         
     </div>
 </div>

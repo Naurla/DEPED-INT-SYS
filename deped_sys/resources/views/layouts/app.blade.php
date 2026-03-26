@@ -406,8 +406,8 @@
 
     </footer>
 
-    {{-- STATIC QR CODE ON THE TOP LEFT --}}
-    @if(!empty($site_settings->qr_link))
+   {{-- STATIC QR CODE ON THE TOP LEFT --}}
+    @if(request()->is('/') && !empty($site_settings->qr_link))
     <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="absolute left-0 top-[200px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-3 hidden md:flex flex-col items-center group transition-all duration-300 hover:translate-x-2 border border-l-0 border-white/20 cursor-pointer">
         <div class="text-white text-center text-[11px] font-bold uppercase tracking-wider mb-2.5 leading-snug">
             CUSTOMER<br>SATISFACTION<br>MEASUREMENT

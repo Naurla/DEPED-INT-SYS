@@ -10,7 +10,7 @@ class AlsImplementerController extends Controller
 {
     public function index()
     {
-        $items = AlsImplementer::latest()->paginate(10);
+        $items = AlsImplementer::latest()->paginate(5);
         $type_name = 'Featured ALS Implementers';
         
         return view('frontend.als_implementers.index', compact('items', 'type_name'));

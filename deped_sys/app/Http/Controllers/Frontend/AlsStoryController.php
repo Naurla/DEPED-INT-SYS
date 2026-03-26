@@ -10,7 +10,7 @@ class AlsStoryController extends Controller
 {
     public function index()
     {
-        $items = AlsStory::latest()->paginate(10);
+        $items = AlsStory::latest()->paginate(5);
         $type_name = 'ALS Stories';
         
         return view('frontend.als_stories.index', compact('items', 'type_name'));

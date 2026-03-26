@@ -7,7 +7,7 @@ use App\Models\Modules;
 
 class ModulesController extends Controller {
     public function index() {
-        $items = Modules::latest()->paginate(10);
+        $items = Modules::latest()->paginate(5);
         return view('modules.index', compact('items'));
     }
 

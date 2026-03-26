@@ -10,7 +10,8 @@ class LearningMaterialsController extends Controller // <-- CHANGED THIS TO PLUR
 {
     public function index()
     {
-        $materials = LearningMaterials::latest()->get();
+        // Changed from get() to paginate(10)
+        $materials = LearningMaterials::latest()->paginate(5);
         return view('learning_materials.index', compact('materials'));
     }
 

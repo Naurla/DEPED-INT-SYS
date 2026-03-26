@@ -51,7 +51,7 @@ public function index(Request $request)
         }
 
         // CHANGE: Changed ->get() to ->paginate(10)
-        $advisories = $query->latest()->paginate(10);
+        $advisories = $query->latest()->paginate(5);
 
         return view('admin.advisories.index', compact('advisories'));
     }

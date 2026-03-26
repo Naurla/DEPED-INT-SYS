@@ -29,7 +29,7 @@ class BidOpportunityController extends Controller
         // FILTER: Only get items for THIS specific category!
         $opportunities = BidOpportunity::where('category', $category)
                                        ->latest()
-                                       ->paginate(10);
+                                       ->paginate(5);
         
         return view('list', [
             'type_name' => $this->getCategoryTitle($category),

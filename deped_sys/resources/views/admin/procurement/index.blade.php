@@ -45,24 +45,28 @@
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
                         <th class="p-4 border-b">Title</th>
                         <th class="p-4 border-b">Description</th> 
-                        <th class="p-4 border-b">Cover Image</th>
-                        <th class="p-4 border-b">Document (PDF)</th>
-                        <th class="p-4 border-b">Date Uploaded</th>
-                        <th class="p-4 border-b text-right">Actions</th>
+                        <th class="p-4 border-b w-32">Cover Image</th>
+                        <th class="p-4 border-b w-32">Document (PDF)</th>
+                        <th class="p-4 border-b w-32">Date Uploaded</th>
+                        <th class="p-4 border-b text-right w-32">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($opportunities as $item)
                         <tr class="hover:bg-gray-50 border-b transition-colors">
-                            <td class="p-4 font-semibold text-gray-800">{{ $item->title }}</td>
+                            {{-- FIX: Added max-w-[200px], break-words, and whitespace-normal to force wrap --}}
+                            <td class="p-4 font-semibold text-gray-800 max-w-[200px] break-words whitespace-normal">
+                                {{ $item->title }}
+                            </td>
                             
-                            <td class="p-4 text-sm text-gray-600 max-w-xs">
+                            {{-- FIX: Enforced max-w-xs, break-words, and whitespace-normal --}}
+                            <td class="p-4 text-sm text-gray-600 max-w-xs break-words whitespace-normal">
                                 {{ Str::limit($item->description, 100) }}
                             </td>
 
                             <td class="p-4">
                                 @if($item->jpeg_path)
-                                    <img src="{{ asset('storage/' . $item->jpeg_path) }}" alt="Image" class="w-24 h-auto rounded shadow-sm border">
+                                    <img src="{{ asset('storage/' . $item->jpeg_path) }}" alt="Image" class="w-24 h-auto rounded shadow-sm border object-cover">
                                 @else
                                     <span class="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded">No Image</span>
                                 @endif
@@ -70,8 +74,8 @@
                             
                             <td class="p-4">
                                 @if($item->pdf_path)
-                                    <a href="{{ asset('storage/' . $item->pdf_path) }}" target="_blank" class="text-red-600 font-bold hover:underline flex items-center text-sm">
-                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    <a href="{{ asset('storage/' . $item->pdf_path) }}" target="_blank" class="text-red-600 font-bold hover:underline flex items-center text-sm whitespace-nowrap">
+                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         View PDF
                                     </a>
                                 @else
@@ -101,6 +105,7 @@
         {{ $opportunities->links() }}
     </div>
 
+    {{-- Add Modal (Unchanged) --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden" @click.away="addModal = false">
             <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
@@ -151,6 +156,7 @@
         </div>
     </div>
 
+    {{-- Edit Modal (Unchanged) --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden" @click.away="editModal = false">
             <div class="bg-[#a52a2a] px-6 py-4 flex justify-between items-center text-white">
@@ -198,27 +204,38 @@
         </div>
     </div>
 
-    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="deleteModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg flex items-center">
-                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                    Confirm Delete
-                </h3>
-                <button type="button" @click="deleteModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
-            </div>
-            
-            <div class="p-6">
-                <p class="text-gray-700 mb-2">Are you sure you want to delete <span class="font-bold text-gray-900" x-text="deleteItem?.title"></span>?</p>
-                <p class="text-sm text-gray-500 mb-6">This action cannot be undone. Associated files will also be permanently deleted from the server.</p>
+    {{-- Delete Modal (UPDATED with new sleek centered design) --}}
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[60] overflow-y-auto">
+        <div class="flex items-center justify-center min-h-screen px-4 text-center">
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="deleteModal = false"></div>
+
+            <div x-show="deleteModal" x-transition class="bg-white rounded-2xl p-8 shadow-2xl z-[70] w-full max-w-sm transform transition-all relative">
+                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
                 
-                <form :action="`/admin/procurement/{{ $category }}/${deleteItem?.id}`" method="POST" class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    @csrf @method('DELETE')
-                    <button type="button" @click="deleteModal = false" class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-red-600 hover:bg-red-800 text-white font-bold rounded-lg shadow-sm transition-colors">
-                        Yes, Delete
+                <h3 class="text-xl font-bold text-gray-800 mb-2">Confirm Deletion</h3>
+                
+                <p class="text-gray-500 text-sm mb-6 break-words whitespace-normal">
+                    Are you sure you want to delete <span class="font-bold text-gray-900" x-text="deleteItem?.title"></span>?<br><br>
+                    This action cannot be undone. Associated files will also be permanently deleted from the server.
+                </p>
+                
+                <div class="flex space-x-3">
+                    <button type="button" @click="deleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
+                        Cancel
                     </button>
-                </form>
+                    
+                    <form :action="`/admin/procurement/{{ $category }}/${deleteItem?.id}`" method="POST" class="flex-1">
+                        @csrf 
+                        @method('DELETE')
+                        <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition">
+                            Yes, Delete
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     </div>

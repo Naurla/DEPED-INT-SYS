@@ -11,7 +11,7 @@ class IssuanceController extends Controller
     // --- PUBLIC VIEWS (Kept exactly as you wrote them) ---
     public function advisories()
     {
-        $items = Issuance::where('type', 'advisory')->latest()->paginate(10);
+        $items = Issuance::where('type', 'advisory')->latest()->paginate(5);
         
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
@@ -27,7 +27,7 @@ class IssuanceController extends Controller
 
     public function memoranda()
     {
-        $items = Issuance::where('type', 'memorandum')->latest()->paginate(10);
+        $items = Issuance::where('type', 'memorandum')->latest()->paginate(5);
         
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
@@ -43,7 +43,7 @@ class IssuanceController extends Controller
 
     public function hrmpsb()
     {
-        $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(10);
+        $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(5);
         
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
