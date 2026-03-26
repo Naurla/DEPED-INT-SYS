@@ -1,5 +1,4 @@
 @extends('layouts.app')
-
 @section('content')
     <div class="container mx-auto mt-6 px-4">
         <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] overflow-hidden"
