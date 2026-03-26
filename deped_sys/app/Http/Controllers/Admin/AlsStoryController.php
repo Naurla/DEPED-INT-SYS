@@ -11,7 +11,7 @@ class AlsStoryController extends Controller
 {
     public function index()
     {
-        $stories = AlsStory::latest()->get();
+        $stories = AlsStory::latest()->paginate(10);
         return view('admin.als_stories.index', compact('stories'));
     }
 

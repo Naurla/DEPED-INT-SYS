@@ -11,7 +11,8 @@ class AlsImplementerController extends Controller
 {
     public function index()
     {
-        $implementers = AlsImplementer::latest()->get();
+        // Fetches 10 records per page
+        $implementers = AlsImplementer::latest()->paginate(10);
         return view('admin.als_implementers.index', compact('implementers'));
     }
 

@@ -67,6 +67,13 @@
                 </tbody>
             </table>
         </div>
+        
+        {{-- NEW: Pagination --}}
+        @if($advisories->hasPages())
+            <div class="p-4 border-t border-gray-100 bg-gray-50/50">
+                {{ $advisories->appends(request()->query())->links() }}
+            </div>
+        @endif
     </div>
 
     <div x-show="uploadModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak x-transition>

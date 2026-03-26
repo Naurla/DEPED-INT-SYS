@@ -35,25 +35,26 @@ class AdvisoryController extends Controller
    // app/Http/Controllers/AdvisoryController.php
 
 public function index(Request $request)
-{
-    $query = Advisory::query();
+    {
+        $query = Advisory::query();
 
-    // PostgreSQL Case-Insensitive Search
-    if ($request->filled('search')) {
-        $searchTerm = $request->search;
-        // Use ilike for PostgreSQL to ignore case
-        $query->where('title', 'ilike', '%' . $searchTerm . '%');
+        // PostgreSQL Case-Insensitive Search
+        if ($request->filled('search')) {
+            $searchTerm = $request->search;
+            // Use ilike for PostgreSQL to ignore case
+            $query->where('title', 'ilike', '%' . $searchTerm . '%');
+        }
+
+        // Date Filters
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
+        }
+
+        // CHANGE: Changed ->get() to ->paginate(10)
+        $advisories = $query->latest()->paginate(10);
+
+        return view('admin.advisories.index', compact('advisories'));
     }
-
-    // Date Filters
-    if ($request->filled('start_date') && $request->filled('end_date')) {
-        $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
-    }
-
-    $advisories = $query->latest()->get();
-
-    return view('admin.advisories.index', compact('advisories'));
-}
 
 public function destroy(Advisory $advisory)
 {

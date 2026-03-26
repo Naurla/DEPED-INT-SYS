@@ -72,6 +72,10 @@
                 </tbody>
             </table>
         </div>
+
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-100">
+            {{ $stories->links() }}
+        </div>
     </div>
 
     <div x-show="uploadModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak x-transition>

@@ -11,7 +11,7 @@ class CidController extends Controller
 {
     public function index()
     {
-        $cids = Cid::latest()->get();
+        $cids = Cid::latest()->paginate(10);;
         return view('admin.cid.index', compact('cids'));
     }
 
