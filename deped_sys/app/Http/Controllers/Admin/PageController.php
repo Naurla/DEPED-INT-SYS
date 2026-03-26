@@ -11,15 +11,31 @@ class PageController extends Controller
 {
     public function index()
     {
-        // Fetch ALL pages and load their parent so we can show the hierarchy
         $pages = Page::with('parent')->get();
         return view('admin.pages.index', compact('pages'));
     }
 
     public function create()
     {
-        $allPages = Page::all(); // To populate the Parent Dropdown
+        $allPages = Page::all(); 
         return view('admin.pages.create', compact('allPages'));
+    }
+
+    // Helper method to clean up the video array before saving
+    private function formatVideosArray($rawVideos)
+    {
+        $videos = [];
+        if (is_array($rawVideos)) {
+            foreach ($rawVideos as $v) {
+                if (!empty($v['url'])) {
+                    $videos[] = [
+                        'url' => $v['url'],
+                        'shape' => $v['shape'] ?? 'landscape'
+                    ];
+                }
+            }
+        }
+        return empty($videos) ? null : $videos;
     }
 
     public function store(Request $request)
@@ -27,7 +43,10 @@ class PageController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable', 
-            'layout_template' => 'required|string'
+            'layout_template' => 'required|string',
+            'featured_videos' => 'nullable|array',
+            'featured_videos.*.url' => 'nullable|url',
+            'featured_videos.*.shape' => 'nullable|in:landscape,portrait'
         ]);
 
         Page::create([
@@ -35,6 +54,7 @@ class PageController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'layout_template' => $request->layout_template,
+            'featured_videos' => $this->formatVideosArray($request->featured_videos),
             'show_in_nav' => $request->has('show_in_nav')
         ]);
 
@@ -53,7 +73,10 @@ class PageController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable', 
-            'layout_template' => 'required|string'
+            'layout_template' => 'required|string',
+            'featured_videos' => 'nullable|array',
+            'featured_videos.*.url' => 'nullable|url',
+            'featured_videos.*.shape' => 'nullable|in:landscape,portrait'
         ]);
 
         $page->update([
@@ -61,6 +84,7 @@ class PageController extends Controller
             'title' => $request->title,
             'content' => $request->content,
             'layout_template' => $request->layout_template,
+            'featured_videos' => $this->formatVideosArray($request->featured_videos),
             'show_in_nav' => $request->has('show_in_nav')
         ]);
 
@@ -81,17 +105,10 @@ class PageController extends Controller
         try {
             if ($request->hasFile('upload')) {
                 $file = $request->file('upload');
-                
-                // Using uniqid() ensures no weird filename characters break the upload
                 $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-        
-                // FIX: Explicitly set the path to 'pages/images' and the disk to 'public'
                 $file->storeAs('pages/images', $fileName, 'public');
-        
-                // FIX: Use asset() helper to generate the correct absolute URL
                 $url = asset('storage/pages/images/' . $fileName);
-        
-                // Return exactly what CKEditor expects
+                
                 return response()->json([
                     'uploaded' => 1,
                     'fileName' => $fileName,
@@ -101,7 +118,6 @@ class PageController extends Controller
             
             return response()->json(['uploaded' => 0, 'error' => ['message' => 'No file found in request.']]);
         } catch (\Exception $e) {
-            // If anything goes wrong (like folder permissions), return the exact error
             return response()->json(['uploaded' => 0, 'error' => ['message' => $e->getMessage()]]);
         }
     }
@@ -110,10 +126,9 @@ class PageController extends Controller
     public function checkVideoShape(Request $request)
     {
         $url = $request->query('url');
-        $isVertical = false; // Default assumption is Horizontal
+        $isVertical = false; 
         
         try {
-            // 1. YouTube API Check
             if (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
                 if (str_contains($url, '/shorts/')) {
                     $isVertical = true;
@@ -125,13 +140,10 @@ class PageController extends Controller
                     }
                 }
             } 
-            // 2. TikTok Default Check
             elseif (str_contains($url, 'tiktok.com')) {
                 $isVertical = true;
             } 
-            // 3. Facebook Scraper Check
             elseif (str_contains($url, 'facebook.com') || str_contains($url, 'fb.watch') || str_contains($url, 'fb.me')) {
-                // Emulate a browser so Facebook lets us read the hidden Meta Tags
                 $options = [
                     'http' => [
                         'method' => 'GET',
@@ -142,7 +154,6 @@ class PageController extends Controller
                 $html = @file_get_contents($url, false, $context);
                 
                 if ($html) {
-                    // Try to extract the real video dimensions from OpenGraph Meta Tags
                     preg_match('/<meta property="og:video:width" content="(\d+)"/i', $html, $widthMatch);
                     preg_match('/<meta property="og:video:height" content="(\d+)"/i', $html, $heightMatch);
                     
@@ -154,16 +165,13 @@ class PageController extends Controller
                         $height = (int) $heightMatch[1];
                         $isVertical = $height > $width;
                     } else {
-                        // Fallback if Facebook completely blocks the scraper
                         $isVertical = str_contains($url, '/reel/');
                     }
                 } else {
                     $isVertical = str_contains($url, '/reel/');
                 }
             }
-        } catch (\Exception $e) {
-            // If anything fails, it falls back cleanly to horizontal to avoid breaking the page
-        }
+        } catch (\Exception $e) {}
 
         return response()->json([
             'shape' => $isVertical ? 'vertical' : 'horizontal',

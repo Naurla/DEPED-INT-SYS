@@ -42,7 +42,6 @@
             </select>
         </div>
 
-        {{-- SMART CONTENT BOX: Hide if it's a parent category --}}
         @if($page->children->isNotEmpty())
             <div class="mb-4 p-4 bg-blue-50 border-l-4 border-blue-500 rounded">
                 <div class="flex">
@@ -56,6 +55,22 @@
             </div>
             <input type="hidden" name="content" value="">
         @else
+            {{-- DYNAMIC MULTI-VIDEO SECTION --}}
+            <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                    <div>
+                        <label class="block text-gray-800 font-bold text-lg">Featured Videos</label>
+                        <p class="text-xs text-gray-500">Add multiple responsive videos. Leave blank if none.</p>
+                    </div>
+                    <button type="button" id="add-video-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm font-bold text-sm flex items-center transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Video
+                    </button>
+                </div>
+                
+                <div id="video-container" class="space-y-6"></div>
+            </div>
+
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">Page Content</label>
                 <textarea name="content" id="rich-editor" class="w-full">{{ old('content', $page->content) }}</textarea>
@@ -80,9 +95,7 @@
         constructor(loader) { this.loader = loader; }
         upload() {
             return this.loader.file.then(file => new Promise((resolve, reject) => {
-                this._initRequest();
-                this._initListeners(resolve, reject, file);
-                this._sendRequest(file);
+                this._initRequest(); this._initListeners(resolve, reject, file); this._sendRequest(file);
             }));
         }
         abort() { if (this.xhr) { this.xhr.abort(); } }
@@ -93,8 +106,7 @@
             xhr.responseType = 'json';
         }
         _initListeners(resolve, reject, file) {
-            const xhr = this.xhr;
-            const loader = this.loader;
+            const xhr = this.xhr; const loader = this.loader;
             xhr.addEventListener('error', () => reject(`Couldn't upload file: ${file.name}.`));
             xhr.addEventListener('abort', () => reject());
             xhr.addEventListener('load', () => {
@@ -110,8 +122,7 @@
         }
         _sendRequest(file) {
             const data = new FormData();
-            data.append('upload', file);
-            data.append('_token', '{{ csrf_token() }}');
+            data.append('upload', file); data.append('_token', '{{ csrf_token() }}');
             this.xhr.send(data);
         }
     }
@@ -124,65 +135,117 @@
         ClassicEditor
             .create(document.querySelector('#rich-editor'), {
                 extraPlugins: [MyCustomUploadAdapterPlugin],
-                toolbar: [
-                    'heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|',
-                    'outdent', 'indent', '|', 'imageUpload', 'mediaEmbed', 'blockQuote', 'insertTable', '|', 'undo', 'redo'
-                ],
-                mediaEmbed: {
-                    previewsInData: false,
-                    providers: [
-                        {
-                            name: 'all_videos',
-                            url: /^.*(youtube\.com|youtu\.be|facebook\.com|fb\.watch|fb\.me|tiktok\.com).*$/i,
-                            html: match => {
-                                return `<div class="async-video-wrapper my-6" data-url="${match[0]}"><div style="width:100%; aspect-ratio:16/9; background:#e5e7eb; border-radius:12px; display:flex; align-items:center; justify-content:center; color:#6b7280; font-weight:bold;">Analyzing Video Shape with Laravel API...</div></div>`;
-                            }
-                        }
-                    ]
-                }
+                toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', '|', 'outdent', 'indent', '|', 'imageUpload', 'blockQuote', 'insertTable', '|', 'undo', 'redo']
             })
             .catch(error => { console.error(error); });
-            
-        // Editor Watcher: Automagically requests the shape from Laravel and updates the editor preview
-        setInterval(() => {
-            document.querySelectorAll('.async-video-wrapper:not(.loaded)').forEach(async el => {
-                el.classList.add('loaded');
-                const rawUrl = el.getAttribute('data-url');
-                
-                try {
-                    const res = await fetch(`/api/video-shape?url=${encodeURIComponent(rawUrl)}`);
-                    const data = await res.json();
-                    
-                    let iframeSrc = '';
-                    const url = rawUrl.toLowerCase();
-
-                    if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                        let videoId = '';
-                        if (url.includes('watch?v=')) videoId = rawUrl.split('watch?v=')[1].split('&')[0];
-                        else if (url.includes('youtu.be/')) videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
-                        else if (url.includes('/shorts/')) videoId = rawUrl.split('/shorts/')[1].split('?')[0];
-                        if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
-                    } else if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.me')) {
-                        iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(rawUrl)}&show_text=false`;
-                    } else if (url.includes('tiktok.com')) {
-                        let matches = rawUrl.match(/video\/(\d+)/i);
-                        if (matches && matches[1]) iframeSrc = `https://www.tiktok.com/embed/v2/${matches[1]}`;
-                        else iframeSrc = `https://www.tiktok.com/embed/v2/${rawUrl.split('/').pop().split('?')[0]}`;
-                    }
-
-                    if (iframeSrc) {
-                        const style = data.shape === 'vertical'
-                            ? 'position: relative; width: 100%; max-width: 350px; aspect-ratio: 9/16; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);'
-                            : 'position: relative; width: 100%; aspect-ratio: 16/9; margin: 1.5rem auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);';
-
-                        el.innerHTML = `<div style="${style}"><iframe src="${iframeSrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
-                    }
-                } catch (e) {
-                    el.innerHTML = `<div style="color:red; padding:1rem; border:1px solid red; text-align:center;">API Check Failed</div>`;
-                }
-            });
-        }, 1000);
     }
+
+    // --- DYNAMIC MULTI-VIDEO SCRIPT ---
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('video-container');
+        const addBtn = document.getElementById('add-video-btn');
+        let videoIndex = 0;
+
+        const existingVideos = @json(old('featured_videos', $page->featured_videos ?? []));
+
+        function renderPreview(urlInput, shapeSelect, previewWrapper, previewContent) {
+            const rawUrl = urlInput.value.trim();
+            if (!rawUrl) {
+                previewWrapper.classList.add('hidden');
+                previewContent.innerHTML = '';
+                return;
+            }
+
+            const url = rawUrl.toLowerCase();
+            let iframeSrc = '';
+            let platform = '';
+            const isVertical = (shapeSelect.value === 'portrait');
+
+            if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.me')) {
+                platform = 'facebook';
+                iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(rawUrl)}&show_text=false`;
+            } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+                platform = 'youtube';
+                let videoId = '';
+                if (url.includes('watch?v=')) videoId = rawUrl.split('watch?v=')[1].split('&')[0];
+                else if (url.includes('youtu.be/')) videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
+                else if (url.includes('/shorts/')) videoId = rawUrl.split('/shorts/')[1].split('?')[0];
+                if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
+            } else if (url.includes('tiktok.com')) {
+                platform = 'tiktok';
+                let matches = rawUrl.match(/video\/(\d+)/i);
+                let videoId = matches && matches[1] ? matches[1] : rawUrl.split('/').pop().split('?')[0];
+                if (videoId) iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
+            }
+
+            if (iframeSrc) {
+                previewWrapper.classList.remove('hidden');
+                const fbMaxWidth = isVertical ? '350px' : '100%';
+                const aspect = isVertical ? '9/16' : '16/9';
+                
+                if (platform === 'facebook') {
+                    previewContent.innerHTML = `<div style="width: 100%; max-width: ${fbMaxWidth}; margin: 0 auto; display: flex; justify-content: center; aspect-ratio: 1/1;"><iframe src="${iframeSrc}" style="width: 100%; height: 100%; border: none;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen="true"></iframe></div>`;
+                } else {
+                    previewContent.innerHTML = `<div style="width: 100%; max-width: ${fbMaxWidth}; aspect-ratio: ${aspect}; display: flex; justify-content: center; margin: 0 auto;"><iframe src="${iframeSrc}" style="width: 100%; height: 100%; border: none;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen="true"></iframe></div>`;
+                }
+            } else {
+                previewWrapper.classList.add('hidden');
+                previewContent.innerHTML = '';
+            }
+        }
+
+        function addVideoRow(url = '', shape = 'landscape') {
+            const row = document.createElement('div');
+            row.className = "video-row bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative group transition-all";
+            row.innerHTML = `
+                <button type="button" class="remove-btn absolute top-3 right-3 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-full transition-colors" title="Remove Video">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-2 pr-10">
+                    <div class="md:col-span-2">
+                        <label class="block text-gray-600 font-bold mb-1 text-xs uppercase tracking-wider">Video URL</label>
+                        <input type="url" name="featured_videos[${videoIndex}][url]" value="${url}" placeholder="Facebook, YouTube, or TikTok link" class="video-input w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <div class="md:col-span-1">
+                        <label class="block text-gray-600 font-bold mb-1 text-xs uppercase tracking-wider">Video Shape</label>
+                        <select name="featured_videos[${videoIndex}][shape]" class="shape-select w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none bg-white">
+                            <option value="landscape" ${shape === 'landscape' ? 'selected' : ''}>Landscape (Wide)</option>
+                            <option value="portrait" ${shape === 'portrait' ? 'selected' : ''}>Portrait (Tall / Reel)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="preview-wrapper mt-4 hidden bg-gray-50 p-4 rounded-lg border border-gray-100">
+                    <p class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest text-center">Live Preview</p>
+                    <div class="preview-content bg-black rounded overflow-hidden flex justify-center mx-auto shadow border border-gray-800 w-full"></div>
+                </div>
+            `;
+
+            container.appendChild(row);
+            videoIndex++;
+
+            const input = row.querySelector('.video-input');
+            const select = row.querySelector('.shape-select');
+            const wrapper = row.querySelector('.preview-wrapper');
+            const content = row.querySelector('.preview-content');
+            const removeBtn = row.querySelector('.remove-btn');
+
+            const triggerPreview = () => renderPreview(input, select, wrapper, content);
+
+            input.addEventListener('input', triggerPreview);
+            select.addEventListener('change', triggerPreview);
+            removeBtn.addEventListener('click', () => row.remove());
+
+            triggerPreview();
+        }
+
+        addBtn.addEventListener('click', () => addVideoRow());
+        
+        if (existingVideos && existingVideos.length > 0) {
+            existingVideos.forEach(v => addVideoRow(v.url, v.shape));
+        } else {
+            addVideoRow();
+        }
+    });
 </script>
 <style>
     .ck-editor__editable_inline { min-height: 400px; }
@@ -195,9 +258,6 @@
     .ck-content ul { list-style-type: disc !important; }
     .ck-content ol { list-style-type: decimal !important; }
     .ck-content li { margin-bottom: 0.5rem !important; display: list-item !important; }
-    .ck-content .ck-media__wrapper { padding-bottom: 0 !important; min-height: auto !important; height: auto !important; }
-    .ck-content .ck-media__wrapper iframe { position: relative !important; top: auto !important; left: auto !important; height: auto; }
-    .ck-content .media { display: block !important; margin: 1.5rem auto !important; text-align: center; }
     .ck-content .image { max-width: 100%; margin: 1.5rem auto !important; display: block !important; }
     .ck-content .image img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
 </style>
