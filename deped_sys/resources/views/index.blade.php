@@ -2,7 +2,7 @@
 
 @section('content')
     <div class="container mx-auto mt-6 px-4">
-        <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] "
+        <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] overflow-hidden"
             x-data="{ activeSlide: 1, slides: {{ $banners->toJson() ?? '[]' }} }" 
             x-init="if(slides.length > 0) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
             
@@ -15,7 +15,7 @@
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
                      class="absolute inset-0 flex items-center justify-center">
-                    <img :src="slide" alt="Hero Banner" class="w-full h-full object-contain">
+                    <img :src="slide" alt="Hero Banner" class="w-full h-full object-cover object-center">
                 </div>
             </template>
             
@@ -30,15 +30,15 @@
     <section class="container mx-auto mt-16 px-4 mb-24">
         <div class="flex justify-center">
             @if(isset($latestAdvisory))
-                <div class="w-full max-w-[500px]"> 
-                    <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block rounded-2xl shadow-xl overflow-hidden">
+                <div class="w-full max-w-[800px]"> 
+                    <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block transition hover:opacity-90">
                         <img src="{{ asset('storage/' . $latestAdvisory->image_path) }}" 
                              alt="Latest Advisory" 
-                             class="w-full h-auto object-contain">
+                             class="w-full h-[500px] md:h-[750px] object-contain object-center">
                     </a>
                 </div>
             @else
-                <div class="flex flex-col items-center py-24 bg-white rounded-3xl w-full max-w-[800px] border-2 border-dashed border-gray-200">
+                <div class="flex flex-col items-center py-24 w-full max-w-[800px]">
                     <svg class="w-20 h-20 text-gray-200 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" />
                     </svg>
