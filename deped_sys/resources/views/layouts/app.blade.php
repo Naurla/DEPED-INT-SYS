@@ -112,18 +112,14 @@
                             </div>
                             <div class="hidden group-hover/sub-org:block absolute left-full top-0 w-96 bg-white shadow-xl border border-gray-200 py-2">
                                 
-                                {{-- UPDATED DIVISION OFFICES LINK --}}
                                 <a href="{{ route('division_offices.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('division_offices.index') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Division Office Organization Structure</a>
                                 
                                 <a href="{{ route('org.chart') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('org.chart') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Executive Committee</a>
                                 
-                                {{-- CID LINK --}}
                                 <a href="{{ route('cid.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('cid.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Curriculum Implementation Division</a>
                                 
-                                {{-- OSDS LINK --}}
                                 <a href="{{ route('osds.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('osds.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Office of the Schools Division Superintendent</a>
                                 
-                                {{-- SGOD LINK --}}
                                 <a href="{{ route('sgod.index') }}" class="block px-6 py-3 transition-colors {{ request()->routeIs('sgod.*') ? 'bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">School Governance and Operations Divisions</a>
                             </div>
                         </div>
@@ -391,11 +387,9 @@
                     @php $footerRightLogos = isset($site_logos) ? $site_logos->where('position', 'footer_right') : collect(); @endphp
                     @if($footerRightLogos->isNotEmpty())
                         @foreach($footerRightLogos as $logo)
-                            {{-- Matching the w-[150px] constraint to make it bigger and equal to the left logo --}}
                             <img src="{{ asset('storage/' . $logo->image_path) }}" alt="{{ $logo->name }}" class="w-[150px] h-auto object-contain">
                         @endforeach
                     @else
-                        {{-- Matching the w-[150px] constraint to make it bigger and equal to the left logo --}}
                         <img src="{{ asset('images/foi.png') }}" alt="FOI Logo" class="w-[150px] h-auto object-contain">
                     @endif
                 </div>
@@ -411,6 +405,18 @@
         </button>
 
     </footer>
+
+    {{-- STATIC QR CODE ON THE TOP LEFT --}}
+    @if(!empty($site_settings->qr_link))
+    <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="absolute left-0 top-[200px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-3 hidden md:flex flex-col items-center group transition-all duration-300 hover:translate-x-2 border border-l-0 border-white/20 cursor-pointer">
+        <div class="text-white text-center text-[11px] font-bold uppercase tracking-wider mb-2.5 leading-snug">
+            CUSTOMER<br>SATISFACTION<br>MEASUREMENT
+        </div>
+        <div class="p-1.5 bg-white rounded shadow-sm opacity-95 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-300">
+            {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(85)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
+        </div>
+    </a>
+    @endif
 
     {{-- LOGIN MODAL --}}
     <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" x-show="loginModal" x-cloak x-transition>

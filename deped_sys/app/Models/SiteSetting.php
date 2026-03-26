@@ -7,10 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class SiteSetting extends Model
 {
     protected $fillable = [
-        'header_title', 'footer_about', 'contact_email', 'contact_phone', 'address'
+        'header_title', 'footer_about', 'contact_email', 'contact_phone', 'address', 'qr_link' // <-- Added qr_link
     ];
 
-    // Tell Laravel these are arrays
     protected $casts = [
         'contact_email' => 'array',
         'contact_phone' => 'array',

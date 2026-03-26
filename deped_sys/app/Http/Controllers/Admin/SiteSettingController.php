@@ -27,12 +27,14 @@ class SiteSettingController extends Controller
             'address' => 'nullable|array',
             'address.*' => 'nullable|string',
             'footer_sections' => 'nullable|array',
+            'qr_link' => 'nullable|url', // <-- Validate the qr_link as a URL
         ]);
 
         $settings = SiteSetting::first() ?? new SiteSetting();
 
         $settings->header_title = $request->header_title;
         $settings->footer_about = $request->footer_about;
+        $settings->qr_link = $request->qr_link; // <-- Save the qr_link to the database
         
         // Re-index arrays to prevent gaps
         $settings->contact_email = array_values(array_filter($request->contact_email ?? []));

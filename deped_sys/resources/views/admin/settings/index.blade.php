@@ -64,6 +64,16 @@
                 <input type="text" name="header_title" value="{{ old('header_title', $settings->header_title) }}" class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:border-[#a52a2a] focus:ring-1 focus:ring-[#a52a2a]" required>
             </div>
 
+            <h3 class="text-xl font-semibold mb-4 mt-8 text-gray-700 border-b pb-2">QR Code Settings</h3>
+            
+            <div class="mb-8">
+                <label class="block text-gray-700 text-sm font-bold mb-2">QR Code Redirection Link</label>
+                <input type="url" name="qr_link" id="qr_link" class="w-full border border-gray-300 p-2 rounded focus:outline-none focus:border-[#a52a2a] focus:ring-1 focus:ring-[#a52a2a]" 
+                       value="{{ old('qr_link', $settings->qr_link ?? '') }}" 
+                       placeholder="https://example.com/some-page">
+                <p class="text-sm text-gray-500 mt-1">Provide the URL where the user should be redirected when they scan the QR code. Leave blank to hide the QR code.</p>
+            </div>
+
             <h3 class="text-xl font-semibold mb-4 text-gray-700 border-b pb-2">Footer Settings</h3>
 
             <div class="mb-4">
