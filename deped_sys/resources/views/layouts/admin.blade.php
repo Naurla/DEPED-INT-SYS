@@ -144,10 +144,6 @@
                                 Executive Committee
                             </a>
                             
-                            {{-- EXISTING: Public Preview Link --}}
-                            <a href="{{ route('org.chart') }}" target="_blank" class="block text-[10px] text-gray-400 hover:text-white transition-all italic">
-                                ↳ Preview Public Chart
-                            </a>
                             
                             {{-- CID Link --}}
                             <a href="{{ route('admin.cid.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.cid.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Curriculum Implementation</a>
