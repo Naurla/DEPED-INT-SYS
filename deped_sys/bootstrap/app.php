@@ -11,6 +11,9 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+        \App\Http\Middleware\CheckMaintenanceMode::class,
+    ]);
         // Register your middleware aliases here
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
@@ -27,3 +30,5 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+
+    

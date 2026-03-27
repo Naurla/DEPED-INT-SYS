@@ -30,7 +30,7 @@ use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 use App\Http\Controllers\Admin\JuniorHighController;
 use App\Http\Controllers\Admin\SeniorHighController;
 use App\Http\Controllers\Frontend\JuniorHighFrontendController;
-use App\Http\Controllers\Frontend\SeniorHighFrontendController; // <-- ADDED THIS
+use App\Http\Controllers\Frontend\SeniorHighFrontendController;
 
 // Site Settings Controller
 use App\Http\Controllers\Admin\SiteSettingController;
@@ -207,7 +207,7 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     // Junior High Route
     Route::get('/junior-high', [JuniorHighFrontendController::class, 'index'])->name('junior-high');
     
-    // UPDATED SENIOR HIGH ROUTE <-- CHANGED THIS
+    // UPDATED SENIOR HIGH ROUTE
     Route::get('/senior-high', [SeniorHighFrontendController::class, 'index'])->name('senior-high');
 });
 
@@ -236,6 +236,9 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware(['permission:dashboard'])->group(function () {
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         });
+
+        // ADDED: Global Maintenance Toggle Route (Placed here so the bottom-left sidebar toggle works for admins)
+        Route::post('/settings/toggle-maintenance', [SiteSettingController::class, 'toggleMaintenance'])->name('settings.toggle-maintenance');
 
         // Site Settings & "Manage About" Content
         Route::middleware(['permission:settings'])->group(function () {
