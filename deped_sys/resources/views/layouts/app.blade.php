@@ -87,34 +87,34 @@
                 
                 <a href="/" class="w-full md:w-auto text-center px-8 py-[14px] border-r border-gray-300 transition-colors {{ request()->is('/') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">Home</a>
                 
-                {{-- About --}}
-                <div class="group relative w-full md:w-auto border-r border-gray-300 cursor-pointer transition-colors {{ request()->is('about*') || request()->routeIs('qms.index') || request()->routeIs('org.chart') || request()->routeIs('sgod.*') || request()->routeIs('osds.*') || request()->routeIs('cid.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
-                    <div class="flex items-center justify-center px-6 py-[14px] w-full">
+                {{-- About (Alpine Click Toggle) --}}
+                <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" class="relative w-full md:w-auto border-r border-gray-300 transition-colors {{ request()->is('about*') || request()->routeIs('qms.index') || request()->routeIs('org.chart') || request()->routeIs('sgod.*') || request()->routeIs('osds.*') || request()->routeIs('cid.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                    <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full cursor-pointer">
                         <span>About</span>
-                        <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                     
-                    <div class="hidden group-hover:block md:absolute md:left-0 md:top-full w-full md:w-80 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
+                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-80 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
                         
                         {{-- Profile Submenu --}}
-                        <div class="relative group/sub-profile">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full">
-                                <span>Profile</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer">
+                                <span class="text-left leading-tight">Profile</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-profile:block md:absolute md:left-full md:top-0 w-full md:w-80 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-80 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                 <a href="{{ route('qms.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('qms.index') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">QMS Scope, Quality Policy, Quality Objective</a>
                                 <a href="{{ route('vision_mission.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('vision_mission.index') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Vision, Mission, Core Values, and Mandate</a>
                             </div>
                         </div>
 
                         {{-- Organizational Structure Submenu --}}
-                        <div class="relative group/sub-org">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full">
-                                <span>Organizational Structure</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer">
+                                <span class="text-left leading-tight">Organizational Structure</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-org:block md:absolute md:left-full md:top-0 w-full md:w-96 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-96 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                 <a href="{{ route('division_offices.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('division_offices.index') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Division Office Organization Structure</a>
                                 <a href="{{ route('org.chart') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('org.chart') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Executive Committee</a>
                                 <a href="{{ route('cid.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('cid.*') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Curriculum Implementation Division</a>
@@ -124,12 +124,12 @@
                         </div>
 
                         {{-- DepEd Data Privacy Submenu --}}
-                        <div class="relative group/sub-privacy">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full">
-                                <span>DepEd Data Privacy</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer">
+                                <span class="text-left leading-tight">DepEd Data Privacy</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-privacy:block md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                <a href="{{ route('data_privacy.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('data_privacy.index') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Data Privacy Notice</a>
                             </div>
                         </div>
@@ -140,12 +140,12 @@
                 </div>
                 
                 {{-- Issuances --}}
-                <div class="group relative w-full md:w-auto border-r border-gray-300 cursor-pointer transition-colors {{ request()->routeIs('issuances.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
-                    <div class="flex items-center justify-center px-6 py-[14px] w-full">
+                <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" class="relative w-full md:w-auto border-r border-gray-300 transition-colors {{ request()->routeIs('issuances.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                    <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full cursor-pointer">
                         <span>Issuances</span>
-                        <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
-                    <div class="hidden group-hover:block md:absolute md:left-0 md:top-full w-full md:w-64 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
+                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-64 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
                         <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
                         <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
                         <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> HRMPSB</a>
@@ -153,20 +153,20 @@
                 </div>
 
                 {{-- K to 12 --}}
-                <div class="group relative w-full md:w-auto border-r border-gray-300 cursor-pointer transition-colors {{ request()->routeIs('k12.*') || request()->routeIs('learning_materials.*') || request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') || request()->routeIs('als-implementers.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
-                    <div class="flex items-center justify-center px-6 py-[14px] w-full">
+                <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" class="relative w-full md:w-auto border-r border-gray-300 transition-colors {{ request()->routeIs('k12.*') || request()->routeIs('learning_materials.*') || request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') || request()->routeIs('als-implementers.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                    <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full cursor-pointer">
                         <span>K to 12</span>
-                        <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
-                    <div class="hidden group-hover:block md:absolute md:left-0 md:top-full w-full md:w-72 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
+                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-72 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
                         
                         {{-- About K-12 --}}
-                        <div class="relative group/sub-about-k12">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full">
-                                <span>About</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer">
+                                <span class="text-left leading-tight">About</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-about-k12:block md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                 <a href="{{ route('k12.about.curriculum') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 border-b border-gray-50">K to 12 Basic Education Curriculum</a>
                                 <a href="{{ route('k12.about.faq') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100">FAQ</a>
                             </div>
@@ -175,12 +175,12 @@
                         <a href="{{ route('learning_materials.index') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Learning Materials</a>
 
                         {{-- ALS --}}
-                        <div class="relative group/sub-als">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full">
-                                <span>Alternative Learning System (ALS)</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer">
+                                <span class="text-left leading-tight">Alternative Learning System (ALS)</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-als:block md:absolute md:left-full md:top-0 w-full md:w-80 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-80 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                 <a href="https://www.deped.gov.ph/about-als/" target="_blank" rel="noopener noreferrer" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 border-b border-gray-50">About ALS</a>
                                 <a href="{{ route('enrollment-statistics.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('enrollment-statistics.*') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Enrollment Statistics</a>
                                 <a href="{{ route('als-stories.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('als-stories.*') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">ALS Stories</a>
@@ -190,23 +190,23 @@
                         </div>
 
                         {{-- Junior High --}}
-                        <div class="relative group/sub-jhs">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 transition-colors w-full {{ request()->routeIs('k12.junior-high') ? 'bg-gray-100 text-[#a52a2a] font-bold' : '' }}">
-                                <span>Junior High School</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.junior-high') ? 'bg-gray-100 text-[#a52a2a] font-bold' : '' }}">
+                                <span class="text-left leading-tight">Junior High School</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-jhs:block md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                 <a href="{{ route('k12.junior-high') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.junior-high') ? 'text-[#a52a2a] font-bold' : '' }}">List of Junior High Schools</a>
                             </div>
                         </div>
                         
                         {{-- Senior High --}}
-                        <div class="relative group/sub-shs">
-                            <div class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 transition-colors w-full {{ request()->routeIs('k12.senior-high') ? 'bg-gray-100 text-[#a52a2a] font-bold' : '' }}">
-                                <span>Senior High School</span>
-                                <svg class="w-3 h-3 rotate-0 md:-rotate-90 text-gray-400 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.senior-high') ? 'bg-gray-100 text-[#a52a2a] font-bold' : '' }}">
+                                <span class="text-left leading-tight">Senior High School</span>
+                                <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
-                            <div class="hidden group-hover/sub-shs:block md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
+                            <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
                                 <a href="{{ route('k12.senior-high') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.senior-high') ? 'text-[#a52a2a] font-bold' : '' }}">List of Senior High Schools</a>
                             </div>
                         </div>
@@ -215,12 +215,12 @@
                 </div>
 
                 {{-- Procurement --}}
-                <div class="group relative w-full md:w-auto border-r border-gray-300 cursor-pointer transition-colors {{ request()->routeIs('procurement.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
-                    <div class="flex items-center justify-center px-6 py-[14px] w-full">
+                <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" class="relative w-full md:w-auto border-r border-gray-300 transition-colors {{ request()->routeIs('procurement.*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                    <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full cursor-pointer">
                         <span>Procurement</span>
-                        <svg class="w-3 h-3 ml-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                        <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
-                    <div class="hidden group-hover:block md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
+                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
                         <a href="{{ route('procurement.index', ['category' => 'bid-opportunities']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Bid Opportunities</a>
                         <a href="{{ route('procurement.index', ['category' => 'apcpi']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Agency Procurement Compliance and Performance Indicators</a>
                         <a href="{{ route('procurement.index', ['category' => 'app-cse']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Annual Procurement Plan – Common User Supplies</a>
