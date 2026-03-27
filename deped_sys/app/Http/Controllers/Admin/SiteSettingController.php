@@ -70,4 +70,17 @@ class SiteSettingController extends Controller
 
         return redirect()->back()->with('success', 'Site settings updated successfully!');
     }
+
+ public function toggleMaintenance(\Illuminate\Http\Request $request)
+    {
+        $settings = \App\Models\SiteSetting::first() ?? new \App\Models\SiteSetting();
+        
+        $settings->is_maintenance_mode = $request->boolean('is_maintenance_mode');
+        // Ensure it saves as an array, even if empty
+        $settings->disabled_pages = $request->input('disabled_pages', []); 
+        
+        $settings->save();
+
+        return response()->json(['success' => true]);
+    }
 }

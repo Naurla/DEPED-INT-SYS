@@ -158,21 +158,18 @@
 
             const url = rawUrl.toLowerCase();
             let iframeSrc = '';
-            let platform = '';
             const isVertical = (shapeSelect.value === 'portrait');
 
+            // Determine iframe source based on URL
             if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.me')) {
-                platform = 'facebook';
                 iframeSrc = `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(rawUrl)}&show_text=false`;
             } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
-                platform = 'youtube';
                 let videoId = '';
                 if (url.includes('watch?v=')) videoId = rawUrl.split('watch?v=')[1].split('&')[0];
                 else if (url.includes('youtu.be/')) videoId = rawUrl.split('youtu.be/')[1].split('?')[0];
                 else if (url.includes('/shorts/')) videoId = rawUrl.split('/shorts/')[1].split('?')[0];
                 if (videoId) iframeSrc = `https://www.youtube.com/embed/${videoId}`;
             } else if (url.includes('tiktok.com')) {
-                platform = 'tiktok';
                 let matches = rawUrl.match(/video\/(\d+)/i);
                 let videoId = matches && matches[1] ? matches[1] : rawUrl.split('/').pop().split('?')[0];
                 if (videoId) iframeSrc = `https://www.tiktok.com/embed/v2/${videoId}`;
@@ -180,14 +177,15 @@
 
             if (iframeSrc) {
                 previewWrapper.classList.remove('hidden');
-                const fbMaxWidth = isVertical ? '350px' : '100%';
+                const maxWidth = isVertical ? '350px' : '100%';
                 const aspect = isVertical ? '9/16' : '16/9';
                 
-                if (platform === 'facebook') {
-                    previewContent.innerHTML = `<div style="width: 100%; max-width: ${fbMaxWidth}; margin: 0 auto; display: flex; justify-content: center; aspect-ratio: 1/1;"><iframe src="${iframeSrc}" style="width: 100%; height: 100%; border: none;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen="true"></iframe></div>`;
-                } else {
-                    previewContent.innerHTML = `<div style="width: 100%; max-width: ${fbMaxWidth}; aspect-ratio: ${aspect}; display: flex; justify-content: center; margin: 0 auto;"><iframe src="${iframeSrc}" style="width: 100%; height: 100%; border: none;" scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen="true"></iframe></div>`;
-                }
+                // Unified layout: Uses aspect-ratio and removes the black background
+                previewContent.innerHTML = `
+                    <div style="position: relative; width: 100%; max-width: ${maxWidth}; aspect-ratio: ${aspect}; margin: 0 auto; background-color: transparent; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                        <iframe src="${iframeSrc}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" scrolling="no" frameborder="0" allowtransparency="true" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="true"></iframe>
+                    </div>
+                `;
             } else {
                 previewWrapper.classList.add('hidden');
                 previewContent.innerHTML = '';
@@ -197,6 +195,8 @@
         function addVideoRow(url = '', shape = 'landscape') {
             const row = document.createElement('div');
             row.className = "video-row bg-white border border-gray-200 rounded-xl p-5 shadow-sm relative group transition-all";
+            
+            // Note: In the HTML below, I removed "bg-black border border-gray-800 shadow" from preview-content
             row.innerHTML = `
                 <button type="button" class="remove-btn absolute top-3 right-3 text-red-400 hover:text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-full transition-colors" title="Remove Video">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -216,7 +216,7 @@
                 </div>
                 <div class="preview-wrapper mt-4 hidden bg-gray-50 p-4 rounded-lg border border-gray-100">
                     <p class="text-xs font-bold text-gray-400 mb-2 uppercase tracking-widest text-center">Live Preview</p>
-                    <div class="preview-content bg-black rounded overflow-hidden flex justify-center mx-auto shadow border border-gray-800 w-full"></div>
+                    <div class="preview-content w-full flex justify-center mx-auto"></div>
                 </div>
             `;
 
