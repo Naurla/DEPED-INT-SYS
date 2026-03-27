@@ -33,18 +33,17 @@
 
                     @if($iframeSrc)
                         <div class="w-full flex justify-center">
-                            @if($platform === 'facebook')
-                                <div style="width: 100%; max-width: {{ $isVertical ? '400px' : '900px' }}; margin: 0 auto; display: flex; justify-content: center; aspect-ratio: 1/1;">
-                                    <iframe src="{{ $iframeSrc }}" 
-                                        style="width: 100%; height: 100%; border: none; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.15);" 
-                                        scrolling="no" frameborder="0" allowtransparency="true" allow="encrypted-media" allowfullscreen="true">
-                                    </iframe>
-                                </div>
-                            @else
-                                <div style="position: relative; width: 100%; max-width: {{ $isVertical ? '400px' : '900px' }}; aspect-ratio: {{ $isVertical ? '9/16' : '16/9' }}; margin: 0 auto; background-color: #000; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
-                                    <iframe src="{{ $iframeSrc }}" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" frameborder="0" allowfullscreen></iframe>
-                                </div>
-                            @endif
+                            {{-- Unified Video Container --}}
+                            <div style="position: relative; width: 100%; max-width: {{ $isVertical ? '400px' : '900px' }}; aspect-ratio: {{ $isVertical ? '9/16' : '16/9' }}; margin: 0 auto; background-color: transparent; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.15);">
+                                <iframe src="{{ $iframeSrc }}" 
+                                    style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;" 
+                                    scrolling="no" 
+                                    frameborder="0" 
+                                    allowtransparency="true" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                    allowfullscreen="true">
+                                </iframe>
+                            </div>
                         </div>
                     @endif
                 @endforeach
