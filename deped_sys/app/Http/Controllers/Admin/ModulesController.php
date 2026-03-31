@@ -10,9 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class ModulesController extends Controller {
     
     public function index() {
-        // Fetch modules with standard Laravel pagination (10 per page)
         $modules = Modules::latest()->paginate(10);
-        
         return view('admin.modules.index', compact('modules'));
     }
 
@@ -24,21 +22,32 @@ class ModulesController extends Controller {
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
-        $filePath = $request->file('file')->store('modules/files', 'public');
-        $imagePath = $request->hasFile('image') ? $request->file('image')->store('modules/images', 'public') : null;
+        $file = $request->file('file');
+        $fileName = $file->getClientOriginalName();
+        $filePath = $file->storeAs('modules/files', $fileName, 'public');
+        
+        $imagePath = null;
+        if ($request->hasFile('image')) {
+            $imageFile = $request->file('image');
+            $imageName = $imageFile->getClientOriginalName();
+            $imagePath = $imageFile->storeAs('modules/images', $imageName, 'public');
+        }
 
         Modules::create([
             'title' => $request->title,
             'description' => $request->description,
             'file_path' => $filePath,
-            'file_type' => $request->file('file')->getClientOriginalExtension(),
+            'file_type' => $file->getClientOriginalExtension(),
             'image_path' => $imagePath,
         ]);
 
-        return response()->json(['success' => 'Module uploaded successfully!']);
+        // CHANGED: Use a standard redirect instead of JSON
+        return back()->with('success', 'Module uploaded successfully!');
     }
 
-    public function update(Request $request, Modules $module) {
+    public function update(Request $request, $id) {
+        $module = Modules::findOrFail($id);
+        
         $data = $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string'
@@ -46,21 +55,30 @@ class ModulesController extends Controller {
         
         if ($request->hasFile('file')) {
             if($module->file_path) Storage::disk('public')->delete($module->file_path);
-            $data['file_path'] = $request->file('file')->store('modules/files', 'public');
-            $data['file_type'] = $request->file('file')->getClientOriginalExtension();
+            
+            $file = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $data['file_path'] = $file->storeAs('modules/files', $fileName, 'public');
+            $data['file_type'] = $file->getClientOriginalExtension();
         }
         
         if ($request->hasFile('image')) {
             if($module->image_path) Storage::disk('public')->delete($module->image_path);
-            $data['image_path'] = $request->file('image')->store('modules/images', 'public');
+            
+            $imageFile = $request->file('image');
+            $imageName = $imageFile->getClientOriginalName();
+            $data['image_path'] = $imageFile->storeAs('modules/images', $imageName, 'public');
         }
 
         $module->update($data);
-        return response()->json(['success' => 'Module updated!']);
+        
+        // CHANGED: Use a standard redirect instead of JSON
+        return back()->with('success', 'Module updated!');
     }
 
-    public function destroy(Modules $module) {
-        // Use array_filter to avoid passing null paths to Storage::delete
+    public function destroy($id) {
+        $module = Modules::findOrFail($id);
+
         $filesToDelete = array_filter([$module->file_path, $module->image_path]);
         if (!empty($filesToDelete)) {
             Storage::disk('public')->delete($filesToDelete);
@@ -68,7 +86,6 @@ class ModulesController extends Controller {
         
         $module->delete();
         
-        // Standard Laravel redirect instead of JSON response
         return redirect()->route('admin.modules.index')
                          ->with('success', 'Module deleted successfully!');
     }

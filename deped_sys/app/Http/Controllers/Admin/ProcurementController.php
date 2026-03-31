@@ -10,7 +10,6 @@ use Illuminate\Support\Str;
 
 class ProcurementController extends Controller
 {
-    // Helper to format the category name nicely for the View
     private function getCategoryTitle($category)
     {
         $titles = [
@@ -28,7 +27,6 @@ class ProcurementController extends Controller
     public function index(Request $request, $category)
     {
         $categoryTitle = $this->getCategoryTitle($category);
-        
         $query = BidOpportunity::where('category', $category)->latest();
         
         if ($request->has('search')) {
@@ -36,7 +34,6 @@ class ProcurementController extends Controller
         }
 
         $opportunities = $query->paginate(10);
-
         return view('admin.procurement.index', compact('opportunities', 'category', 'categoryTitle'));
     }
 
@@ -49,18 +46,28 @@ class ProcurementController extends Controller
             'pdf_file' => 'required_without:jpeg_file|mimes:pdf|max:10240',
         ]);
 
-        // Dynamically save to a folder based on the category!
         $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
 
-        $jpegPath = $request->hasFile('jpeg_file') ? $request->file('jpeg_file')->store($folderPath, 'public') : null;
-        $pdfPath = $request->hasFile('pdf_file') ? $request->file('pdf_file')->store($folderPath, 'public') : null;
+        $jpegPath = null;
+        if ($request->hasFile('jpeg_file')) {
+            $imgFile = $request->file('jpeg_file');
+            $imgFilename = $imgFile->getClientOriginalName();
+            $jpegPath = $imgFile->storeAs($folderPath, $imgFilename, 'public');
+        }
+
+        $pdfPath = null;
+        if ($request->hasFile('pdf_file')) {
+            $pdfFile = $request->file('pdf_file');
+            $pdfFilename = $pdfFile->getClientOriginalName();
+            $pdfPath = $pdfFile->storeAs($folderPath, $pdfFilename, 'public');
+        }
 
         BidOpportunity::create([
             'title' => $request->title,
             'description' => $request->description,
             'jpeg_path' => $jpegPath,
             'pdf_path' => $pdfPath,
-            'category' => $category, // Assign the dynamic category
+            'category' => $category,
         ]);
 
         return redirect()->route('admin.procurement.index', $category)
@@ -85,39 +92,32 @@ class ProcurementController extends Controller
             'description' => $request->description,
         ];
 
-        // Check if user requested to remove the existing image
         if ($request->input('remove_image') == '1') {
-            if ($opportunity->jpeg_path) {
-                Storage::disk('public')->delete($opportunity->jpeg_path);
-            }
+            if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
             $dataToUpdate['jpeg_path'] = null;
         }
 
-        // Check if user requested to remove the existing PDF
         if ($request->input('remove_pdf') == '1') {
-            if ($opportunity->pdf_path) {
-                Storage::disk('public')->delete($opportunity->pdf_path);
-            }
+            if ($opportunity->pdf_path) Storage::disk('public')->delete($opportunity->pdf_path);
             $dataToUpdate['pdf_path'] = null;
         }
 
-        // Replace Image if a new one is uploaded
         if ($request->hasFile('jpeg_file')) {
-            if ($opportunity->jpeg_path) {
-                Storage::disk('public')->delete($opportunity->jpeg_path);
-            }
-            $dataToUpdate['jpeg_path'] = $request->file('jpeg_file')->store($folderPath, 'public');
+            if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
+            
+            $imgFile = $request->file('jpeg_file');
+            $imgFilename = $imgFile->getClientOriginalName();
+            $dataToUpdate['jpeg_path'] = $imgFile->storeAs($folderPath, $imgFilename, 'public');
         }
 
-        // Replace PDF if a new one is uploaded
         if ($request->hasFile('pdf_file')) {
-            if ($opportunity->pdf_path) {
-                Storage::disk('public')->delete($opportunity->pdf_path);
-            }
-            $dataToUpdate['pdf_path'] = $request->file('pdf_file')->store($folderPath, 'public');
+            if ($opportunity->pdf_path) Storage::disk('public')->delete($opportunity->pdf_path);
+            
+            $pdfFile = $request->file('pdf_file');
+            $pdfFilename = $pdfFile->getClientOriginalName();
+            $dataToUpdate['pdf_path'] = $pdfFile->storeAs($folderPath, $pdfFilename, 'public');
         }
 
-        // Apply Updates
         $opportunity->update($dataToUpdate);
 
         return redirect()->route('admin.procurement.index', $category)

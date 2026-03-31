@@ -27,11 +27,15 @@ class AlsStoryController extends Controller
         $data = $request->only(['title', 'content']);
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('als_stories/images', 'public');
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('als_stories/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
-            $data['file_path'] = $request->file('file')->store('als_stories/files', 'public');
+            $file = $request->file('file');
+            $filename = $file->getClientOriginalName();
+            $data['file_path'] = $file->storeAs('als_stories/files', $filename, 'public');
         }
 
         AlsStory::create($data);
@@ -39,8 +43,10 @@ class AlsStoryController extends Controller
         return back()->with('success', 'ALS Story created successfully.');
     }
 
-    public function update(Request $request, AlsStory $alsStory)
+    public function update(Request $request, $id)
     {
+        $alsStory = AlsStory::findOrFail($id);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
@@ -52,12 +58,16 @@ class AlsStoryController extends Controller
 
         if ($request->hasFile('image')) {
             if ($alsStory->image_path) Storage::disk('public')->delete($alsStory->image_path);
-            $data['image_path'] = $request->file('image')->store('als_stories/images', 'public');
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('als_stories/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
             if ($alsStory->file_path) Storage::disk('public')->delete($alsStory->file_path);
-            $data['file_path'] = $request->file('file')->store('als_stories/files', 'public');
+            $file = $request->file('file');
+            $filename = $file->getClientOriginalName();
+            $data['file_path'] = $file->storeAs('als_stories/files', $filename, 'public');
         }
 
         $alsStory->update($data);
@@ -65,8 +75,10 @@ class AlsStoryController extends Controller
         return back()->with('success', 'ALS Story updated successfully.');
     }
 
-    public function destroy(AlsStory $alsStory)
+    public function destroy($id)
     {
+        $alsStory = AlsStory::findOrFail($id);
+
         if ($alsStory->image_path) Storage::disk('public')->delete($alsStory->image_path);
         if ($alsStory->file_path) Storage::disk('public')->delete($alsStory->file_path);
         

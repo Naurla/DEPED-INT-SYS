@@ -28,11 +28,15 @@ class EnrollmentStatisticController extends Controller
         $data = $request->only(['title', 'school_year', 'content']);
 
         if ($request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('enrollment_statistics/images', 'public');
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('enrollment_statistics/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
-            $data['file_path'] = $request->file('file')->store('enrollment_statistics/files', 'public');
+            $file = $request->file('file');
+            $filename = $file->getClientOriginalName();
+            $data['file_path'] = $file->storeAs('enrollment_statistics/files', $filename, 'public');
         }
 
         EnrollmentStatistic::create($data);
@@ -40,8 +44,10 @@ class EnrollmentStatisticController extends Controller
         return back()->with('success', 'Enrollment Statistic created successfully.');
     }
 
-    public function update(Request $request, EnrollmentStatistic $enrollmentStatistic)
+    public function update(Request $request, $id)
     {
+        $enrollmentStatistic = EnrollmentStatistic::findOrFail($id);
+
         $request->validate([
             'title' => 'required|string|max:255',
             'school_year' => 'nullable|string|max:50',
@@ -54,12 +60,16 @@ class EnrollmentStatisticController extends Controller
 
         if ($request->hasFile('image')) {
             if ($enrollmentStatistic->image_path) Storage::disk('public')->delete($enrollmentStatistic->image_path);
-            $data['image_path'] = $request->file('image')->store('enrollment_statistics/images', 'public');
+            $file = $request->file('image');
+            $filename = $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('enrollment_statistics/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
             if ($enrollmentStatistic->file_path) Storage::disk('public')->delete($enrollmentStatistic->file_path);
-            $data['file_path'] = $request->file('file')->store('enrollment_statistics/files', 'public');
+            $file = $request->file('file');
+            $filename = $file->getClientOriginalName();
+            $data['file_path'] = $file->storeAs('enrollment_statistics/files', $filename, 'public');
         }
 
         $enrollmentStatistic->update($data);
@@ -67,8 +77,10 @@ class EnrollmentStatisticController extends Controller
         return back()->with('success', 'Enrollment Statistic updated successfully.');
     }
 
-    public function destroy(EnrollmentStatistic $enrollmentStatistic)
+    public function destroy($id)
     {
+        $enrollmentStatistic = EnrollmentStatistic::findOrFail($id);
+
         if ($enrollmentStatistic->image_path) Storage::disk('public')->delete($enrollmentStatistic->image_path);
         if ($enrollmentStatistic->file_path) Storage::disk('public')->delete($enrollmentStatistic->file_path);
         

@@ -17,12 +17,16 @@ class SeniorHighController extends Controller
     public function store(Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
         ]);
 
-        $path = $request->hasFile('csv_file') 
-            ? $request->file('csv_file')->store('senior_high/csv', 'public') 
-            : null;
+        $path = null;
+        if ($request->hasFile('csv_file')) {
+            $file = $request->file('csv_file');
+            $filename = $file->getClientOriginalName();
+            $path = $file->storeAs('senior_high/csv', $filename, 'public');
+        }
 
         SeniorHighContent::create([
             'title' => $request->title,
@@ -36,24 +40,23 @@ class SeniorHighController extends Controller
     public function update(Request $request, $id) {
         $request->validate([
             'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
         ]);
 
         $seniorHigh = SeniorHighContent::findOrFail($id);
 
-        // Handle new file upload overriding the old one
         if ($request->hasFile('csv_file')) {
             if ($seniorHigh->csv_path) {
                 Storage::disk('public')->delete($seniorHigh->csv_path);
             }
-            $seniorHigh->csv_path = $request->file('csv_file')->store('senior_high/csv', 'public');
+            $file = $request->file('csv_file');
+            $filename = $file->getClientOriginalName();
+            $seniorHigh->csv_path = $file->storeAs('senior_high/csv', $filename, 'public');
         }
 
-        // Update the text fields
         $seniorHigh->title = $request->title;
         $seniorHigh->content = $request->content;
-        
-        // Save all changes at once
         $seniorHigh->save();
 
         return back()->with('success', 'Updated successfully.');
