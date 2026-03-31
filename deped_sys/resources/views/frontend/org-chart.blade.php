@@ -67,7 +67,7 @@
     }
 
     /* =========================================================
-       2. EDGE-TO-EDGE PORTRAIT DESIGN
+       2. EDGE-TO-EDGE PORTRAIT DESIGN (HORIZONTAL SUPPORT)
        ========================================================= */
        
     .org-node {
@@ -75,10 +75,12 @@
         border-radius: 12px;
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
         border: 1px solid #e2e8f0; 
-        width: 320px; /* Locked width for perfect portrait ratio */
+        min-width: 320px; 
+        width: max-content; /* Allows node to expand horizontally */
+        max-width: 95vw; 
         display: inline-block;
         font-family: 'Inter', sans-serif;
-        overflow: hidden; /* Clips the image perfectly inside the rounded corners */
+        overflow: hidden; 
         margin-top: 25px;
         margin-bottom: 25px;
     }
@@ -92,33 +94,38 @@
         padding: 14px 16px;
         letter-spacing: 0.05em;
         text-transform: uppercase;
-        border-bottom: 3px solid #a52a2a; /* Red accent line */
+        border-bottom: 3px solid #a52a2a; 
     }
 
     .org-slots {
         display: flex;
-        flex-direction: column; /* Stack multiple roles top-to-bottom */
-        align-items: center;
+        flex-direction: row; /* Display roles side-by-side */
+        flex-wrap: wrap; /* Wrap if there are too many */
+        justify-content: center;
+        align-items: stretch; /* Keeps height consistent across row */
         gap: 0; 
-        padding: 0; /* No padding! Let the image hit the edge */
+        padding: 0; 
     }
 
     .org-slot {
         display: flex;
         flex-direction: column;
-        width: 100%; 
+        width: 320px; /* Fixed width per staff member */
+        flex: 0 0 auto;
+        border-right: 1px solid #e2e8f0; /* Separation line between cards */
         border-bottom: 1px solid #e2e8f0; 
         background-color: #ffffff;
     }
 
+    /* Remove right border for the last item in a row to keep it clean */
     .org-slot:last-child {
-        border-bottom: none;
+        border-right: none;
     }
 
     /* The Massive Edge-to-Edge Image */
     .employee-photo-hero {
         width: 100%;
-        height: 340px; /* Big portrait height */
+        height: 340px; 
         object-fit: cover;
         display: block;
         margin: 0;
@@ -140,9 +147,9 @@
     /* Details Box Below The Image */
     .details-container {
         width: 100%;
-        padding: 20px 24px;
+        padding: 24px;
         box-sizing: border-box;
-        text-align: left;
+        text-align: center; /* Centered for balance */
     }
 
     .employee-name-bold {
@@ -150,7 +157,7 @@
         font-weight: 800; 
         font-size: 18px; 
         line-height: 1.25; 
-        margin: 0 0 4px 0;
+        margin: 0 0 6px 0; /* Tiny gap between name and position */
         text-transform: uppercase;
     }
 
@@ -158,37 +165,12 @@
         font-weight: 700; 
         color: #111827; 
         font-size: 13px; 
-        margin: 0 0 16px 0;
+        margin: 0; /* Removed bottom margin since office is hidden */
     }
 
+    /* HIDING OFFICE DETAILS ONLY */
     .employee-info-lines {
-        font-size: 12px; 
-        color: #4b5563; 
-        display: flex;
-        flex-direction: column;
-        gap: 8px; 
-    }
-
-    .info-line {
-        display: flex;
-        align-items: flex-start;
-        gap: 10px; 
-    }
-
-    .info-line i {
-        margin-top: 2px; 
-        color: #9ca3af; 
-        flex-shrink: 0;
-        width: 14px;
-        text-align: center;
-    }
-
-    .info-line p {
-        margin: 0;
-    }
-
-    .label {
-        font-weight: 600; 
+        display: none !important;
     }
 
     /* Vacant Styles */
@@ -206,7 +188,7 @@
        ========================================================= */
     @media (max-width: 768px) {
         #chart_div {
-            overflow-x: hidden !important;
+            overflow-x: auto !important; /* Allow scrolling horizontally if needed */
             width: 100%;
         }
 
@@ -238,6 +220,21 @@
             max-width: 360px; /* Scales nicely on mobile */
             margin: 16px auto !important; 
             display: block;
+        }
+
+        /* Stack cards vertically on smaller mobile screens */
+        .org-slots {
+            flex-direction: column; 
+        }
+
+        .org-slot {
+            width: 100%;
+            border-right: none; /* Remove side border on mobile */
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .org-slot:last-child {
+            border-bottom: none;
         }
     }
 </style>
