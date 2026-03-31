@@ -16,6 +16,8 @@
     editId: null,
     deleteId: null,
     deleteTitle: '',
+    editUrl: '',
+    deleteUrl: '',
     formData: {
         title: '',
         description: '',
@@ -25,24 +27,27 @@
     openCreate() {
         this.isEdit = false;
         this.editId = null;
+        this.editUrl = '';
         this.formData.title = '';
         this.formData.description = '';
         this.formData.currentFile = '';
         this.formData.removeFile = false;
         this.showModal = true;
     },
-    openEdit(material) {
+    openEdit(material, url) {
         this.isEdit = true;
         this.editId = material.id;
+        this.editUrl = url;
         this.formData.title = material.title;
         this.formData.description = material.description;
         this.formData.currentFile = material.file_path;
         this.formData.removeFile = false;
         this.showModal = true;
     },
-    openDelete(material) {
+    openDelete(material, url) {
         this.deleteId = material.id;
         this.deleteTitle = material.title;
+        this.deleteUrl = url;
         this.showDeleteModal = true;
     }
 }">
@@ -107,7 +112,6 @@
                                 {{ Str::limit($material->description, 100) }}
                             </td>
                             
-                            {{-- Clickable File Link with actual Filename --}}
                             <td class="px-6 py-4 text-center">
                                 @if($material->file_path)
                                     <a href="{{ asset('storage/' . $material->file_path) }}" target="_blank" title="{{ basename($material->file_path) }}" class="text-red-600 font-bold hover:text-red-800 hover:underline flex items-center justify-center text-sm whitespace-nowrap">
@@ -123,8 +127,8 @@
                                 {{ $material->created_at ? $material->created_at->format('M d, Y') : 'N/A' }}
                             </td>
                             <td class="px-6 py-4 flex justify-end gap-3 items-center mt-1">
-                                <button @click="openEdit({{ $material }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
-                                <button @click="openDelete({{ $material }})" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
+                                <button @click="openEdit({{ collect($material)->toJson() }}, '{{ route('admin.learning-materials.update', $material->id) }}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                <button @click="openDelete({{ collect($material)->toJson() }}, '{{ route('admin.learning-materials.destroy', $material->id) }}')" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                             </td>
                         </tr>
                     @empty
@@ -159,7 +163,7 @@
                     </button>
                 </div>
                 
-                <form :action="isEdit ? '/admin/learning-materials/' + editId : '{{ route('admin.learning-materials.store') }}'" 
+                <form :action="isEdit ? editUrl : '{{ route('admin.learning-materials.store') }}'" 
                       method="POST" enctype="multipart/form-data" class="font-sans">
                     @csrf
                     <template x-if="isEdit"><input type="hidden" name="_method" value="PUT"></template>
@@ -182,8 +186,8 @@
                                       placeholder="Enter detailed description..."></textarea>
                         </div>
                         
-                        <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Document Attachment <span class="text-xs font-normal text-gray-400 ml-1" x-text="isEdit ? '(Optional on Edit)' : '(Required)'"></span></label>
+                        <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Document Attachment <span class="text-xs font-normal text-gray-400 ml-1" x-text="isEdit ? '(Leave blank to keep current)' : '(Required)'"></span></label>
                             <input type="file" name="file" accept=".pdf, .ppt, .pptx, .doc, .docx" :required="!isEdit" 
                                    class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-[#a52a2a] hover:file:bg-red-100 cursor-pointer">
                             
@@ -243,7 +247,7 @@
                 </div>
                 <div class="flex space-x-3 w-full">
                     <button @click="showDeleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</button>
-                    <form :action="'/admin/learning-materials/' + deleteId" method="POST" class="flex-1">
+                    <form :action="deleteUrl" method="POST" class="flex-1">
                         @csrf 
                         @method('DELETE')
                         <button type="submit" class="w-full px-4 py-2 bg-[#a52a2a] text-white rounded-xl font-bold hover:bg-[#801a1a] shadow-lg shadow-red-200 transition">Yes, Delete</button>
