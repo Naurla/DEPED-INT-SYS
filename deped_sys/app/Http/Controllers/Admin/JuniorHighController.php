@@ -31,17 +31,39 @@ class JuniorHighController extends Controller
         return back()->with('success', 'Added successfully.');
     }
 
-    public function update(Request $request, JuniorHighContent $juniorHigh) {
+    public function update(Request $request, $id) {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
+        ]);
+
+        $juniorHigh = JuniorHighContent::findOrFail($id);
+
+        // Handle new file upload overriding the old one
         if ($request->hasFile('csv_file')) {
-            if ($juniorHigh->csv_path) Storage::disk('public')->delete($juniorHigh->csv_path);
+            if ($juniorHigh->csv_path) {
+                Storage::disk('public')->delete($juniorHigh->csv_path);
+            }
             $juniorHigh->csv_path = $request->file('csv_file')->store('junior_high/csv', 'public');
         }
-        $juniorHigh->update($request->only('title', 'content'));
+
+        // Update the text fields
+        $juniorHigh->title = $request->title;
+        $juniorHigh->content = $request->content;
+        
+        // Save all changes at once
+        $juniorHigh->save();
+
         return back()->with('success', 'Updated successfully.');
     }
 
-    public function destroy(JuniorHighContent $juniorHigh) {
-        if ($juniorHigh->csv_path) Storage::disk('public')->delete($juniorHigh->csv_path);
+    public function destroy($id) {
+        $juniorHigh = JuniorHighContent::findOrFail($id);
+        
+        if ($juniorHigh->csv_path) {
+            Storage::disk('public')->delete($juniorHigh->csv_path);
+        }
+        
         $juniorHigh->delete();
         return back()->with('success', 'Deleted successfully.');
     }
