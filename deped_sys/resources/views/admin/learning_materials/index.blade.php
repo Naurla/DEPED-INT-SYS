@@ -3,207 +3,254 @@
 @section('page_title', 'Manage Learning Materials')
 
 @section('content')
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&display=swap');
+    .font-cinzel { font-family: 'Cinzel', serif; }
+    [x-cloak] { display: none !important; }
+</style>
+
 <div x-data="{ 
     showModal: false, 
     showDeleteModal: false,
     isEdit: false,
-    modalTitle: 'Upload New Learning Material',
+    editId: null,
     deleteId: null,
-    deleteTitle: ''
-}" 
-@open-modal.window="showModal = true; isEdit = $event.detail.isEdit; modalTitle = isEdit ? 'Edit Learning Material' : 'Upload New Learning Material';"
-@open-delete-modal.window="showDeleteModal = true; deleteId = $event.detail.id; deleteTitle = $event.detail.title;">
+    deleteTitle: '',
+    formData: {
+        title: '',
+        description: '',
+        currentFile: '',
+        removeFile: false
+    },
+    openCreate() {
+        this.isEdit = false;
+        this.editId = null;
+        this.formData.title = '';
+        this.formData.description = '';
+        this.formData.currentFile = '';
+        this.formData.removeFile = false;
+        this.showModal = true;
+    },
+    openEdit(material) {
+        this.isEdit = true;
+        this.editId = material.id;
+        this.formData.title = material.title;
+        this.formData.description = material.description;
+        this.formData.currentFile = material.file_path;
+        this.formData.removeFile = false;
+        this.showModal = true;
+    },
+    openDelete(material) {
+        this.deleteId = material.id;
+        this.deleteTitle = material.title;
+        this.showDeleteModal = true;
+    }
+}">
 
+    {{-- Success Message --}}
     @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
             {{ session('success') }}
         </div>
     @endif
 
-    <div class="bg-white rounded-lg shadow border border-gray-200">
-        <div class="flex items-center justify-between p-4 border-b border-gray-200">
-            <div class="flex items-center text-lg font-bold text-gray-800">
-                <svg class="w-5 h-5 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-                Learning Materials List
-            </div>
-
-            <button @click="$dispatch('open-modal', { isEdit: false }); document.getElementById('materialForm').reset(); document.getElementById('methodInput')?.remove(); document.getElementById('materialForm').action = '{{ route('admin.learning-materials.store') }}';" 
-                    class="bg-[#a52a2a] hover:bg-red-800 text-white text-sm font-medium px-4 py-2 rounded shadow transition-colors flex items-center">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-                Upload New
-            </button>
+    {{-- Validation Errors Display --}}
+    @if($errors->any())
+        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-sm">
+            <strong class="font-bold">Oops! Please check your inputs:</strong>
+            <ul class="list-disc pl-5 mt-1 text-sm">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
 
+    {{-- Page Header --}}
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800 tracking-tight font-cinzel">Manage Learning Materials</h2>
+            <p class="text-gray-500 text-sm mt-1">Upload and manage educational modules, guides, and resources.</p>
+        </div>
+        <button @click="openCreate()" class="bg-[#a52a2a] hover:bg-[#801a1a] text-white text-sm font-bold px-4 py-2.5 rounded-lg shadow-md transition-colors flex items-center tracking-wide shrink-0">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            UPLOAD NEW MATERIAL
+        </button>
+    </div>
+
+    {{-- Main Table Card --}}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
-                <thead class="bg-gray-50 text-gray-700 border-b border-gray-200">
-                    <tr>
-                        <th class="px-6 py-3 font-semibold">#</th>
-                        <th class="px-6 py-3 font-semibold">Title</th>
-                        <th class="px-6 py-3 font-semibold">Description</th>
-                        <th class="px-6 py-3 font-semibold">File Type</th>
-                        <th class="px-6 py-3 font-semibold">Date Uploaded</th>
-                        <th class="px-6 py-3 font-semibold text-center">Action</th>
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                        <th class="px-6 py-4 border-b whitespace-nowrap">#</th>
+                        <th class="px-6 py-4 border-b">Title</th>
+                        <th class="px-6 py-4 border-b">Description</th>
+                        <th class="px-6 py-4 border-b whitespace-nowrap text-center">Document</th>
+                        <th class="px-6 py-4 border-b whitespace-nowrap text-center">Date Uploaded</th>
+                        <th class="px-6 py-4 border-b text-right">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200 text-gray-600">
+                <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse($materials as $index => $material)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 text-gray-500">{{ $materials->firstItem() + $index }}</td>
-                            <td class="px-6 py-4 font-medium text-gray-900">{{ $material->title }}</td>
-                            <td class="px-6 py-4 truncate max-w-[200px]">{{ $material->description }}</td>
-                            <td class="px-6 py-4 font-bold uppercase text-xs text-gray-500">{{ $material->file_type }}</td>
-                            <td class="px-6 py-4">{{ $material->created_at ? $material->created_at->format('Y-m-d H:i:s') : 'N/A' }}</td>
+                            <td class="px-6 py-4 text-sm text-gray-600 font-medium">
+                                {{ $materials->firstItem() + $index }}
+                            </td>
+                            <td class="px-6 py-4 font-semibold text-gray-900 max-w-[200px] break-words whitespace-normal">
+                                {{ $material->title }}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-600 max-w-xs break-words whitespace-normal">
+                                {{ Str::limit($material->description, 100) }}
+                            </td>
+                            
+                            {{-- Clickable File Link with actual Filename --}}
                             <td class="px-6 py-4 text-center">
-                                <div class="flex justify-center space-x-2">
-                                    <button type="button" 
-                                        @click="
-                                            $dispatch('open-modal', { isEdit: true });
-                                            document.getElementById('materialForm').action = '/admin/learning-materials/{{ $material->id }}';
-                                            if(!document.getElementById('methodInput')) document.getElementById('materialForm').insertAdjacentHTML('beforeend', '<input type=\'hidden\' name=\'_method\' value=\'PUT\' id=\'methodInput\'>');
-                                            document.getElementById('title').value = '{{ addslashes($material->title) }}';
-                                            document.getElementById('description').value = '{{ addslashes($material->description) }}';
-                                        "
-                                        class="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="Edit">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                                    </button>
-                                    
-                                    <button type="button" 
-                                        @click="$dispatch('open-delete-modal', { id: {{ $material->id }}, title: '{{ addslashes($material->title) }}' })"
-                                        class="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded transition-colors" title="Delete">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </div>
+                                @if($material->file_path)
+                                    <a href="{{ asset('storage/' . $material->file_path) }}" target="_blank" title="{{ basename($material->file_path) }}" class="text-red-600 font-bold hover:text-red-800 hover:underline flex items-center justify-center text-sm whitespace-nowrap">
+                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <span class="max-w-[150px] truncate">{{ basename($material->file_path) }}</span>
+                                    </a>
+                                @else
+                                    <span class="text-gray-400 italic text-xs">N/A</span>
+                                @endif
+                            </td>
+
+                            <td class="px-6 py-4 text-sm text-gray-500 font-medium text-center whitespace-nowrap">
+                                {{ $material->created_at ? $material->created_at->format('M d, Y') : 'N/A' }}
+                            </td>
+                            <td class="px-6 py-4 flex justify-end gap-3 items-center mt-1">
+                                <button @click="openEdit({{ $material }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                <button @click="openDelete({{ $material }})" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                                No learning materials found. Click "Upload New" to get started!
+                            <td colspan="6" class="px-6 py-10 text-center text-gray-500 italic">
+                                No learning materials found. Click "Upload New Material" to get started!
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        
-        <div class="p-4 border-t border-gray-200">
+    </div>
+    
+    <div class="mt-4">
+        @if($materials->hasPages())
             {{ $materials->links() }}
-        </div>
+        @endif
     </div>
 
+    {{-- MODAL: ADD/EDIT MATERIAL --}}
     <div x-show="showModal" class="fixed inset-0 z-50 overflow-y-auto" x-cloak>
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:p-0">
-            <div x-show="showModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" @click="showModal = false"></div>
-            <div x-show="showModal" x-transition class="inline-block w-full max-w-2xl p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-lg border border-gray-200">
+            <div x-show="showModal" x-transition.opacity class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-75 backdrop-blur-sm" @click="showModal = false"></div>
+            
+            <div x-show="showModal" x-transition class="inline-block w-full max-w-lg p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-white shadow-xl rounded-xl border-t-4 border-[#a52a2a] relative z-50">
+                
                 <div class="flex items-center justify-between mb-5 border-b pb-3">
-                    <h3 class="text-xl font-bold text-gray-900" x-text="modalTitle"></h3>
-                    <button type="button" @click="showModal = false" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <h3 class="text-xl font-bold text-[#a52a2a] font-cinzel" x-text="isEdit ? 'Edit Learning Material' : 'Upload New Material'"></h3>
+                    <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 transition-colors">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                     </button>
                 </div>
                 
-                <div id="formErrors" class="hidden mb-4 bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded text-sm"></div>
-
-                <form id="materialForm" action="{{ route('admin.learning-materials.store') }}" method="POST" enctype="multipart/form-data">
+                <form :action="isEdit ? '/admin/learning-materials/' + editId : '{{ route('admin.learning-materials.store') }}'" 
+                      method="POST" enctype="multipart/form-data" class="font-sans">
                     @csrf
-                    <div class="space-y-4">
+                    <template x-if="isEdit"><input type="hidden" name="_method" value="PUT"></template>
+                    
+                    {{-- Hidden Removal Input for backend handling --}}
+                    <input type="hidden" name="remove_file" :value="formData.removeFile ? '1' : '0'">
+                    
+                    <div class="space-y-5">
                         <div>
-                            <label for="title" class="block text-sm font-bold text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
-                            <input type="text" id="title" name="title" required placeholder="Enter material title" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500">
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Title <span class="text-red-500">*</span></label>
+                            <input type="text" name="title" x-model="formData.title" required 
+                                   class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-[#a52a2a] outline-none" 
+                                   placeholder="Enter material title...">
                         </div>
+                        
                         <div>
-                            <label for="description" class="block text-sm font-bold text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
-                            <textarea id="description" name="description" rows="5" required placeholder="Enter detailed description..." 
-                                      class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500"></textarea>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Description <span class="text-red-500">*</span></label>
+                            <textarea name="description" x-model="formData.description" rows="4" required 
+                                      class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-[#a52a2a] outline-none" 
+                                      placeholder="Enter detailed description..."></textarea>
                         </div>
+                        
                         <div>
-                            <label for="file" class="block text-sm font-bold text-gray-700 mb-1">File Attachment (PDF, PPT, DOC) <span class="text-red-500" x-show="!isEdit">*</span></label>
-                            <input type="file" id="file" name="file" :required="!isEdit" accept=".pdf, .ppt, .pptx, .doc, .docx" 
-                                   class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 transition-colors">
-                            <small class="text-gray-500 block mt-1">Max 20MB. <span x-show="isEdit" class="text-blue-500 font-medium">Leave empty to keep current file.</span></small>
+                            <label class="block text-sm font-bold text-gray-700 mb-1">Document Attachment <span class="text-xs font-normal text-gray-400 ml-1" x-text="isEdit ? '(Optional on Edit)' : '(Required)'"></span></label>
+                            <input type="file" name="file" accept=".pdf, .ppt, .pptx, .doc, .docx" :required="!isEdit" 
+                                   class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-[#a52a2a] hover:file:bg-red-100 cursor-pointer">
+                            
+                            {{-- Preview Existing File Link on Edit --}}
+                            <template x-if="isEdit && formData.currentFile && !formData.removeFile">
+                                <div class="mt-3 flex items-center justify-between p-2 bg-red-50/50 border border-red-100 rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-1.5 bg-white rounded shadow-sm border border-gray-200 text-red-600">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] text-gray-500 uppercase font-bold">Current Document</span>
+                                            <a :href="'/storage/' + formData.currentFile" target="_blank" :title="formData.currentFile.split('/').pop()" class="text-xs text-red-600 font-bold hover:underline truncate max-w-[150px]" x-text="formData.currentFile.split('/').pop()"></a>
+                                        </div>
+                                    </div>
+                                    <button type="button" @click="formData.removeFile = true" class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors" title="Remove File">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
+                                </div>
+                            </template>
+                            <template x-if="formData.removeFile">
+                                <span class="text-xs text-red-500 mt-2 block font-medium">Document will be removed upon saving.</span>
+                            </template>
                         </div>
                     </div>
-                    <div class="mt-6 flex justify-end space-x-3 pt-4 border-t border-gray-100">
-                        <button type="button" @click="showModal = false" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Cancel</button>
-                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-[#a52a2a] border border-transparent rounded-lg hover:bg-red-800 transition-colors shadow">Save Material</button>
+
+                    <div class="mt-8 flex justify-end space-x-3 pt-4 border-t border-gray-100">
+                        <button type="button" @click="showModal = false" class="px-5 py-2.5 text-sm font-bold text-gray-700 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 transition-colors">Cancel</button>
+                        <button type="submit" class="px-5 py-2.5 text-sm font-bold text-white bg-[#a52a2a] border border-transparent rounded-lg hover:bg-[#801a1a] shadow-sm transition-colors" x-text="isEdit ? 'Save Changes' : 'Upload Material'"></button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <div x-show="showDeleteModal" class="fixed inset-0 z-[60] overflow-y-auto" x-cloak>
-        <div class="flex items-center justify-center min-h-screen px-4">
-            <div x-show="showDeleteModal" x-transition.opacity class="fixed inset-0 bg-black bg-opacity-50" @click="showDeleteModal = false"></div>
-            <div x-show="showDeleteModal" x-transition class="bg-white rounded-lg overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full p-6 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-red-100 mb-4">
-                    <svg class="h-6 w-6 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    {{-- MODAL: DELETE MATERIAL --}}
+    <div x-show="showDeleteModal" class="fixed inset-0 z-[100] overflow-y-auto" x-cloak>
+        <div class="flex items-center justify-center min-h-screen px-4 text-center">
+            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="showDeleteModal = false"></div>
+
+            <div x-show="showDeleteModal" x-transition class="bg-white rounded-2xl p-8 shadow-2xl z-[70] w-full max-w-sm transform transition-all relative">
+                <div class="absolute top-4 right-4 cursor-pointer text-gray-400 hover:text-gray-600" @click="showDeleteModal = false">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </div>
-                <h3 class="text-lg leading-6 font-medium text-gray-900">Confirm Deletion</h3>
-                <p class="text-sm text-gray-500 mt-2">Are you sure you want to delete <span class="font-bold text-gray-800" x-text="deleteTitle"></span>? This action cannot be undone.</p>
-              <div class="mt-6 flex justify-center space-x-3">
-                    <button @click="showDeleteModal = false" type="button" class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition">Cancel</button>
-                    
-                    <form :action="`/admin/learning-materials/${deleteId}`" method="POST" class="m-0 p-0">
-                        @csrf
+                <div class="flex flex-col items-center justify-center mt-2">
+                    <div class="mx-auto flex-shrink-0 flex items-center justify-center h-16 w-16 mb-4 text-[#a52a2a] bg-red-50 rounded-full">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 mb-2 font-cinzel">Confirm Deletion</h3>
+                    <p class="text-gray-500 text-sm mb-6 font-sans">
+                        Are you sure you want to delete <br>
+                        <strong class="text-gray-800 break-words" x-text="deleteTitle"></strong>? <br>
+                        This action cannot be undone.
+                    </p>
+                </div>
+                <div class="flex space-x-3 w-full">
+                    <button @click="showDeleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</button>
+                    <form :action="'/admin/learning-materials/' + deleteId" method="POST" class="flex-1">
+                        @csrf 
                         @method('DELETE')
-                        <button type="submit" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition">Yes, Delete</button>
+                        <button type="submit" class="w-full px-4 py-2 bg-[#a52a2a] text-white rounded-xl font-bold hover:bg-[#801a1a] shadow-lg shadow-red-200 transition">Yes, Delete</button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
 </div>
 @endsection
-
-@push('styles')
-<style>
-    [x-cloak] { display: none !important; }
-</style>
-@endpush
-
-@push('scripts')
-<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-
-<script>
-    // Global function for the Alpine.js Delete Button
-    function confirmDelete(id) {
-        $.ajax({
-            url: `/admin/learning-materials/${id}`,
-            method: 'DELETE',
-            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
-            success: function(response) {
-                location.reload(); 
-            },
-            error: function() { alert('Error deleting material. Please try again.'); }
-        });
-    }
-
-    $(document).ready(function() {
-        // Handle Form Submission (Create & Update) via AJAX
-        $('#materialForm').submit(function(e) {
-            e.preventDefault();
-            var formData = new FormData(this);
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    location.reload(); 
-                },
-                error: function(response) {
-                    var errors = response.responseJSON.errors;
-                    var errorHtml = '<ul class="list-disc pl-5">';
-                    $.each(errors, function(key, value) { errorHtml += '<li>' + value + '</li>'; });
-                    $('#formErrors').html(errorHtml + '</ul>').removeClass('hidden');
-                }
-            });
-        });
-    });
-</script>
-@endpush
