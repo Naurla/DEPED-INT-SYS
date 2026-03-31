@@ -64,10 +64,9 @@ class ProcurementController extends Controller
         ]);
 
         return redirect()->route('admin.procurement.index', $category)
-                         ->with('success', \Illuminate\Support\Str::singular($this->getCategoryTitle($category)) . ' uploaded successfully.');
+                         ->with('success', Str::singular($this->getCategoryTitle($category)) . ' uploaded successfully.');
     }
 
-    // --- MISSING UPDATE METHOD ADDED HERE ---
     public function update(Request $request, $category, $id)
     {
         $opportunity = BidOpportunity::where('category', $category)->findOrFail($id);
@@ -75,7 +74,6 @@ class ProcurementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
-            // Note: Files are nullable here because the user might just be updating the text
             'jpeg_file' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
         ]);
@@ -87,9 +85,24 @@ class ProcurementController extends Controller
             'description' => $request->description,
         ];
 
+        // Check if user requested to remove the existing image
+        if ($request->input('remove_image') == '1') {
+            if ($opportunity->jpeg_path) {
+                Storage::disk('public')->delete($opportunity->jpeg_path);
+            }
+            $dataToUpdate['jpeg_path'] = null;
+        }
+
+        // Check if user requested to remove the existing PDF
+        if ($request->input('remove_pdf') == '1') {
+            if ($opportunity->pdf_path) {
+                Storage::disk('public')->delete($opportunity->pdf_path);
+            }
+            $dataToUpdate['pdf_path'] = null;
+        }
+
         // Replace Image if a new one is uploaded
         if ($request->hasFile('jpeg_file')) {
-            // Delete old file from local storage
             if ($opportunity->jpeg_path) {
                 Storage::disk('public')->delete($opportunity->jpeg_path);
             }
@@ -98,7 +111,6 @@ class ProcurementController extends Controller
 
         // Replace PDF if a new one is uploaded
         if ($request->hasFile('pdf_file')) {
-            // Delete old file from local storage
             if ($opportunity->pdf_path) {
                 Storage::disk('public')->delete($opportunity->pdf_path);
             }
@@ -109,9 +121,8 @@ class ProcurementController extends Controller
         $opportunity->update($dataToUpdate);
 
         return redirect()->route('admin.procurement.index', $category)
-                         ->with('success', \Illuminate\Support\Str::singular($this->getCategoryTitle($category)) . ' updated successfully.');
+                         ->with('success', Str::singular($this->getCategoryTitle($category)) . ' updated successfully.');
     }
-    // ----------------------------------------
 
     public function destroy($category, $id)
     {

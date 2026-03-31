@@ -3,7 +3,7 @@
 @section('page_title', 'Manage ' . $categoryTitle)
 
 @section('content')
-<div class="container mx-auto p-4" x-data="{ addModal: false, editModal: false, deleteModal: false, editItem: null, deleteItem: null }">
+<div class="container mx-auto p-4" x-data="{ addModal: false, editModal: false, deleteModal: false, editItem: null, deleteItem: null, removeImage: false, removePdf: false }">
     
     {{-- Success Message --}}
     @if(session('success'))
@@ -54,12 +54,10 @@
                 <tbody>
                     @forelse($opportunities as $item)
                         <tr class="hover:bg-gray-50 border-b transition-colors">
-                            {{-- FIX: Added max-w-[200px], break-words, and whitespace-normal to force wrap --}}
                             <td class="p-4 font-semibold text-gray-800 max-w-[200px] break-words whitespace-normal">
                                 {{ $item->title }}
                             </td>
                             
-                            {{-- FIX: Enforced max-w-xs, break-words, and whitespace-normal --}}
                             <td class="p-4 text-sm text-gray-600 max-w-xs break-words whitespace-normal">
                                 {{ Str::limit($item->description, 100) }}
                             </td>
@@ -74,7 +72,7 @@
                             
                             <td class="p-4">
                                 @if($item->pdf_path)
-                                    <a href="{{ asset('storage/' . $item->pdf_path) }}" target="_blank" class="text-red-600 font-bold hover:underline flex items-center text-sm whitespace-nowrap">
+                                    <a href="{{ asset('storage/' . $item->pdf_path) }}" target="_blank" class="text-red-600 font-bold hover:text-red-800 hover:underline flex items-center text-sm whitespace-nowrap">
                                         <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                         View PDF
                                     </a>
@@ -86,7 +84,7 @@
                             <td class="p-4 text-sm text-gray-500 whitespace-nowrap">{{ $item->created_at->format('M d, Y') }}</td>
                             
                             <td class="p-4 flex justify-end gap-3 items-center">
-                                <button @click="editModal = true; editItem = {{ $item->toJson() }}" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                <button @click="editModal = true; editItem = {{ $item->toJson() }}; removeImage = false; removePdf = false;" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
                                 
                                 <button @click="deleteModal = true; deleteItem = {{ $item->toJson() }}" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                             </td>
@@ -156,7 +154,7 @@
         </div>
     </div>
 
-    {{-- Edit Modal (Unchanged) --}}
+    {{-- Edit Modal --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden" @click.away="editModal = false">
             <div class="bg-[#a52a2a] px-6 py-4 flex justify-between items-center text-white">
@@ -167,6 +165,10 @@
             <form :action="`/admin/procurement/{{ $category }}/${editItem?.id}`" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
                 @csrf @method('PUT')
                 
+                {{-- Hidden Inputs for Removal --}}
+                <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
+                <input type="hidden" name="remove_pdf" :value="removePdf ? '1' : '0'">
+
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-1">Title</label>
                     <input type="text" name="title" x-model="editItem.title" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" required>
@@ -186,11 +188,51 @@
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Replace Image (Max 5MB)</label>
                         <input type="file" name="jpeg_file" accept="image/*" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer">
+                        
+                        {{-- Show Current Image Link & Remove Button --}}
+                        <template x-if="editItem && editItem.jpeg_path && !removeImage">
+                            <div class="mt-2 flex items-center justify-between p-2 bg-blue-50/50 border border-blue-100 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <img :src="'/storage/' + editItem.jpeg_path" class="h-10 w-12 object-cover rounded shadow-sm border border-gray-200">
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] text-gray-500 uppercase font-bold">Current Image</span>
+                                        <a :href="'/storage/' + editItem.jpeg_path" target="_blank" class="text-xs text-blue-600 hover:underline">View File</a>
+                                    </div>
+                                </div>
+                                <button type="button" @click="removeImage = true" class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors" title="Remove Image">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </template>
+                        <template x-if="removeImage">
+                            <span class="text-xs text-red-500 mt-2 block font-medium">Image will be removed upon saving.</span>
+                        </template>
                     </div>
 
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Replace PDF (Max 10MB)</label>
                         <input type="file" name="pdf_file" accept=".pdf" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer">
+                        
+                        {{-- Show Current PDF Link & Remove Button --}}
+                        <template x-if="editItem && editItem.pdf_path && !removePdf">
+                            <div class="mt-2 flex items-center justify-between p-2 bg-red-50/50 border border-red-100 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-1.5 bg-white rounded shadow-sm border border-gray-200 text-red-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <div class="flex flex-col">
+                                        <span class="text-[10px] text-gray-500 uppercase font-bold">Current PDF</span>
+                                        <a :href="'/storage/' + editItem.pdf_path" target="_blank" class="text-xs text-red-600 hover:text-red-800 hover:underline">View File</a>
+                                    </div>
+                                </div>
+                                <button type="button" @click="removePdf = true" class="p-1.5 text-red-500 hover:bg-red-100 rounded-md transition-colors" title="Remove PDF">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                </button>
+                            </div>
+                        </template>
+                        <template x-if="removePdf">
+                            <span class="text-xs text-red-500 mt-2 block font-medium">PDF will be removed upon saving.</span>
+                        </template>
                     </div>
                 </div>
 
@@ -204,7 +246,7 @@
         </div>
     </div>
 
-    {{-- Delete Modal (UPDATED with new sleek centered design) --}}
+    {{-- Delete Modal --}}
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[60] overflow-y-auto">
         <div class="flex items-center justify-center min-h-screen px-4 text-center">
             <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="deleteModal = false"></div>
