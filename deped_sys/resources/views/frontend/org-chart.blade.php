@@ -3,10 +3,30 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-<div class="container mx-auto my-12 px-4 pl-2 min-h-screen">
-    <h2 class="text-center mb-10 font-cinzel text-3xl font-bold text-[#a52a2a] uppercase tracking-wider">Executive Committee</h2>
+{{-- Breadcrumb: Used md:px-20 to give EQUAL padding on both left and right --}}
+<div class="bg-gray-100 border-b border-gray-200 w-full overflow-hidden">
+    {{-- Added 'hide-scroll' here to prevent breadcrumb scrollbars on tiny screens --}}
+    <div class="container mx-auto px-4 md:px-20 max-w-10xl py-3 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap hide-scroll">
+        <a href="/" class="hover:text-[#003366] transition">Home</a>
+        <span class="mx-2">></span>
+        <span>About</span>
+        <span class="mx-2">></span>
+        <span>Organizational Structure</span>
+        <span class="mx-2">></span>
+        <span class="text-gray-900 font-bold">Executive Committee</span>
+    </div>
+</div>
+
+{{-- Main Container: Used md:px-20 for EQUAL padding on both left and right --}}
+<div class="container mx-auto px-4 md:px-20 max-w-10xl py-8 md:py-12 w-full overflow-hidden min-h-screen">
     
-    <div id="chart_div" class="overflow-x-auto w-full pb-12"></div>
+    {{-- Header Section --}}
+    <div class="mb-6 md:mb-10 text-left w-full break-words">
+        <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">Executive Committee</h1>
+    </div>
+    
+    {{-- Chart Container: Added 'hide-scroll' here to remove the bottom scrollbar --}}
+    <div id="chart_div" class="overflow-x-auto w-full pb-12 hide-scroll"></div>
 </div>
 
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
@@ -236,6 +256,18 @@
         .org-slot:last-child {
             border-bottom: none;
         }
+    }
+
+    /* =========================================================
+       4. HIDE SCROLLBARS (BUT KEEP CONTENT SCROLLABLE)
+       ========================================================= */
+    .hide-scroll::-webkit-scrollbar {
+        display: none; /* For Chrome, Safari, and Opera */
+    }
+    
+    .hide-scroll {
+        -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+        scrollbar-width: none;  /* For Firefox */
     }
 </style>
 @endsection
