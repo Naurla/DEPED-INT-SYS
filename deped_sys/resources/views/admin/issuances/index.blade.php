@@ -38,7 +38,7 @@
                     @forelse($issuances as $issuance)
                         <tr class="hover:bg-gray-50 border-b transition-colors">
                             <td class="p-4 text-sm text-gray-600 font-medium">{{ $issuances->firstItem() + $loop->index }}</td>
-                            <td class="p-4 font-semibold text-gray-800">{{ $issuance->title }}</td>
+                            <td class="p-4 font-semibold text-gray-800">{{ $issuance->display_title }}</td>
                             <td class="p-4 text-sm text-gray-600 line-clamp-2 max-w-xs">{{ $issuance->description ?? 'N/A' }}</td>
                             
                             <td class="p-4 text-sm whitespace-nowrap">
@@ -79,10 +79,18 @@
             <form action="{{ route('admin.issuances.store') }}" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
                 @csrf
                 <input type="hidden" name="type" value="{{ $type }}">
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Document Title</label>
-                    <input type="text" name="title" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Date <span class="font-normal text-gray-500 text-xs">(Leave blank for today)</span></label>
+                        <input type="date" name="date" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Document Title</label>
+                        <input type="text" name="title" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
                 </div>
+
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-1">Description <span class="font-normal text-gray-500 text-xs">(Optional)</span></label>
                     <textarea name="description" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none"></textarea>
@@ -117,10 +125,17 @@
                 @csrf @method('PUT')
                 <input type="hidden" name="remove_pdf" :value="removePdf ? '1' : '0'">
 
-                <div>
-                    <label class="block text-gray-700 text-sm font-bold mb-1">Document Title</label>
-                    <input type="text" name="title" x-model="editIssuance.title" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Date <span class="font-normal text-gray-500 text-xs">(Leave blank for today)</span></label>
+                        <input type="date" name="date" x-model="editIssuance.date" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Document Title</label>
+                        <input type="text" name="title" x-model="editIssuance.title" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                    </div>
                 </div>
+
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-1">Description <span class="font-normal text-gray-500 text-xs">(Optional)</span></label>
                     <textarea name="description" x-model="editIssuance.description" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none"></textarea>

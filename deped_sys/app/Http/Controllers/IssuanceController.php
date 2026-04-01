@@ -85,7 +85,8 @@ class IssuanceController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
             'type' => 'required|in:advisory,memorandum,hrmpsb',
-            'pdf_file' => 'required|mimes:pdf|max:10240', 
+            'pdf_file' => 'required|mimes:pdf|max:10240',
+            'date' => 'nullable|date', // Validate date
         ]);
 
         $pdfFile = $request->file('pdf_file');
@@ -97,6 +98,7 @@ class IssuanceController extends Controller
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
             'pdf_path' => $path,
+            'date' => $validated['date'] ?: now()->toDateString(), // Fallback to current date
         ]);
 
         return back()->with('success', ucfirst($validated['type']) . ' uploaded successfully!');
@@ -110,11 +112,13 @@ class IssuanceController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
+            'date' => 'nullable|date', // Validate date
         ]);
 
         $dataToUpdate = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'date' => $validated['date'] ?: now()->toDateString(), // Fallback to current date
         ];
 
         if ($request->hasFile('pdf_file')) {

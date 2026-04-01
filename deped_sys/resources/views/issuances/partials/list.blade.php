@@ -21,14 +21,13 @@
 
                     <h3 class="text-xl md:text-2xl font-black text-gray-900 leading-tight group-hover:text-blue-700 transition-colors uppercase">
                         <a href="{{ route('issuances.show', $item->id) }}">
-                            {{ $item->date ? \Carbon\Carbon::parse($item->date)->format('F j, Y') : $item->created_at->format('F j, Y') }}, 
-                            {{ $item->reference_no ?? 'AD NO. 236, S. 2025' }} - {{ $item->title }}
+                            {{ $item->display_title }}
                         </a>
                     </h3>
 
                     <div class="mt-1">
                         <p class="text-gray-500 uppercase tracking-wide text-xs font-bold">
-                            {{ $item->reference_no ?? 'AD NO. 236, S. 2025' }} - {{ $item->title }}
+                            {{ $item->display_title }}
                         </p>
                     </div>
 

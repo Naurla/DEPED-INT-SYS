@@ -15,7 +15,7 @@
                 <div class="group transition-all duration-300">
                     <a href="{{ route('issuances.show', $item->id) }}" class="block">
                         <h2 class="text-xl md:text-[1.35rem] font-extrabold text-[#333] leading-snug uppercase group-hover:text-blue-800 transition-colors mb-3">
-                            {{ strtoupper($item->created_at->format('F d, Y')) }} - {{ $item->title }} @if($item->description) - {{ $item->description }} @endif
+                            {{ strtoupper($item->display_title) }} @if($item->description) - {{ $item->description }} @endif
                         </h2>
                         
                         @if($item->description)
@@ -43,4 +43,5 @@
         </div>
         
     </div>
+</div>
 @endsection

@@ -44,6 +44,7 @@ class ProcurementController extends Controller
             'description' => 'nullable|string', 
             'jpeg_file' => 'required_without:pdf_file|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'required_without:jpeg_file|mimes:pdf|max:10240',
+            'date' => 'nullable|date', // Validate date
         ]);
 
         $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
@@ -68,6 +69,7 @@ class ProcurementController extends Controller
             'jpeg_path' => $jpegPath,
             'pdf_path' => $pdfPath,
             'category' => $category,
+            'date' => $request->date ?: now()->toDateString(), // Fallback to current date if left blank
         ]);
 
         return redirect()->route('admin.procurement.index', $category)
@@ -83,6 +85,7 @@ class ProcurementController extends Controller
             'description' => 'nullable|string', 
             'jpeg_file' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
+            'date' => 'nullable|date', // Validate date
         ]);
 
         $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
@@ -90,6 +93,7 @@ class ProcurementController extends Controller
         $dataToUpdate = [
             'title' => $request->title,
             'description' => $request->description,
+            'date' => $request->date ?: now()->toDateString(), // Fallback to current date if left blank
         ];
 
         if ($request->input('remove_image') == '1') {

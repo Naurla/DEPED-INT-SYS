@@ -12,7 +12,7 @@
             </a>
             
             <h1 class="text-2xl md:text-4xl font-black text-gray-900 leading-tight mb-3">
-                {{ $item->title }}
+                {{ $item->display_title }}
             </h1>
 
             {{-- ADDED DESCRIPTION RIGHT HERE (GLOBAL LAYOUT) --}}
@@ -28,7 +28,7 @@
                 <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-sm uppercase tracking-wider text-xs whitespace-nowrap">
                     {{ $type_name ?? 'Bid Opportunity' }}
                 </span>
-                <span class="whitespace-nowrap">Posted on: {{ $item->created_at->format('F d, Y') }}</span>
+                <span class="whitespace-nowrap">Posted on: {{ $item->date ? \Carbon\Carbon::parse($item->date)->format('F d, Y') : $item->created_at->format('F d, Y') }}</span>
                 
                 {{-- Secure PDF Download Link --}}
                 @if($item->pdf_path)

@@ -7,12 +7,14 @@
         {{-- Header Section --}}
         <div class="mb-8">
             <a href="javascript:history.back()" class="text-[#a52a2a] hover:text-red-800 font-bold text-sm inline-flex items-center mb-6 uppercase tracking-wider">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                </svg>
                 Back to List
             </a>
             
             <h1 class="text-2xl md:text-4xl font-black text-gray-900 leading-tight mb-3">
-                {{ $issuance->title }}
+                {{ $issuance->display_title }}
             </h1>
 
             {{-- ADDED DESCRIPTION RIGHT HERE (GLOBAL LAYOUT) --}}
@@ -28,7 +30,7 @@
                 <span class="bg-gray-200 text-gray-800 px-3 py-1 rounded-sm uppercase tracking-wider text-xs whitespace-nowrap">
                     {{ $issuance->type }}
                 </span>
-                <span class="whitespace-nowrap">Posted on: {{ $issuance->created_at->format('F d, Y') }}</span>
+                <span class="whitespace-nowrap">Posted on: {{ $issuance->date ? \Carbon\Carbon::parse($issuance->date)->format('F d, Y') : $issuance->created_at->format('F d, Y') }}</span>
                 
                 {{-- Download PDF Link --}}
                 @if($issuance->pdf_path)

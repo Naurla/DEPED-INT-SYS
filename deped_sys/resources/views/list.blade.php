@@ -16,12 +16,12 @@
                   
                     <a href="{{ route('procurement.show', ['category' => $category, 'id' => $item->id]) }}" class="block">
                         <h2 class="text-xl md:text-[1.35rem] font-extrabold text-[#333] leading-snug uppercase group-hover:text-blue-800 transition-colors mb-4">
-                            {{ $item->title }} __  {{ $item->description }}
+                            {{ strtoupper($item->display_title) }} @if($item->description) __  {{ $item->description }} @endif
                         </h2>
                     </a>
                     
                     <p class="text-gray-600 text-sm font-medium leading-relaxed mb-6 pr-10">
-                      {{ $item->title }} -  {{ $item->description }}
+                      {{ $item->display_title }} @if($item->description) -  {{ $item->description }} @endif
                     </p>
                     
                     <div>
