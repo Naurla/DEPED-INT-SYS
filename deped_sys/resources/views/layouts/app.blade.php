@@ -508,7 +508,7 @@
                         wrapper.style.borderRadius = '12px';
                         wrapper.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.15)';
                         
-                        if (data.shape === 'vertical') {
+                        if (data.shape === 'vertical') {    
                             wrapper.style.maxWidth = '350px';
                             wrapper.style.aspectRatio = '9/16';
                         } else {

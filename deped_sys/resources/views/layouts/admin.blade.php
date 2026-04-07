@@ -140,18 +140,36 @@
             </div>
         </div>
     </div>
+
     <aside class="bg-[#a52a2a] text-white transition-all duration-300 flex flex-col shadow-xl z-30 h-screen fixed md:relative top-0 left-0 shrink-0 transform md:translate-x-0" 
            :class="[sidebarOpen ? 'w-64' : 'w-20', mobileOpen ? 'translate-x-0' : '-translate-x-full']">
         
-        <div class="p-6 border-b border-red-800 flex items-center justify-between h-20 shrink-0">
-            <div class="flex items-center space-x-3 overflow-hidden" x-show="sidebarOpen">
-                <h1 class="font-bold tracking-tighter text-lg whitespace-nowrap uppercase">DEPED ADMIN</h1>
+        <div class="h-20 border-b border-red-800 flex items-center shrink-0 transition-all duration-300" :class="sidebarOpen ? 'px-5 justify-between' : 'justify-center'">
+            
+            <div class="flex items-center overflow-hidden" x-show="sidebarOpen" x-transition.opacity>
+                <div class="w-10 h-10 shrink-0 bg-white rounded-full p-1 flex items-center justify-center shadow-md border-2 border-red-900/40">
+                    <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="w-full h-full object-contain">
+                </div>
+                <div class="ml-3 flex flex-col justify-center whitespace-nowrap">
+                    <h1 class="font-black tracking-tight text-lg uppercase leading-none text-white drop-shadow-md">DEPED ADMIN</h1>
+                    <span class="text-[9px] text-red-200 tracking-[0.15em] uppercase font-semibold mt-1">Zamboanga City</span>
+                </div>
             </div>
-            <button @click="sidebarOpen = !sidebarOpen" class="hover:bg-red-700 p-1 rounded transition-colors shrink-0 hidden md:block">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+
+            <button @click="sidebarOpen = !sidebarOpen" class="shrink-0 hidden md:flex items-center justify-center transition-all focus:outline-none" :class="sidebarOpen ? 'hover:bg-red-800 p-1.5 rounded' : 'hover:scale-105 rounded-full ring-2 ring-transparent hover:ring-red-400'">
+                <svg x-show="sidebarOpen" class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+                
+                <div x-show="!sidebarOpen" class="w-10 h-10 bg-white rounded-full p-1 flex items-center justify-center shadow-lg border-2 border-red-900/50" x-cloak>
+                    <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="w-full h-full object-contain">
+                </div>
             </button>
-            <button @click="mobileOpen = false" class="hover:bg-red-700 p-1 rounded transition-colors shrink-0 md:hidden">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+
+            <button @click="mobileOpen = false" class="hover:bg-red-800 p-1.5 rounded transition-colors shrink-0 md:hidden" x-show="sidebarOpen">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
             </button>
         </div>
         
