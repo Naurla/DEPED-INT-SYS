@@ -18,7 +18,7 @@
     </style>
     @stack('styles')
 </head>
-<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen" 
+<body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen relative" 
     x-data="{ 
         loginModal: {{ $errors->any() ? 'true' : 'false' }}, 
         mobileMenu: false,
@@ -405,19 +405,19 @@
     @if(request()->is('/') && !empty($site_settings->qr_link))
         
         {{-- Desktop: Expanded QR Sidebar --}}
-        <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="fixed left-0 top-[200px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-3 hidden md:flex flex-col items-center group transition-all duration-300 hover:translate-x-2 border border-l-0 border-white/20 cursor-pointer">
-            <div class="text-white text-center text-[11px] font-bold uppercase tracking-wider mb-2.5 leading-snug">
+        <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="absolute left-0 top-[250px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-4 hidden md:flex flex-col items-center group transition-all duration-300 hover:translate-x-2 border border-l-0 border-white/20 cursor-pointer">
+            <div class="text-white text-center text-[12px] font-bold uppercase tracking-wider mb-3 leading-snug">
                 CUSTOMER<br>SATISFACTION<br>MEASUREMENT
             </div>
-            <div class="p-1.5 bg-white rounded shadow-sm opacity-95 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-300">
-                {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(85)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
+            <div class="p-2 bg-white rounded shadow-sm opacity-95 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-300">
+                {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
             </div>
         </a>
 
         {{-- Mobile: Floating Button --}}
-        <button @click="qrModal = true" class="fixed left-0 top-[200px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-2.5 flex md:hidden flex-col items-center border border-l-0 border-white/20 cursor-pointer focus:outline-none">
-            <svg class="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-            <span class="text-white text-[9px] font-bold tracking-wider">CSM</span>
+        <button @click="qrModal = true" class="absolute left-0 top-[250px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-3 flex md:hidden flex-col items-center border border-l-0 border-white/20 cursor-pointer focus:outline-none">
+            <svg class="w-8 h-8 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
+            <span class="text-white text-[10px] font-bold tracking-wider">CSM</span>
         </button>
 
         {{-- Mobile: QR Pop-up Modal --}}
@@ -431,7 +431,7 @@
                 </div>
                 <div class="p-8 flex flex-col items-center justify-center">
                     <div class="p-2 bg-white rounded shadow-md mb-4 inline-block border border-gray-200">
-                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(150)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
                     </div>
                     <p class="text-sm text-gray-600 mb-6 text-center">Scan this QR code to rate our services, or tap the button below to proceed directly to the form.</p>
                     <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="w-full bg-[#a52a2a] text-white text-center font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-md uppercase tracking-wider block">
@@ -508,7 +508,7 @@
                         wrapper.style.borderRadius = '12px';
                         wrapper.style.boxShadow = '0 4px 10px rgba(0, 0, 0, 0.15)';
                         
-                        if (data.shape === 'vertical') {    
+                        if (data.shape === 'vertical') {
                             wrapper.style.maxWidth = '350px';
                             wrapper.style.aspectRatio = '9/16';
                         } else {

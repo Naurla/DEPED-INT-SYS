@@ -36,31 +36,30 @@
         <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">Quality Management System</h1>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-12">
-        <div class="w-full lg:w-3/4">
-            
-            <div class="mb-12 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">QMS Scope</h2>
-                <div class="{{ $richTextClasses }}">
-                    {!! $qms->scope ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
+    {{-- Content Section - Now spanning the full width of the container --}}
+    <div class="w-full">
+        
+        <div class="mb-12 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">QMS Scope</h2>
+            <div class="{{ $richTextClasses }}">
+                {!! $qms->scope ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
             </div>
-
-            <div class="mb-12 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Quality Policy</h2>
-                <div class="{{ $richTextClasses }}">
-                    {!! $qms->policy ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
-            </div>
-
-            <div class="mb-8 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Quality Objective</h2>
-                <div class="{{ $richTextClasses }}">
-                    {!! $qms->objective ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
-            </div>
-
         </div>
+
+        <div class="mb-12 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Quality Policy</h2>
+            <div class="{{ $richTextClasses }}">
+                {!! $qms->policy ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+            </div>
+        </div>
+
+        <div class="mb-8 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Quality Objective</h2>
+            <div class="{{ $richTextClasses }}">
+                {!! $qms->objective ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+            </div>
+        </div>
+
     </div>
 </div>
 
