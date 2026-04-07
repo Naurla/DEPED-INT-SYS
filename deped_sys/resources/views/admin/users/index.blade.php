@@ -129,7 +129,7 @@
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">System Access Management</h2>
+            <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">User Management</h2>
             <p class="text-gray-500 text-sm mt-1">Manage user accounts, roles, and module permissions.</p>
         </div>
         
