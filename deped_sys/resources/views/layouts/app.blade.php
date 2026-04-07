@@ -20,7 +20,7 @@
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen relative" 
     x-data="{ 
-        loginModal: {{ $errors->any() ? 'true' : 'false' }}, 
+        loginModal: {{ $errors->any() || session('status') || session('reset_success') ? 'true' : 'false' }}, 
         mobileMenu: false,
         qrModal: false
     }">
@@ -442,33 +442,100 @@
         </div>
     @endif
 
-    {{-- LOGIN MODAL --}}
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" x-show="loginModal" x-cloak x-transition>
-        <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden" @click.away="loginModal = false">
+    {{-- LOGIN & RESET MODAL --}}
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" 
+         x-show="loginModal" 
+         x-cloak 
+         x-transition>
+         
+        <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden relative" 
+             @click.away="loginModal = false"
+             x-data="{ view: '{{ session('reset_success') ? 'login' : (session('status') || old('code') ? 'reset' : (old('email') && !$errors->has('password') ? 'forgot' : 'login')) }}' }">
+             
             <div class="bg-[#a52a2a] py-4 px-6 flex justify-between items-center">
-                <h3 class="text-white font-bold text-lg uppercase tracking-wide">Admin Login</h3>
-                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors">
+                <h3 class="text-white font-bold text-lg uppercase tracking-wide" 
+                    x-text="view === 'login' ? 'Admin Login' : (view === 'forgot' ? 'Forgot Password' : 'Reset Password')">
+                </h3>
+                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors focus:outline-none">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
             </div>
-            <form action="{{ route('admin.login') }}" method="POST" class="p-8">
-                @csrf
+            
+            <div class="p-8">
+                {{-- Session Status Messages --}}
+                @if (session('status') || session('reset_success'))
+                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-sm">
+                        {{ session('status') ?? session('reset_success') }}
+                    </div>
+                @endif
+                
+                {{-- Error Messages --}}
                 @if ($errors->any())
                     <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm">
                         <strong class="font-bold">Error:</strong>
-                        <span class="block sm:inline">Invalid email or password. Please try again.</span>
+                        <span class="block sm:inline">{{ $errors->first() }}</span>
                     </div>
                 @endif
-                <div class="mb-5">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
-                    <input type="email" name="email" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                </div>
-                <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                    <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                </div>
-                <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">Sign In</button>
-            </form>
+
+                {{-- LOGIN FORM --}}
+                <form action="{{ route('admin.login') }}" method="POST" x-show="view === 'login'" x-transition.opacity.duration.200ms>
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <div class="mb-2">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                        <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <div class="flex justify-end mb-6">
+                        <button type="button" @click="view = 'forgot'" class="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none">Forgot Password?</button>
+                    </div>
+                    <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">Sign In</button>
+                </form>
+
+                {{-- FORGOT PASSWORD FORM (Sends Email Code) --}}
+                <form action="/admin/password/email" method="POST" x-show="view === 'forgot'" x-cloak x-transition.opacity.duration.200ms>
+                    @csrf
+                    <p class="text-sm text-gray-600 mb-5 text-center">Enter your email address and we will send you a code to reset your password.</p>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider mb-4">Send Reset Code</button>
+                    
+                    <div class="text-center flex flex-col gap-2 mt-2">
+                        <button type="button" @click="view = 'reset'" class="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none">Already have a code?</button>
+                        <button type="button" @click="view = 'login'" class="text-sm text-gray-500 hover:text-gray-800 hover:underline focus:outline-none">Back to Login</button>
+                    </div>
+                </form>
+
+                {{-- RESET PASSWORD FORM (Verifies Code and Updates Password) --}}
+                <form action="/admin/password/reset" method="POST" x-show="view === 'reset'" x-cloak x-transition.opacity.duration.200ms>
+                    @csrf
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
+                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Reset Code</label>
+                        <input type="text" name="code" value="{{ old('code') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none" placeholder="e.g. 123456">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">New Password</label>
+                        <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
+                        <input type="password" name="password_confirmation" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider mb-4">Reset Password</button>
+                    
+                    <div class="text-center">
+                        <button type="button" @click="view = 'forgot'" class="text-sm text-gray-500 hover:text-gray-800 hover:underline focus:outline-none">Back</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
     

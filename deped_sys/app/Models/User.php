@@ -15,7 +15,6 @@ class User extends Authenticatable
         'email',
         'password',
         'role_id',
-        'permissions', // Must be here to save the checklist
         'requires_password_change'
     ];
 
@@ -29,7 +28,6 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'permissions' => 'array', 
         ];
     }
 
@@ -43,18 +41,28 @@ class User extends Authenticatable
         return $this->role && $this->role->slug === $slug;
     }
     
-    // STRICT CHECKLIST ENFORCEMENT
+    // STRICT CHECKLIST ENFORCEMENT (Now checking the Role!)
     public function hasPermission($permission)
     {
         // SAFETY NET: Ensure the original creator account (User ID 1) NEVER gets locked out.
-        // Because your account was made before the checklist existed, your checklist is currently empty!
         if ($this->id === 1) {
             return true;
         }
 
-        // For all other users, strictly check if the box was ticked
-        $userPermissions = $this->permissions ?? []; // Default to empty array if null
+        // Super admins automatically bypass all restrictions
+        if ($this->role && $this->role->slug === 'super-admin') {
+            return true;
+        }
+
+        // Fetch the permissions array from the user's assigned role
+        $rolePermissions = $this->role ? ($this->role->permissions ?? []) : [];
+
+        // Safety fallback: decode if it's returning as a JSON string
+        if (is_string($rolePermissions)) {
+            $rolePermissions = json_decode($rolePermissions, true) ?? [];
+        }
         
-        return is_array($userPermissions) && in_array($permission, $userPermissions);
+        // Strictly check if the box was ticked on the Role
+        return is_array($rolePermissions) && in_array($permission, $rolePermissions);
     }
 }

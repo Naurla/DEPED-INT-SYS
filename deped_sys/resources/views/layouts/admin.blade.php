@@ -10,7 +10,10 @@
     <style>
         [x-cloak] { display: none !important; }
         body { font-family: 'Inter', sans-serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 0px; background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
     </style>
     @stack('styles')
 </head>
@@ -33,53 +36,81 @@
           maintenanceModalOpen: false,
           siteDisabled: {{ $isMaintenance ? 'true' : 'false' }},
           disabledPages: {{ json_encode($disabledPages) }},
-          availablePages: [
-              { route: 'login', label: 'Home Page' },
-              
-              // About Us / Legal
-              { route: 'qms.index', label: 'Quality Management System' },
-              { route: 'vision_mission.index', label: 'Vision & Mission' },
-              { route: 'data_privacy.index', label: 'Data Privacy' },
-              { route: 'citizen_charter.index', label: 'Citizen\'s Charter' },
-              
-              // Organizational Structure
-              { route: 'org.chart', label: 'Org Chart (Executive Committee)' },
-              { route: 'division_offices.index', label: 'Division Offices' },
-              { route: 'sgod.index', label: 'SGOD' },
-              { route: 'osds.index', label: 'OSDS' },
-              { route: 'cid.index', label: 'CID' },
-              
-              // Issuances
-              { route: 'issuances.advisories', label: 'Advisories' },
-              { route: 'issuances.memoranda', label: 'Memoranda' },
-              { route: 'issuances.hrmpsb', label: 'HRMPSB' },
-              
-              // K-12 & Curriculum
-              { route: 'k12.about.curriculum', label: 'K-12 Basic Ed. Curriculum' },
-              { route: 'k12.about.faq', label: 'K-12 FAQ' },
-              { route: 'learning_materials.index', label: 'Learning Materials' },
-              { route: 'k12.junior-high', label: 'Junior High School' },
-              { route: 'k12.senior-high', label: 'Senior High School' },
-              
-              // Alternative Learning System (ALS)
-              { route: 'k12.als.about', label: 'ALS About' },
-              { route: 'enrollment-statistics.index', label: 'ALS Enrollment Statistics' },
-              { route: 'als-stories.index', label: 'ALS Stories' },
-              { route: 'k12.als.modules', label: 'ALS Modules' },
-              { route: 'als-implementers.index', label: 'ALS Implementers' },
-              
-              // NEW: Individual Procurement Categories
-              { route: 'procurement:bid-opportunities', label: 'Procurement - Bid Opportunities' },
-              { route: 'procurement:apcpi', label: 'Procurement - APCPI' },
-              { route: 'procurement:app-cse', label: 'Procurement - APP CSE' },
-              { route: 'procurement:app-non-cse', label: 'Procurement - APP Non CSE' },
-              { route: 'procurement:award-notices', label: 'Procurement - Award Notices' },
-              { route: 'procurement:pmr', label: 'Procurement - PMR' },
-              { route: 'procurement:pre-bid-minutes', label: 'Procurement - Minutes of Pre-Bid' },
-              
-              // Custom Dynamic Pages
-              { route: 'frontend.page', label: 'All Custom Dynamic Pages' }
+          
+          // Categorized Pages Array
+          pageCategories: [
+              {
+                  category: 'Core & Legal Pages',
+                  pages: [
+                      { route: 'login', label: 'Home Page' },
+                      { route: 'qms.index', label: 'Quality Management System' },
+                      { route: 'vision_mission.index', label: 'Vision & Mission' },
+                      { route: 'data_privacy.index', label: 'Data Privacy' },
+                      { route: 'citizen_charter.index', label: 'Citizen\'s Charter' }
+                  ]
+              },
+              {
+                  category: 'Organizational Structure',
+                  pages: [
+                      { route: 'org.chart', label: 'Executive Committee (Chart)' },
+                      { route: 'division_offices.index', label: 'Division Offices' },
+                      { route: 'sgod.index', label: 'SGOD' },
+                      { route: 'osds.index', label: 'OSDS' },
+                      { route: 'cid.index', label: 'CID' }
+                  ]
+              },
+              {
+                  category: 'Division Issuances',
+                  pages: [
+                      { route: 'issuances.advisories', label: 'Advisories' },
+                      { route: 'issuances.memoranda', label: 'Memoranda' },
+                      { route: 'issuances.hrmpsb', label: 'HRMPSB' }
+                  ]
+              },
+              {
+                  category: 'K-12 & Curriculum',
+                  pages: [
+                      { route: 'k12.about.curriculum', label: 'K-12 Basic Ed. Curriculum' },
+                      { route: 'k12.about.faq', label: 'K-12 FAQ' },
+                      { route: 'learning_materials.index', label: 'Learning Materials' },
+                      { route: 'k12.junior-high', label: 'Junior High School' },
+                      { route: 'k12.senior-high', label: 'Senior High School' }
+                  ]
+              },
+              {
+                  category: 'Alternative Learning System (ALS)',
+                  pages: [
+                      { route: 'k12.als.about', label: 'ALS About' },
+                      { route: 'enrollment-statistics.index', label: 'Enrollment Statistics' },
+                      { route: 'als-stories.index', label: 'ALS Stories' },
+                      { route: 'k12.als.modules', label: 'ALS Modules' },
+                      { route: 'als-implementers.index', label: 'ALS Implementers' }
+                  ]
+              },
+              {
+                  category: 'Procurement',
+                  pages: [
+                      { route: 'procurement:bid-opportunities', label: 'Bid Opportunities' },
+                      { route: 'procurement:apcpi', label: 'APCPI' },
+                      { route: 'procurement:app-cse', label: 'APP CSE' },
+                      { route: 'procurement:app-non-cse', label: 'APP Non CSE' },
+                      { route: 'procurement:award-notices', label: 'Award Notices' },
+                      { route: 'procurement:pmr', label: 'PMR' },
+                      { route: 'procurement:pre-bid-minutes', label: 'Minutes of Pre-Bid' }
+                  ]
+              },
+              {
+                  category: 'Custom Dynamic Pages',
+                  pages: [
+                      @if(isset($navPages) && count($navPages) > 0)
+                          @foreach($navPages as $page)
+                              { route: 'page:{{ $page->slug }}', label: '{{ addslashes($page->title) }}' },
+                          @endforeach
+                      @endif
+                  ]
+              }
           ],
+          
           saveMaintenance() {
               fetch('{{ route('admin.settings.toggle-maintenance') }}', {
                   method: 'POST',
@@ -102,7 +133,7 @@
     <div x-show="mobileOpen" x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden" @click="mobileOpen = false" x-transition.opacity></div>
 
     <div x-show="maintenanceModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60" x-transition.opacity>
-        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" @click.away="maintenanceModalOpen = false" x-transition.scale>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden" @click.away="maintenanceModalOpen = false" x-transition.scale>
             <div class="bg-[#a52a2a] p-4 text-white flex justify-between items-center">
                 <h2 class="font-bold text-lg">Site Maintenance Settings</h2>
                 <button @click="maintenanceModalOpen = false" class="text-white hover:text-red-200"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
@@ -122,13 +153,39 @@
                 </div>
 
                 <div :class="siteDisabled ? 'opacity-50 pointer-events-none' : ''" class="transition-opacity duration-200">
-                    <p class="font-bold text-gray-800 mb-3 border-b pb-2">Or disable specific pages:</p>
-                    <div class="max-h-48 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
-                        <template x-for="page in availablePages" :key="page.route">
-                            <label class="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded cursor-pointer border border-transparent hover:border-gray-200 transition-colors">
-                                <input type="checkbox" :value="page.route" x-model="disabledPages" class="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300">
-                                <span class="text-sm font-medium text-gray-700" x-text="page.label"></span>
-                            </label>
+                    <p class="font-bold text-gray-800 mb-3 border-b pb-2">Or disable specific sections/pages:</p>
+                    
+                    <div class="max-h-[50vh] overflow-y-auto space-y-4 pr-2 custom-scrollbar">
+                        <template x-for="group in pageCategories" :key="group.category">
+                            <div x-show="group.pages.length > 0" class="border border-gray-200 rounded-lg overflow-hidden">
+                                
+                                <div class="bg-gray-100 p-3 border-b border-gray-200">
+                                    <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
+                                        <input type="checkbox" 
+                                               class="w-4 h-4 text-red-600 rounded focus:ring-red-500"
+                                               :checked="group.pages.length > 0 && group.pages.every(p => disabledPages.includes(p.route))"
+                                               @change="
+                                                   let allChecked = group.pages.every(p => disabledPages.includes(p.route));
+                                                   if (allChecked) {
+                                                       disabledPages = disabledPages.filter(dp => !group.pages.some(p => p.route === dp));
+                                                   } else {
+                                                       let toAdd = group.pages.map(p => p.route).filter(r => !disabledPages.includes(r));
+                                                       disabledPages = [...disabledPages, ...toAdd];
+                                                   }
+                                               ">
+                                        <span x-text="group.category" class="text-[15px] uppercase tracking-wide"></span>
+                                    </label>
+                                </div>
+                                
+                                <div class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white">
+                                    <template x-for="page in group.pages" :key="page.route">
+                                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-50 p-1.5 rounded transition-colors">
+                                            <input type="checkbox" :value="page.route" x-model="disabledPages" class="w-4 h-4 text-red-600 rounded focus:ring-red-500">
+                                            <span x-text="page.label"></span>
+                                        </label>
+                                    </template>
+                                </div>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -148,7 +205,7 @@
             
             <div class="flex items-center overflow-hidden" x-show="sidebarOpen" x-transition.opacity>
                 <div class="w-10 h-10 shrink-0 bg-white rounded-full p-1 flex items-center justify-center shadow-md border-2 border-red-900/40">
-                    <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="w-full h-full object-contain">
+                    <img src="{{ asset('images/r9.png') }}" alt="DepEd Logo" class="w-full h-full object-contain">
                 </div>
                 <div class="ml-3 flex flex-col justify-center whitespace-nowrap">
                     <h1 class="font-black tracking-tight text-lg uppercase leading-none text-white drop-shadow-md">DEPED ADMIN</h1>
@@ -162,7 +219,7 @@
                 </svg>
                 
                 <div x-show="!sidebarOpen" class="w-10 h-10 bg-white rounded-full p-1 flex items-center justify-center shadow-lg border-2 border-red-900/50" x-cloak>
-                    <img src="{{ asset('images/deped.png') }}" alt="DepEd Logo" class="w-full h-full object-contain">
+                    <img src="{{ asset('images/r9.png') }}" alt="DepEd Logo" class="w-full h-full object-contain">
                 </div>
             </button>
 
@@ -231,15 +288,7 @@
             </a>
             @endif
                 
-            @if(auth()->check() && auth()->user()->hasPermission('advisories'))
-            <a href="{{ route('admin.advisory.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
-                <svg class="w-5 h-5 text-red-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                <span x-show="sidebarOpen">Public Advisories</span>
-            </a>
-            @endif
-
-            @if(auth()->check() && auth()->user()->hasPermission('about'))
+            @if(auth()->check() && (auth()->user()->hasPermission('about') || auth()->user()->hasPermission('qms') || auth()->user()->hasPermission('vision_mission') || auth()->user()->hasPermission('data_privacy') || auth()->user()->hasPermission('citizen_charter') || auth()->user()->hasPermission('org_chart') || auth()->user()->hasPermission('division_structures') || auth()->user()->hasPermission('sgod') || auth()->user()->hasPermission('osds') || auth()->user()->hasPermission('cid')))
             <div x-data="{ dropdownOpen: {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
                     class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/about*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
@@ -255,31 +304,50 @@
                 </button>
                 
                 <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-3 mt-1 space-y-3 bg-red-900/30 rounded-lg shadow-inner">
+                    @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('qms') || auth()->user()->hasPermission('vision_mission'))
                     <div x-data="{ subOpen: {{ request()->is('admin/about/profile*') || request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">
                             <span>Profile</span>
                             <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('qms'))
                             <a href="{{ route('admin.qms.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.qms.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">QMS Scope & Policy</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('vision_mission'))
                             <a href="{{ route('admin.vision_mission.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.vision_mission.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Vision & Mission</a>
+                            @endif
                         </div>
                     </div>
+                    @endif
 
+                    @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('org_chart') || auth()->user()->hasPermission('division_structures') || auth()->user()->hasPermission('sgod') || auth()->user()->hasPermission('osds') || auth()->user()->hasPermission('cid'))
                     <div x-data="{ subOpen: {{ request()->is('admin/about/organization*') || request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('org.chart') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm leading-tight pr-2 text-gray-200 hover:text-white hover:font-bold transition-all text-left">
                             <span>Organizational Structure</span>
                             <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('division_structures'))
                             <a href="{{ route('admin.division_structures.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.division_structures.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Division Office</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('org_chart'))
                             <a href="{{ route('admin.org_chart.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.org_chart.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Executive Committee</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('cid'))
                             <a href="{{ route('admin.cid.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.cid.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Curriculum Implementation</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('osds'))
                             <a href="{{ route('admin.osds.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.osds.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Office of the SDS</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('sgod'))
                             <a href="{{ route('admin.sgod.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.sgod.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">SGOD Division</a>
+                            @endif
                         </div>
                     </div>
+                    @endif
 
+                    @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('data_privacy'))
                     <div x-data="{ subOpen: {{ request()->is('admin/about/privacy*') || request()->routeIs('admin.data_privacy.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm text-gray-200 hover:text-white hover:font-bold transition-all">
                             <span>DepEd Data Privacy</span>
@@ -289,13 +357,16 @@
                             <a href="{{ route('admin.data_privacy.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.data_privacy.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Data Privacy Notice</a>
                         </div>
                     </div>
+                    @endif
 
+                    @if(auth()->user()->hasPermission('about') || auth()->user()->hasPermission('citizen_charter'))
                     <a href="{{ route('admin.citizen_charter.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.citizen_charter.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Citizen's Charter</a>
+                    @endif
                 </div>
             </div>
             @endif
             
-            @if(auth()->check() && (auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('faq')))
+            @if(auth()->check() && (auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('faq') || auth()->user()->hasPermission('junior_high') || auth()->user()->hasPermission('senior_high') || auth()->user()->hasPermission('enrollment_statistics') || auth()->user()->hasPermission('als_stories') || auth()->user()->hasPermission('modules') || auth()->user()->hasPermission('als_implementers')))
             <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
                     class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
@@ -318,39 +389,51 @@
                             @if(auth()->user()->hasPermission('curriculum'))
                             <a href="{{ route('admin.curriculum.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.curriculum.index') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">K to 12 Basic Ed. Curriculum</a>
                             @endif
-                            @if(auth()->user()->hasPermission('faq'))
+                            @if(auth()->user()->hasPermission('faq') || auth()->user()->hasPermission('curriculum'))
                             <a href="{{ route('admin.faq.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.faq.index') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">FAQ</a>
                             @endif
                         </div>
                     </div>
                     @endif
 
-                    @if(auth()->user()->hasPermission('materials'))
+                    @if(auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('curriculum'))
                     <a href="{{ route('admin.learning-materials.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.learning-materials.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Learning Materials</a>
                     @endif
 
-                    @if(auth()->user()->hasPermission('curriculum'))
+                    @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('enrollment_statistics') || auth()->user()->hasPermission('als_stories') || auth()->user()->hasPermission('modules') || auth()->user()->hasPermission('als_implementers'))
                     <div x-data="{ subOpen: {{ request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') ? 'true' : 'false' }} }" class="space-y-1">
                         <button @click="subOpen = !subOpen" class="w-full flex items-center justify-between py-1 text-sm leading-tight pr-2 text-gray-200 hover:text-white hover:font-bold transition-all">
                             <span class="text-left">Alternative Learning System</span>
                             <svg :class="{'rotate-180': subOpen}" class="w-3 h-3 transition-transform duration-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                         </button>
                         <div x-show="subOpen" x-collapse class="pl-3 space-y-2 border-l border-red-700 mt-2">
+                            @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('enrollment_statistics'))
                             <a href="{{ route('admin.enrollment-statistics.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.enrollment-statistics.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Enrollment Statistics</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('als_stories'))
                             <a href="{{ route('admin.als-stories.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.als-stories.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">ALS Stories</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('modules'))
                             <a href="{{ route('admin.modules.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.modules.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Modules</a>
+                            @endif
+                            @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('als_implementers'))
                             <a href="{{ route('admin.als-implementers.index') }}" class="block text-xs transition-all {{ request()->routeIs('admin.als-implementers.*') ? 'text-white font-bold' : 'text-gray-300 hover:text-white' }}">Featured ALS Implementer</a>
+                            @endif
                         </div>
                     </div>
+                    @endif
 
+                    @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('junior_high'))
                     <a href="{{ route('admin.curriculum.junior_high.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.junior_high.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Junior High School</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('senior_high'))
                     <a href="{{ route('admin.curriculum.senior_high.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.senior_high.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Senior High School</a>
                     @endif
                 </div>
             </div>
             @endif
 
-            @if(auth()->check() && (auth()->user()->hasPermission('advisories') || auth()->user()->hasPermission('memoranda') || auth()->user()->hasPermission('hrmpsb')))
+            @if(auth()->check() && (auth()->user()->hasPermission('issuances') || auth()->user()->hasPermission('advisories') || auth()->user()->hasPermission('memoranda') || auth()->user()->hasPermission('hrmpsb')))
             <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.issuances.*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.issuances.*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
                     <div class="flex items-center space-x-3">
@@ -360,20 +443,20 @@
                     <svg x-show="sidebarOpen" :class="{'rotate-180': dropdownOpen}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-2 mt-1 space-y-2 bg-red-900/30 rounded-lg shadow-inner">
-                    @if(auth()->user()->hasPermission('advisories'))
+                    @if(auth()->user()->hasPermission('issuances') || auth()->user()->hasPermission('advisories'))
                     <a href="{{ route('admin.issuances.index', ['type' => 'advisory']) }}" class="block py-1 text-sm transition-all {{ request('type') == 'advisory' ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Div. Advisories</a>
                     @endif
-                    @if(auth()->user()->hasPermission('memoranda'))
+                    @if(auth()->user()->hasPermission('issuances') || auth()->user()->hasPermission('memoranda'))
                     <a href="{{ route('admin.issuances.index', ['type' => 'memorandum']) }}" class="block py-1 text-sm transition-all {{ request('type') == 'memorandum' ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Div. Memoranda</a>
                     @endif
-                    @if(auth()->user()->hasPermission('hrmpsb'))
+                    @if(auth()->user()->hasPermission('issuances') || auth()->user()->hasPermission('hrmpsb'))
                     <a href="{{ route('admin.issuances.index', ['type' => 'hrmpsb']) }}" class="block py-1 text-sm transition-all {{ request('type') == 'hrmpsb' ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">HRMPSB</a>
                     @endif
                 </div>
             </div>
             @endif
 
-            @if(auth()->check() && auth()->user()->hasPermission('procurement'))
+            @if(auth()->check() && (auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_bid_opportunities') || auth()->user()->hasPermission('procurement_apcpi') || auth()->user()->hasPermission('procurement_app_cse') || auth()->user()->hasPermission('procurement_app_non_cse') || auth()->user()->hasPermission('procurement_award_notices') || auth()->user()->hasPermission('procurement_pmr') || auth()->user()->hasPermission('procurement_pre_bid_minutes')))
             <div x-data="{ dropdownOpen: {{ request()->is('admin/procurement*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->is('admin/procurement*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
                     <div class="flex items-center space-x-3">
@@ -383,13 +466,27 @@
                     <svg x-show="sidebarOpen" :class="{'rotate-180': dropdownOpen}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="dropdownOpen && sidebarOpen" x-collapse x-cloak class="pl-11 pr-4 py-3 mt-1 space-y-3 bg-red-900/30 rounded-lg shadow-inner">
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_bid_opportunities'))
                     <a href="{{ route('admin.procurement.index', 'bid-opportunities') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/bid-opportunities*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Bid Opportunities</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_apcpi'))
                     <a href="{{ route('admin.procurement.index', 'apcpi') }}" class="block py-1 text-sm leading-tight pr-2 transition-all {{ request()->is('admin/procurement/apcpi*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">APCPI</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_app_cse'))
                     <a href="{{ route('admin.procurement.index', 'app-cse') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/app-cse*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">APP - CSE</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_app_non_cse'))
                     <a href="{{ route('admin.procurement.index', 'app-non-cse') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/app-non-cse*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">APP - Non CSE</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_award_notices'))
                     <a href="{{ route('admin.procurement.index', 'award-notices') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/award-notices*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Award Notices</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_pmr'))
                     <a href="{{ route('admin.procurement.index', 'pmr') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/pmr*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">PMR</a>
+                    @endif
+                    @if(auth()->user()->hasPermission('procurement') || auth()->user()->hasPermission('procurement_pre_bid_minutes'))
                     <a href="{{ route('admin.procurement.index', 'pre-bid-minutes') }}" class="block py-1 text-sm transition-all {{ request()->is('admin/procurement/pre-bid-minutes*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Minutes of Pre-Bid</a>
+                    @endif
                 </div>
             </div>
             @endif

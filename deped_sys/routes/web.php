@@ -6,6 +6,7 @@ use App\Http\Controllers\AdvisoryController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\IssuanceController;
 use App\Http\Controllers\Admin\UserController; 
+use App\Http\Controllers\Admin\RoleController; // <-- Added RoleController Import
 use App\Http\Controllers\Admin\ProcurementController;
 use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
@@ -118,6 +119,19 @@ Route::get('/', function () {
 
 // Admin Login
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
+
+// Fallback: If someone types /admin/login in the URL bar, redirect to homepage and open the modal
+Route::get('/admin/login', function () {
+    return redirect('/')->withErrors(['email' => 'Please log in to continue.']);
+});
+
+// Admin Password Reset Routes
+Route::post('/admin/password/email', [AdminController::class, 'sendResetCode'])->name('admin.password.email');
+Route::post('/admin/password/reset', [AdminController::class, 'resetPassword'])->name('admin.password.reset');
+
+// Fallback for password resets typed in the URL
+Route::get('/admin/password/email', function () { return redirect('/'); });
+Route::get('/admin/password/reset', function () { return redirect('/'); });
 
 // Quality Management System (QMS) Public Route
 Route::get('/qms', function () {
@@ -359,12 +373,18 @@ Route::middleware(['auth'])->group(function () {
                 ->except(['create', 'show', 'edit']);
         });
 
-        // User Management
+        // User & Role Management
         Route::middleware(['permission:users'])->group(function () {
+            // Users
             Route::get('/users', [UserController::class, 'index'])->name('users.index');
             Route::post('/users', [UserController::class, 'store'])->name('users.store');
             Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update'); 
             Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+            
+            // Roles
+            Route::post('/roles', [RoleController::class, 'store'])->name('roles.store');
+            Route::put('/roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+            Route::delete('/roles/{role}', [RoleController::class, 'destroy'])->name('roles.destroy');
         });
 
         // Advisories
