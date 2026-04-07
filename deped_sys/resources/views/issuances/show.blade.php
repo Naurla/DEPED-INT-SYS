@@ -2,12 +2,35 @@
 
 @section('content')
 
+@php
+    // Determine the parent category name and route based on the issuance type
+    $parentRoute = 'javascript:history.back()';
+    $parentName = 'Issuances';
+    
+    switch(strtolower($issuance->type)) {
+        case 'advisory':
+            $parentRoute = route('issuances.advisories');
+            $parentName = 'Division Advisories';
+            break;
+        case 'memorandum':
+            $parentRoute = route('issuances.memoranda');
+            $parentName = 'Division Memoranda';
+            break;
+        case 'hrmpsb':
+            $parentRoute = route('issuances.hrmpsb');
+            $parentName = 'HRMPSB Assessment Results';
+            break;
+    }
+@endphp
+
 {{-- Breadcrumb matching the reference layout padding (md:px-20) --}}
 <div class="bg-gray-100 border-b border-gray-200 w-full overflow-hidden">
     <div class="container mx-auto px-4 md:px-20 max-w-10xl py-3 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap hide-scroll">
         <a href="/" class="hover:text-[#003366] transition">Home</a>
         <span class="mx-2">></span>
-        <a href="javascript:history.back()" class="hover:text-[#003366] transition">Issuances</a>
+        <span>Issuances</span>
+        <span class="mx-2">></span>
+        <a href="{{ $parentRoute }}" class="hover:text-[#003366] transition">{{ $parentName }}</a>
         <span class="mx-2">></span>
         <span class="text-gray-900 font-bold">{{ Str::limit($issuance->display_title, 40) }}</span>
     </div>
@@ -19,9 +42,10 @@
     {{-- Header Section (Aligned naturally to the padding bounds) --}}
     <div class="mb-8 md:mb-10 text-left w-full break-words">
         
-        <a href="javascript:history.back()" class="text-[#a52a2a] hover:text-red-800 font-bold text-sm inline-flex items-center mb-6 uppercase tracking-wider transition-colors">
+        {{-- Updated Back Link --}}
+        <a href="{{ $parentRoute }}" class="text-[#a52a2a] hover:text-red-800 font-bold text-sm inline-flex items-center mb-6 uppercase tracking-wider transition-colors">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Back to List
+            Back to {{ $parentName }}
         </a>
         
         <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase mb-4">
@@ -66,7 +90,6 @@
     
     @if($issuance->image_path && $issuance->pdf_path)
         {{-- SCENARIO 1: Both Image and PDF Exist --}}
-        {{-- Show ONLY the image, but wrap it in a link to open the PDF --}}
         <div class="mb-8 w-full flex flex-col items-center">
             <a href="{{ asset('storage/' . $issuance->pdf_path) }}" target="_blank" class="block w-full text-center group cursor-pointer" title="Click to view full document">
                 
