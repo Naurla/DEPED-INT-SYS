@@ -542,9 +542,17 @@
                         <span class="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></span>ONLINE
                     </p>
                 </div>
-                <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-red-700 flex items-center justify-center text-white font-bold border-2 border-white shadow-md text-sm sm:text-base">
-                    {{ auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'AD' }}
-                </div>
+
+                {{-- PROFILE AVATAR / LINK TO PROFILE EDIT --}}
+                <a href="{{ route('admin.profile.edit') }}" class="block transition-transform hover:scale-105 focus:outline-none" title="Edit Profile">
+                    @if(auth()->check() && auth()->user()->profile_photo_path)
+                        <img src="{{ asset('storage/' . auth()->user()->profile_photo_path) }}" alt="Profile" class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg border-2 border-white shadow-md object-cover">
+                    @else
+                        <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-red-700 flex items-center justify-center text-white font-bold border-2 border-white shadow-md text-sm sm:text-base">
+                            {{ auth()->check() ? strtoupper(substr(auth()->user()->name, 0, 2)) : 'AD' }}
+                        </div>
+                    @endif
+                </a>
             </div>
         </header>
 

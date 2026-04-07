@@ -7,6 +7,7 @@ use App\Http\Controllers\BannerController;
 use App\Http\Controllers\IssuanceController;
 use App\Http\Controllers\Admin\UserController; 
 use App\Http\Controllers\Admin\RoleController; // <-- Added RoleController Import
+use App\Http\Controllers\Admin\ProfileController; // <-- Added ProfileController Import
 use App\Http\Controllers\Admin\ProcurementController;
 use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
@@ -246,6 +247,10 @@ Route::middleware(['auth'])->group(function () {
     // Protected Admin Management
     Route::prefix('admin')->name('admin.')->group(function () {
         
+        // --- ADDED PROFILE ROUTES HERE ---
+        Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+
         // Dashboard
         Route::middleware(['permission:dashboard'])->group(function () {
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
