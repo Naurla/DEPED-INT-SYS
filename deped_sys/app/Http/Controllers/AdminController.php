@@ -17,23 +17,39 @@ use Illuminate\Support\Str;
 class AdminController extends Controller
 {
     public function index()
-    {
-        // Calculate counts for the dashboard summary
-        $counts = [
-            'banners'    => Banner::count(),
-            'advisories' => Advisory::count(),
-            'memos'      => Issuance::where('type', 'memorandum')->count(),
-            'users'      => User::count(),
-            'pages'      => Page::count(),
-            'materials'  => LearningMaterial::count(),
-        ];
+{
+    // 1. Get accurate records from all major sidebar categories
+    $counts = [
+        'users'       => \App\Models\User::count(),
+        'advisories'  => \App\Models\Advisory::count(),
+        'memos'       => \App\Models\Issuance::where('type', 'memorandum')->count(),
+        'issuances'   => \App\Models\Issuance::count(),
+        'pages'       => \App\Models\Page::count(),
+        'materials'   => \App\Models\LearningMaterial::count(),
+        'procurement' => \App\Models\BidOpportunity::count(),
+        'enrollment'  => \App\Models\EnrollmentStatistic::count(),
+        'banners'     => \App\Models\Banner::count(),
+    ];
 
-        // Fetch recent data for quick overview tables
-        $recentAdvisories = Advisory::latest()->take(5)->get();
-        $recentIssuances = Issuance::latest()->take(5)->get();
+    // 2. Fetch Recent Activity
+    $recentAdvisories = \App\Models\Advisory::latest()->take(5)->get();
+    $recentIssuances = \App\Models\Issuance::latest()->take(5)->get();
 
-        return view('admin.dashboard.index', compact('counts', 'recentAdvisories', 'recentIssuances'));
-    }
+    // 3. Prepare Chart Data (Example: Last 6 Months Activity)
+    // In a real scenario, you can group by created_at. Here we use basic arrays for the UI structure.
+    $chartData = [
+        'months' => ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
+        'advisories' => [5, 8, 3, 10, 15, 7], // Replace with real DB queries grouping by month
+        'issuances' => [12, 19, 10, 14, 22, 18],
+    ];
+
+    return view('admin.dashboard.index', compact(
+        'counts', 
+        'recentAdvisories', 
+        'recentIssuances', 
+        'chartData'
+    ));
+}
 
     public function login(Request $request)
     {
