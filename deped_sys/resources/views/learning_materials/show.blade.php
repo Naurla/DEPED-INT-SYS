@@ -46,7 +46,7 @@
             
             {{-- Download Link --}}
             <a href="{{ asset('storage/' . $material->file_path) }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center whitespace-nowrap text-[13px] uppercase tracking-widest transition-colors font-bold" download>
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 Download File ({{ strtoupper($material->file_type) }})
             </a>
         </div>
@@ -54,20 +54,24 @@
 
     {{-- File Preview Section --}}
     <div class="w-full bg-gray-100 rounded-lg p-2 shadow-inner mb-6 border border-gray-300 h-[70vh] min-h-[600px]">
-        @if($material->file_type == 'pdf')
+        @php
+            $fType = strtolower($material->file_type);
+            // Use Microsoft Office Online Viewer for better Office and CSV support
+            $officeViewerUrl = "https://view.officeapps.live.com/op/embed.aspx?src=" . urlencode(asset('storage/' . $material->file_path));
+        @endphp
+
+        @if($fType == 'pdf')
             <iframe 
                 src="{{ asset('storage/' . $material->file_path) }}#toolbar=0" 
                 class="w-full h-full rounded bg-white" 
                 title="{{ $material->title }}">
             </iframe>
-        @elseif(in_array($material->file_type, ['ppt', 'pptx', 'doc', 'docx']))
-            @php
-                $googleViewerUrl = 'https://docs.google.com/viewer?url=' . urlencode(asset('storage/' . $material->file_path)) . '&embedded=true';
-            @endphp
+        @elseif(in_array($fType, ['ppt', 'pptx', 'doc', 'docx', 'xls', 'xlsx', 'csv']))
             <iframe 
-                src="{{ $googleViewerUrl }}" 
+                src="{{ $officeViewerUrl }}" 
                 class="w-full h-full rounded bg-white" 
-                title="{{ $material->title }}">
+                title="{{ $material->title }}"
+                frameborder="0">
             </iframe>
         @else
             <div class="flex flex-col items-center justify-center h-full text-gray-500 bg-white rounded">

@@ -18,7 +18,8 @@ class ModulesController extends Controller {
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx|max:20480',
+            // UPDATED: Added csv, xls, xlsx to mimes
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
@@ -41,7 +42,6 @@ class ModulesController extends Controller {
             'image_path' => $imagePath,
         ]);
 
-        // CHANGED: Use a standard redirect instead of JSON
         return back()->with('success', 'Module uploaded successfully!');
     }
 
@@ -50,7 +50,10 @@ class ModulesController extends Controller {
         
         $data = $request->validate([
             'title' => 'required|string|max:255',
-            'description' => 'required|string'
+            'description' => 'required|string',
+            // UPDATED: Added validation for the file during update as well
+            'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
         
         if ($request->hasFile('file')) {
@@ -72,7 +75,6 @@ class ModulesController extends Controller {
 
         $module->update($data);
         
-        // CHANGED: Use a standard redirect instead of JSON
         return back()->with('success', 'Module updated!');
     }
 

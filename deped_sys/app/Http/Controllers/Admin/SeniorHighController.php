@@ -18,14 +18,15 @@ class SeniorHighController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
+            // UPDATED: Added support for PDF, Word, and Excel
+            'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
             $filename = $file->getClientOriginalName();
-            $path = $file->storeAs('senior_high/csv', $filename, 'public');
+            $path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
 
         SeniorHighContent::create([
@@ -41,7 +42,7 @@ class SeniorHighController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
+            'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
         $seniorHigh = SeniorHighContent::findOrFail($id);
@@ -52,7 +53,7 @@ class SeniorHighController extends Controller
             }
             $file = $request->file('csv_file');
             $filename = $file->getClientOriginalName();
-            $seniorHigh->csv_path = $file->storeAs('senior_high/csv', $filename, 'public');
+            $seniorHigh->csv_path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
 
         $seniorHigh->title = $request->title;

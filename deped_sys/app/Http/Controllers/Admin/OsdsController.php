@@ -31,8 +31,11 @@ class OsdsController extends Controller
         return back()->with('success', 'OSDS Chart uploaded successfully.');
     }
 
-    public function update(Request $request, Osds $osds)
+    // FIX: Changed from (Osds $osds) to ($id) to bypass Laravel's pluralization bugs
+    public function update(Request $request, $id)
     {
+        $osds = Osds::findOrFail($id); // Manually find the exact record
+
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -51,8 +54,11 @@ class OsdsController extends Controller
         return back()->with('success', 'OSDS Chart updated successfully.');
     }
 
-    public function destroy(Osds $osds)
+    // FIX: Changed from (Osds $osds) to ($id)
+    public function destroy($id)
     {
+        $osds = Osds::findOrFail($id); // Manually find the exact record
+
         if ($osds->image_path) Storage::disk('public')->delete($osds->image_path);
         $osds->delete();
 

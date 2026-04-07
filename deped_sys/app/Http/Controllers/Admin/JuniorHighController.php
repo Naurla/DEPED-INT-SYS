@@ -18,14 +18,16 @@ class JuniorHighController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
+            // Added support for PDF, Word, and Excel
+            'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
             $filename = $file->getClientOriginalName();
-            $path = $file->storeAs('junior_high/csv', $filename, 'public');
+            // Storing in a clean directory
+            $path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
 
         JuniorHighContent::create([
@@ -34,32 +36,33 @@ class JuniorHighController extends Controller
             'csv_path' => $path,
         ]);
 
-        return back()->with('success', 'Added successfully.');
+        return back()->with('success', 'Content added successfully.');
     }
 
     public function update(Request $request, $id) {
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'nullable|string',
-            'csv_file' => 'nullable|file|mimes:csv,txt|max:5000',
+            'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
 
         $juniorHigh = JuniorHighContent::findOrFail($id);
 
         if ($request->hasFile('csv_file')) {
+            // Delete old file if it exists
             if ($juniorHigh->csv_path) {
                 Storage::disk('public')->delete($juniorHigh->csv_path);
             }
             $file = $request->file('csv_file');
             $filename = $file->getClientOriginalName();
-            $juniorHigh->csv_path = $file->storeAs('junior_high/csv', $filename, 'public');
+            $juniorHigh->csv_path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
 
         $juniorHigh->title = $request->title;
         $juniorHigh->content = $request->content;
         $juniorHigh->save();
 
-        return back()->with('success', 'Updated successfully.');
+        return back()->with('success', 'Content updated successfully.');
     }
 
     public function destroy($id) {
@@ -70,6 +73,6 @@ class JuniorHighController extends Controller
         }
         
         $juniorHigh->delete();
-        return back()->with('success', 'Deleted successfully.');
+        return back()->with('success', 'Content deleted successfully.');
     }
 }

@@ -15,32 +15,27 @@ class LearningMaterialsController extends Controller
         return view('admin.learning_materials.index', compact('materials'));
     }
 
-    public function store(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'required|string',
-            'file' => 'required|file|mimes:pdf,ppt,pptx,doc,docx|max:20480',
-        ]);
+   public function store(Request $request) {
+    $request->validate([
+        'title' => 'required|string|max:255',
+        'description' => 'required|string',
+        // Support all major classroom formats
+        'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
+    ]);
 
-        if ($request->hasFile('file')) {
-            $file = $request->file('file');
-            $fileName = $file->getClientOriginalName();
-            $filePath = $file->storeAs('learning_materials', $fileName, 'public');
-            $fileType = $file->getClientOriginalExtension();
+    $file = $request->file('file');
+    $fileName = $file->getClientOriginalName();
+    $filePath = $file->storeAs('learning_materials/files', $fileName, 'public');
 
-            LearningMaterials::create([
-                'title' => $request->title,
-                'description' => $request->description,
-                'file_path' => $filePath,
-                'file_type' => $fileType,
-            ]);
+    \App\Models\LearningMaterials::create([
+        'title' => $request->title,
+        'description' => $request->description,
+        'file_path' => $filePath,
+        'file_type' => $file->getClientOriginalExtension(),
+    ]);
 
-            return back()->with('success', 'Learning material uploaded successfully!');
-        }
-
-        return back()->withErrors(['file' => 'Please upload a file.']);
-    }
+    return back()->with('success', 'Material uploaded successfully!');
+}
 
     public function update(Request $request, string $id)
     {
@@ -49,7 +44,8 @@ class LearningMaterialsController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'file' => 'nullable|file|mimes:pdf,ppt,pptx,doc,docx|max:20480',
+            // UPDATED: Added csv, xls, xlsx
+            'file' => 'nullable|file|mimes:pdf,ppt,pptx,doc,docx,csv,xls,xlsx|max:20480',
         ]);
 
         $dataToUpdate = [
@@ -76,13 +72,10 @@ class LearningMaterialsController extends Controller
     public function destroy(string $id)
     {
         $material = LearningMaterials::findOrFail($id);
-        
         if ($material->file_path) {
             Storage::disk('public')->delete($material->file_path);
         }
-        
         $material->delete();
-
         return back()->with('success', 'Learning material deleted successfully!');
     }
 }
