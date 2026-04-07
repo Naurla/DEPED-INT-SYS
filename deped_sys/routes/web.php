@@ -249,6 +249,7 @@ Route::middleware(['auth'])->group(function () {
         
         // --- ADDED PROFILE ROUTES HERE ---
         Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+        Route::post('/profile/verify', [ProfileController::class, 'verify'])->name('profile.verify'); // New Route
         Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
         // Dashboard

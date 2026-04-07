@@ -23,7 +23,7 @@ class ProfileController extends Controller
         ]);
 
         if (Hash::check($request->current_password, auth()->user()->password)) {
-            // Store verification in session for 15 minutes
+            // Store verification in session. It will persist until logout or session expiry.
             session()->put('profile_verified', true);
             return redirect()->route('admin.profile.edit')->with('success', 'Password verified. You can now edit your profile.');
         }
@@ -61,8 +61,8 @@ class ProfileController extends Controller
 
         $user->save();
 
-        // Clear verification after update
-        session()->forget('profile_verified');
+        // REMOVED: session()->forget('profile_verified'); 
+        // Now the user stays verified until they log out!
 
         return redirect()->route('admin.profile.edit')->with('success', 'Profile updated successfully!');
     }
