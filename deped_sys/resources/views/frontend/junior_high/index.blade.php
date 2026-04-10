@@ -30,9 +30,15 @@
                 $isWord = in_array(strtolower($extension), ['doc', 'docx']);
                 $isPdf = strtolower($extension) === 'pdf';
                 $isExcel = in_array(strtolower($extension), ['xls', 'xlsx']);
+                
+                // Check if the current URL has a pagination parameter for this specific table
+                $pageParam = 'page_' . $item->id;
+                $isExpanded = request()->has($pageParam) ? 'true' : 'false';
             @endphp
 
-            <div x-data="{ expanded: false }" class="border-b border-gray-100 pb-10 last:border-0">
+            {{-- Added dynamic ID and initialized 'expanded' based on the URL parameter --}}
+            <div id="item-{{ $item->id }}" x-data="{ expanded: {{ $isExpanded }} }" class="border-b border-gray-100 pb-10 last:border-0">
+                
                 {{-- Date and Title Heading (Design Match) --}}
                 <h2 class="text-xl font-bold text-gray-900 uppercase tracking-tight mb-2">
                     {{ $item->created_at->format('F d, Y') }} - {{ $item->title }}
@@ -95,7 +101,8 @@
                         </div>
                         {{-- CSV Table Pagination --}}
                         <div class="mt-4">
-                            {{ $item->tableData->appends(request()->except('page_' . $item->id))->links() }}
+                            {{-- Added ->fragment() to automatically scroll down to this item --}}
+                            {{ $item->tableData->appends(request()->except('page_' . $item->id))->fragment('item-' . $item->id)->links() }}
                         </div>
                     </div>
                 @endif

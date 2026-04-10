@@ -9,6 +9,8 @@
         <span class="mx-2">></span>
         <a href="{{ route('procurement.index', $category) }}" class="hover:text-[#003366] transition">Procurement</a>
         <span class="mx-2">></span>
+        <a href="{{ route('procurement.index', $category) }}" class="hover:text-[#003366] transition">{{ $type_name }}</a>
+        <span class="mx-2">></span>
         <span class="text-gray-900 font-bold">{{ Str::limit($item->display_title, 40) }}</span>
     </div>
 </div>
