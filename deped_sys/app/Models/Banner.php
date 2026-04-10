@@ -6,5 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Banner extends Model
 {
-    protected $fillable = ['image_path'];
+    // Added sort_order and is_active
+    protected $fillable = ['image_path', 'sort_order', 'is_active'];
 }

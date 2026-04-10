@@ -10,10 +10,13 @@ use Illuminate\Support\Facades\Storage;
 class BannerController extends Controller
 {
     public function index() {
-        // This converts the database paths into full URLs for your Alpine.js slider
-        $banners = Banner::all()->map(function($banner) {
-            return asset('storage/' . $banner->image_path);
-        });
+        // Only get ACTIVE banners and order them by sort_order
+        $banners = Banner::where('is_active', true)
+            ->orderBy('sort_order', 'asc')
+            ->get()
+            ->map(function($banner) {
+                return asset('storage/' . $banner->image_path);
+            });
 
         $advisories = Advisory::all();
 
@@ -22,39 +25,74 @@ class BannerController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'sort_order' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Only check for conflicts if the new banner is set to Active
+                    if ($request->is_active == 1) {
+                        if (Banner::where('is_active', 1)->where('sort_order', $value)->exists()) {
+                            $fail("Position {$value} is already occupied by an active banner.");
+                        }
+                    }
+                },
+            ],
+            'is_active' => 'required|boolean'
         ]);
     
-        // Stores the file in storage/app/public/banners
         $path = $request->file('image')->store('banners', 'public');
         
-        Banner::create(['image_path' => $path]);
+        Banner::create([
+            'image_path' => $path,
+            'sort_order' => $request->sort_order,
+            'is_active' => $request->is_active,
+        ]);
         
         return back()->with('success', 'Banner added successfully!');
     }
 
-    // ADDED THIS NEW METHOD TO HANDLE REPLACING/UPDATING
     public function update(Request $request, Banner $banner) {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'sort_order' => [
+                'required',
+                'integer',
+                function ($attribute, $value, $fail) use ($request, $banner) {
+                    // Only check for conflicts if the edited banner is set to Active
+                    if ($request->is_active == 1) {
+                        $conflict = Banner::where('is_active', 1)
+                                          ->where('sort_order', $value)
+                                          ->where('id', '!=', $banner->id)
+                                          ->exists();
+                        if ($conflict) {
+                            $fail("Position {$value} is already occupied by another active banner.");
+                        }
+                    }
+                },
+            ],
+            'is_active' => 'required|boolean'
         ]);
 
-        // Delete the old image from storage
-        if ($banner->image_path) {
-            Storage::disk('public')->delete($banner->image_path);
-        }
+        $data = [
+            'sort_order' => $request->sort_order,
+            'is_active' => $request->is_active,
+        ];
 
-        // Store the new image
-        $path = $request->file('image')->store('banners', 'public');
+        // Only process the image if a new one was uploaded
+        if ($request->hasFile('image')) {
+            if ($banner->image_path) {
+                Storage::disk('public')->delete($banner->image_path);
+            }
+            $data['image_path'] = $request->file('image')->store('banners', 'public');
+        }
         
-        // Update the database record
-        $banner->update(['image_path' => $path]);
+        $banner->update($data);
         
-        return back()->with('success', 'Banner replaced successfully!');
+        return back()->with('success', 'Banner updated successfully!');
     }
 
     public function destroy(Banner $banner) {
-        // Deletes the file from the public disk before removing the database record
         Storage::disk('public')->delete($banner->image_path);
         $banner->delete();
         
@@ -62,7 +100,8 @@ class BannerController extends Controller
     }
 
     public function adminIndex() {
-        $banners = Banner::all(); 
+        // Order the table by sort_order in the admin panel too
+        $banners = Banner::orderBy('sort_order', 'asc')->get(); 
 
         return view('admin.banners.index', compact('banners'));
     }

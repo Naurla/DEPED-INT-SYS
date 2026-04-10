@@ -103,7 +103,9 @@ Route::get('/serve-image/{path}', function($path) {
 
 Route::get('/', function () {
     $latestAdvisory = Advisory::latest()->first(); 
-    $dbBanners = Banner::all();
+    
+    // UPDATED: Only get active banners and sort them by the sort_order column
+    $dbBanners = Banner::where('is_active', true)->orderBy('sort_order', 'asc')->get();
     
     if($dbBanners->isEmpty()) {
         $banners = collect([
