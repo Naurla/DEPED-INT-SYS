@@ -26,6 +26,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
             'role_id' => 'required|exists:roles,id',
+        ], [
+            'email.unique' => 'A user with this email address already exists in the system.'
         ]);
 
         // Generate temporary password
@@ -52,6 +54,8 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id, 
             'role_id' => 'required|exists:roles,id',
+        ], [
+            'email.unique' => 'This email address is already taken by another user.'
         ]);
 
         $user->update([

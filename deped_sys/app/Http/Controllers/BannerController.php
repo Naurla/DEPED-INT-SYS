@@ -25,7 +25,26 @@ class BannerController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => [
+                'required',
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp',
+                'max:2048',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->hasFile('image')) {
+                        // Check if the exact filename already exists in the banners directory
+                        $originalName = $request->file('image')->getClientOriginalName();
+                        
+                        // We check the database to see if any existing banner's image path ends with this original name
+                        // Because we prepend a timestamp (e.g., 1712345678_banner.png), we search using LIKE %_filename.ext
+                        $exists = Banner::where('image_path', 'LIKE', '%_' . $originalName)->exists();
+                        
+                        if ($exists) {
+                            $fail("An image named '{$originalName}' has already been uploaded. Please choose a different file or rename it.");
+                        }
+                    }
+                }
+            ],
             'sort_order' => [
                 'required',
                 'integer',
@@ -42,7 +61,7 @@ class BannerController extends Controller
     
         // 1. Get the original file name
         $file = $request->file('image');
-        // 2. Prepend a timestamp so multiple files with the same name don't overwrite each other
+        // 2. Prepend a timestamp so multiple files with the same name don't overwrite each other technically on the disk
         $filename = time() . '_' . $file->getClientOriginalName();
         // 3. Save it to storage using storeAs instead of store
         $path = $file->storeAs('banners', $filename, 'public');
@@ -58,7 +77,26 @@ class BannerController extends Controller
 
     public function update(Request $request, Banner $banner) {
         $request->validate([
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image' => [
+                'nullable',
+                'image',
+                'mimes:jpeg,png,jpg,gif,webp',
+                'max:2048',
+                function ($attribute, $value, $fail) use ($request, $banner) {
+                    if ($request->hasFile('image')) {
+                        $originalName = $request->file('image')->getClientOriginalName();
+                        
+                        // Check if the new image name exists, but ignore the current banner being edited
+                        $exists = Banner::where('id', '!=', $banner->id)
+                                        ->where('image_path', 'LIKE', '%_' . $originalName)
+                                        ->exists();
+                        
+                        if ($exists) {
+                            $fail("An image named '{$originalName}' has already been uploaded to another banner slot.");
+                        }
+                    }
+                }
+            ],
             'sort_order' => [
                 'required',
                 'integer',

@@ -146,8 +146,9 @@
         </div>
     </div>
 
+    {{-- ALERTS: Success & Error --}}
     @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
+        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative shadow-sm">
             <div class="flex items-start">
                 <div class="flex-shrink-0 mt-0.5">
                     <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
@@ -156,6 +157,20 @@
                     <p class="text-sm font-bold whitespace-pre-wrap">{{ session('success') }}</p>
                 </div>
             </div>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative shadow-sm text-sm font-bold">
+            <div class="flex items-start mb-2">
+                <svg class="h-5 w-5 mr-2 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                <span>Please fix the following errors:</span>
+            </div>
+            <ul class="list-disc pl-9 text-xs">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
     @endif
 
@@ -227,9 +242,9 @@
     {{-- MODAL: ADD USER --}}
     <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showAddUserModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg">Create New User</h3>
-                <button type="button" @click="showAddUserModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 text-lg">Create New User</h3>
+                <button type="button" @click="showAddUserModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             </div>
             
             <form action="{{ route('admin.users.store') }}" method="POST" class="p-6 space-y-4">
@@ -254,8 +269,8 @@
                 </div>
                 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-                    <button type="button" @click="showAddUserModal = false" class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-red-700 hover:bg-red-800 text-white font-bold rounded-lg shadow-sm transition-colors">Generate Account</button>
+                    <button type="button" @click="showAddUserModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Generate Account</button>
                 </div>
             </form>
         </div>
@@ -264,9 +279,9 @@
     {{-- MODAL: EDIT USER --}}
     <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showEditUserModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg">Edit User Details</h3>
-                <button type="button" @click="showEditUserModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 text-lg">Edit User Details</h3>
+                <button type="button" @click="showEditUserModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             </div>
             
             <form :action="'/admin/users/' + editUserData.id" method="POST" class="p-6 space-y-4">
@@ -290,8 +305,8 @@
                 </div>
                 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-                    <button type="button" @click="showEditUserModal = false" class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-red-700 hover:bg-red-800 text-white font-bold rounded-lg shadow-sm transition-colors">Save Changes</button>
+                    <button type="button" @click="showEditUserModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -348,9 +363,9 @@
     {{-- MODAL: ADD ROLE --}}
     <div x-show="showAddRoleModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" @click.away="showAddRoleModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
-                <h3 class="font-bold text-lg">Create New Role</h3>
-                <button type="button" @click="showAddRoleModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-gray-800 text-lg">Create New Role</h3>
+                <button type="button" @click="showAddRoleModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             </div>
             
             <form action="/admin/roles" method="POST" class="p-6 space-y-4 overflow-y-auto flex-grow">
@@ -400,8 +415,8 @@
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100 shrink-0">
-                    <button type="button" @click="showAddRoleModal = false" class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-red-700 hover:bg-red-800 text-white font-bold rounded-lg shadow-sm transition-colors">Save Role</button>
+                    <button type="button" @click="showAddRoleModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Save Role</button>
                 </div>
             </form>
         </div>
@@ -410,9 +425,9 @@
     {{-- MODAL: EDIT ROLE --}}
     <div x-show="showEditRoleModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" @click.away="showEditRoleModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white shrink-0">
-                <h3 class="font-bold text-lg">Edit Role Config</h3>
-                <button type="button" @click="showEditRoleModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
+                <h3 class="font-bold text-gray-800 text-lg">Edit Role Config</h3>
+                <button type="button" @click="showEditRoleModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
             </div>
             
             <form :action="'/admin/roles/' + editRoleData.id" method="POST" class="p-6 space-y-4 overflow-y-auto flex-grow">
@@ -463,8 +478,8 @@
                 </div>
 
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100 shrink-0">
-                    <button type="button" @click="showEditRoleModal = false" class="px-5 py-2 text-sm font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors">Cancel</button>
-                    <button type="submit" class="px-5 py-2 text-sm bg-red-700 hover:bg-red-800 text-white font-bold rounded-lg shadow-sm transition-colors">Update Config</button>
+                    <button type="button" @click="showEditRoleModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Update Config</button>
                 </div>
             </form>
         </div>
