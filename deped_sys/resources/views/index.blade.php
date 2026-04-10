@@ -1,10 +1,12 @@
 @extends('layouts.app')
+
 @section('content')
     <div class="container mx-auto mt-6 px-4">
-        <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] overflow-hidden"
-            x-data="{ activeSlide: 1, slides: {{ $banners->toJson() ?? '[]' }} }" 
-            x-init="if(slides.length > 0) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
+        <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] overflow-hidden rounded-lg"
+             x-data="{ activeSlide: 1, slides: {{ $banners->toJson() ?? '[]' }} }" 
+             x-init="if(slides.length > 1) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
             
+            {{-- Slides --}}
             <template x-for="(slide, index) in slides" :key="index">
                 <div x-show="activeSlide === index + 1" 
                      x-transition:enter="transition opacity duration-1000"
@@ -13,14 +15,15 @@
                      x-transition:leave="transition opacity duration-1000"
                      x-transition:leave-start="opacity-100"
                      x-transition:leave-end="opacity-0"
-                     class="absolute inset-0 flex items-center justify-center">
-                    <img :src="slide" alt="Hero Banner" class="w-full h-full object-cover object-center">
+                     class="absolute inset-0 flex items-center justify-center bg-gray-50">
+                    <img :src="slide" alt="Hero Banner" class="w-full h-full object-cover object-center shadow-sm">
                 </div>
             </template>
             
-            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10">
+            {{-- Navigation Dots (Only show if there are 2 or more slides) --}}
+            <div x-show="slides.length > 1" class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2 z-10" x-cloak>
                 <template x-for="(slide, index) in slides" :key="index">
-                    <button @click="activeSlide = index + 1" :class="activeSlide === index + 1 ? 'bg-red-700 w-6' : 'bg-gray-300 w-2'" class="h-2 rounded-full transition-all duration-300 shadow-sm"></button>
+                    <button @click="activeSlide = index + 1" :class="activeSlide === index + 1 ? 'bg-red-700 w-6' : 'bg-gray-300 w-2'" class="h-2 rounded-full transition-all duration-300 shadow-sm focus:outline-none"></button>
                 </template>
             </div>
         </div>

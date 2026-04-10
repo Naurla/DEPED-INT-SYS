@@ -6,21 +6,17 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
        Schema::create('banners', function (Blueprint $table) {
-        $table->id();
-        $table->string('image_path'); // This stores the location of the banner image
-        $table->timestamps();
+            $table->id();
+            $table->string('image_path'); 
+            $table->integer('sort_order')->default(0); // Added for ordering
+            $table->boolean('is_active')->default(true); // Added for status
+            $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('banners');
