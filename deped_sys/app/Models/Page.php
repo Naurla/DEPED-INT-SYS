@@ -12,6 +12,7 @@ class Page extends Model
         'title', 
         'slug', 
         'content', 
+        'menu_location',
         'layout_template', 
         'show_in_nav',
         'featured_videos' 

@@ -136,6 +136,14 @@
 
                         {{-- Citizen's Charter --}}
                         <a href="{{ route('citizen_charter.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('citizen_charter.index') ? 'bg-gray-200 md:bg-gray-100 text-[#a52a2a] font-bold' : 'hover:bg-gray-100 text-gray-700' }}">Citizen's Charter</a>
+                        
+                        {{-- RECURSIVE ABOUT PAGES --}}
+                        @if(isset($categorizedPages['about']))
+                            <div class="border-t border-gray-200 my-1"></div>
+                            @foreach($categorizedPages['about'] as $customPage)
+                                @include('partials.recursive_nav', ['page' => $customPage])
+                            @endforeach
+                        @endif
                     </div>
                 </div>
                 
@@ -149,6 +157,14 @@
                         <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
                         <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
                         <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> HRMPSB</a>
+                    
+                        {{-- RECURSIVE ISSUANCES PAGES --}}
+                        @if(isset($categorizedPages['issuances']))
+                            <div class="border-t border-gray-200 my-1"></div>
+                            @foreach($categorizedPages['issuances'] as $customPage)
+                                @include('partials.recursive_nav', ['page' => $customPage])
+                            @endforeach
+                        @endif
                     </div>
                 </div>
 
@@ -211,6 +227,14 @@
                             </div>
                         </div>
 
+                        {{-- RECURSIVE K12 PAGES --}}
+                        @if(isset($categorizedPages['k12']))
+                            <div class="border-t border-gray-200 my-1"></div>
+                            @foreach($categorizedPages['k12'] as $customPage)
+                                @include('partials.recursive_nav', ['page' => $customPage])
+                            @endforeach
+                        @endif
+
                     </div>
                 </div>
 
@@ -228,9 +252,18 @@
                         <a href="{{ route('procurement.index', ['category' => 'award-notices']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Award Notices</a>
                         <a href="{{ route('procurement.index', ['category' => 'pmr']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Procurement Monitoring Report</a>
                         <a href="{{ route('procurement.index', ['category' => 'pre-bid-minutes']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Minutes of Pre-Bid</a>
+                        
+                        {{-- RECURSIVE PROCUREMENT PAGES --}}
+                        @if(isset($categorizedPages['procurement']))
+                            <div class="border-t border-gray-200 my-1"></div> 
+                            @foreach($categorizedPages['procurement'] as $customPage)
+                                @include('partials.recursive_nav', ['page' => $customPage])
+                            @endforeach
+                        @endif
                     </div>
                 </div>
 
+                {{-- Standalone Custom Main Menus --}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
                         @if($navPage->show_in_nav)

@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\View;
 use App\Models\Issuance;             
 use App\Models\SiteSetting;
 use Illuminate\Support\Facades\Cache;
-
 use Illuminate\Support\Facades\Schema; 
 use App\Models\Page; 
 
@@ -36,23 +35,36 @@ class AppServiceProvider extends ServiceProvider
                 return \App\Models\SiteLogo::where('is_active', true)->orderBy('order', 'asc')->get();
             });
 
-            // --- UPDATED: Fetch hierarchical dynamic pages for navigation ---
+            // --- FETCH DYNAMIC PAGES ---
             $navPages = collect(); 
+            $categorizedPages = collect(); 
             
             if (\Illuminate\Support\Facades\Schema::hasTable('pages')) {
+                // Fetch Main Menu items (Null parent)
                 $navPages = \Illuminate\Support\Facades\Cache::rememberForever('nav_pages', function () {
-                    // Only get root pages (no parent) but eager load all nested children
-                    // REMOVED the show_in_nav filter so Admin can see hidden pages
                     return \App\Models\Page::whereNull('parent_id')
                                 ->with('children')
                                 ->get();
+                });
+
+                // Fetch Custom pages specifically assigned to existing hardcoded dropdowns
+                $categorizedPages = \Illuminate\Support\Facades\Cache::rememberForever('categorized_pages', function () {
+                    return \App\Models\Page::whereNotNull('menu_location')
+                                ->where('show_in_nav', true)
+                                // ADDED: Load the sub-pages attached to these custom pages
+                                ->with(['children' => function($query) {
+                                    $query->where('show_in_nav', true);
+                                }])
+                                ->get()
+                                ->groupBy('menu_location');
                 });
             }
 
             // Share variables with all views
             $view->with('site_settings', $site_settings)
                  ->with('site_logos', $site_logos)
-                 ->with('navPages', $navPages); 
+                 ->with('navPages', $navPages)
+                 ->with('categorizedPages', $categorizedPages); 
         });
     }
 }
