@@ -30,7 +30,6 @@ class BannerController extends Controller
                 'required',
                 'integer',
                 function ($attribute, $value, $fail) use ($request) {
-                    // Only check for conflicts if the new banner is set to Active
                     if ($request->is_active == 1) {
                         if (Banner::where('is_active', 1)->where('sort_order', $value)->exists()) {
                             $fail("Position {$value} is already occupied by an active banner.");
@@ -41,7 +40,12 @@ class BannerController extends Controller
             'is_active' => 'required|boolean'
         ]);
     
-        $path = $request->file('image')->store('banners', 'public');
+        // 1. Get the original file name
+        $file = $request->file('image');
+        // 2. Prepend a timestamp so multiple files with the same name don't overwrite each other
+        $filename = time() . '_' . $file->getClientOriginalName();
+        // 3. Save it to storage using storeAs instead of store
+        $path = $file->storeAs('banners', $filename, 'public');
         
         Banner::create([
             'image_path' => $path,
@@ -59,7 +63,6 @@ class BannerController extends Controller
                 'required',
                 'integer',
                 function ($attribute, $value, $fail) use ($request, $banner) {
-                    // Only check for conflicts if the edited banner is set to Active
                     if ($request->is_active == 1) {
                         $conflict = Banner::where('is_active', 1)
                                           ->where('sort_order', $value)
@@ -84,7 +87,11 @@ class BannerController extends Controller
             if ($banner->image_path) {
                 Storage::disk('public')->delete($banner->image_path);
             }
-            $data['image_path'] = $request->file('image')->store('banners', 'public');
+            
+            // Save the newly updated file with its original name as well
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('banners', $filename, 'public');
         }
         
         $banner->update($data);

@@ -63,6 +63,14 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse($banners as $banner)
+                    
+                    {{-- Clean up the file name for display --}}
+                    @php
+                        $basename = basename($banner->image_path);
+                        // Strips the 10-digit timestamp if it exists, leaving the clean name
+                        $displayName = preg_replace('/^\d{10}_/', '', $basename);
+                    @endphp
+
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="px-6 py-4 align-middle">
                             <div class="w-20 h-12 bg-white rounded border border-gray-200 overflow-hidden shadow-sm">
@@ -70,7 +78,7 @@
                             </div>
                         </td>
                         <td class="px-6 py-4 align-middle font-semibold text-gray-900">
-                            {{ Str::limit(basename($banner->image_path), 30) }}
+                            {{ Str::limit($displayName, 30) }}
                         </td>
                         <td class="px-6 py-4 align-middle text-center font-bold">
                             {{ $banner->sort_order }}
@@ -89,7 +97,7 @@
                         <td class="px-6 py-4 align-middle text-right">
                             <div class="flex justify-end gap-3 items-center">
                                 <button @click="editId = {{ $banner->id }}; editOrder = {{ $banner->sort_order }}; originalEditOrder = {{ $banner->sort_order }}; editStatus = '{{ $banner->is_active ? 1 : 0 }}'; editModal = true" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
-                                <button @click="bannerId = {{ $banner->id }}; deleteTitle = '{{ addslashes(basename($banner->image_path)) }}'; deleteModal = true" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Remove</button>
+                                <button @click="bannerId = {{ $banner->id }}; deleteTitle = '{{ addslashes($displayName) }}'; deleteModal = true" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Remove</button>
                             </div>
                         </td>
                     </tr>
@@ -190,7 +198,6 @@
                 </div>
                 <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 items-center border-t border-gray-100">
                     <button @click="editModal = false" type="button" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    {{-- Changed button color to red to match theme --}}
                     <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Save Changes</button>
                 </div>
             </form>
