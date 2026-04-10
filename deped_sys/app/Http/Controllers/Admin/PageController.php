@@ -21,7 +21,6 @@ class PageController extends Controller
         return view('admin.pages.create', compact('allPages'));
     }
 
-    // Helper method to clean up the video array before saving
     private function formatVideosArray($rawVideos)
     {
         $videos = [];
@@ -44,21 +43,38 @@ class PageController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable', 
             'layout_template' => 'required|string',
+            'parent_selection' => 'nullable|string', // <-- Unified Field
             'featured_videos' => 'nullable|array',
             'featured_videos.*.url' => 'nullable|url',
             'featured_videos.*.shape' => 'nullable|in:landscape,portrait'
         ]);
 
+        $parentId = null;
+        $menuLocation = null;
+
+        // Check the unified dropdown
+        if ($request->filled('parent_selection')) {
+            if (str_starts_with($request->parent_selection, 'menu_')) {
+                // If it's a hardcoded menu (e.g., 'menu_issuances')
+                $menuLocation = str_replace('menu_', '', $request->parent_selection);
+            } else {
+                // If it's a dynamic page ID (e.g., '5')
+                $parentId = $request->parent_selection;
+            }
+        }
+
         Page::create([
-            'parent_id' => $request->parent_id ?: null,
+            'parent_id' => $parentId,
             'title' => $request->title,
             'content' => $request->content,
             'layout_template' => $request->layout_template,
+            'menu_location' => $menuLocation,
             'featured_videos' => $this->formatVideosArray($request->featured_videos),
             'show_in_nav' => $request->has('show_in_nav')
         ]);
 
         Cache::forget('nav_pages');
+        Cache::forget('categorized_pages');
         return redirect()->route('admin.pages.index')->with('success', 'Page created successfully.');
     }
 
@@ -74,21 +90,35 @@ class PageController extends Controller
             'title' => 'required|string|max:255',
             'content' => 'nullable', 
             'layout_template' => 'required|string',
+            'parent_selection' => 'nullable|string', // <-- Unified Field
             'featured_videos' => 'nullable|array',
             'featured_videos.*.url' => 'nullable|url',
             'featured_videos.*.shape' => 'nullable|in:landscape,portrait'
         ]);
 
+        $parentId = null;
+        $menuLocation = null;
+
+        if ($request->filled('parent_selection')) {
+            if (str_starts_with($request->parent_selection, 'menu_')) {
+                $menuLocation = str_replace('menu_', '', $request->parent_selection);
+            } else {
+                $parentId = $request->parent_selection;
+            }
+        }
+
         $page->update([
-            'parent_id' => $request->parent_id ?: null,
+            'parent_id' => $parentId,
             'title' => $request->title,
             'content' => $request->content,
             'layout_template' => $request->layout_template,
+            'menu_location' => $menuLocation,
             'featured_videos' => $this->formatVideosArray($request->featured_videos),
             'show_in_nav' => $request->has('show_in_nav')
         ]);
 
         Cache::forget('nav_pages');
+        Cache::forget('categorized_pages');
         return redirect()->route('admin.pages.index')->with('success', 'Page updated successfully.');
     }
 
@@ -96,6 +126,7 @@ class PageController extends Controller
     {
         $page->delete();
         Cache::forget('nav_pages');
+        Cache::forget('categorized_pages');
         return redirect()->route('admin.pages.index')->with('success', 'Page deleted.');
     }
 
