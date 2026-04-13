@@ -40,9 +40,15 @@ class AppServiceProvider extends ServiceProvider
             $categorizedPages = collect(); 
             
             if (\Illuminate\Support\Facades\Schema::hasTable('pages')) {
-                // Fetch Main Menu items (Null parent)
+                // FIXED: Fetch only items for the main bar that have NO parent AND NO menu location
                 $navPages = \Illuminate\Support\Facades\Cache::rememberForever('nav_pages', function () {
                     return \App\Models\Page::whereNull('parent_id')
+                                ->where(function($q) {
+                                    $q->whereNull('menu_location')
+                                      ->orWhere('menu_location', 'none')
+                                      ->orWhere('menu_location', '');
+                                })
+                                ->where('show_in_nav', true)
                                 ->with('children')
                                 ->get();
                 });
@@ -50,8 +56,8 @@ class AppServiceProvider extends ServiceProvider
                 // Fetch Custom pages specifically assigned to existing hardcoded dropdowns
                 $categorizedPages = \Illuminate\Support\Facades\Cache::rememberForever('categorized_pages', function () {
                     return \App\Models\Page::whereNotNull('menu_location')
+                                ->whereNotIn('menu_location', ['none', ''])
                                 ->where('show_in_nav', true)
-                                // ADDED: Load the sub-pages attached to these custom pages
                                 ->with(['children' => function($query) {
                                     $query->where('show_in_nav', true);
                                 }])

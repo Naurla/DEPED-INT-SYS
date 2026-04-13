@@ -263,7 +263,7 @@
                     </div>
                 </div>
 
-                {{-- Standalone Custom Main Menus --}}
+                {{-- RE-ADDED: Standalone Custom Main Menus loop --}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
                         @if($navPage->show_in_nav)
