@@ -36,7 +36,7 @@
     <div class="flex justify-between items-center mb-6">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Manage {{ $type }}s</h2>
-            <p class="text-gray-500 text-sm mt-1">Upload and edit public issuance documents.</p>
+            <p class="text-gray-500 text-sm mt-1">Upload and edit public issuance documents or links.</p>
         </div>
         <button @click="addModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors text-sm uppercase tracking-wider">
             + Upload New
@@ -51,7 +51,7 @@
                         <th class="p-4 border-b whitespace-nowrap w-16 text-center">ID</th>
                         <th class="p-4 border-b">Title</th>
                         <th class="p-4 border-b">Description</th>
-                        <th class="p-4 border-b whitespace-nowrap">PDF File</th>
+                        <th class="p-4 border-b whitespace-nowrap">Document / Link</th>
                         <th class="p-4 border-b whitespace-nowrap">Date Uploaded</th>
                         <th class="p-4 border-b text-right">Actions</th>
                     </tr>
@@ -73,10 +73,23 @@
                             </td>
                             
                             <td class="p-4 text-sm whitespace-nowrap align-middle">
-                                <a href="{{ asset('storage/' . $issuance->pdf_path) }}" target="_blank" title="{{ basename($issuance->pdf_path) }}" class="text-red-600 font-bold hover:text-red-800 hover:underline flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                                    <span class="max-w-[120px] truncate text-xs">{{ basename($issuance->pdf_path) }}</span>
-                                </a>
+                                @if($issuance->pdf_path)
+                                    <a href="{{ asset('storage/' . $issuance->pdf_path) }}" target="_blank" title="{{ basename($issuance->pdf_path) }}" class="text-red-600 font-bold hover:text-red-800 hover:underline flex items-center mb-1.5">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <span class="max-w-[120px] truncate text-xs">{{ basename($issuance->pdf_path) }}</span>
+                                    </a>
+                                @endif
+
+                                @if($issuance->link)
+                                    <a href="{{ $issuance->link }}" target="_blank" title="{{ $issuance->link }}" class="text-blue-600 font-bold hover:text-blue-800 hover:underline flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                                        <span class="max-w-[120px] truncate text-xs">External Link</span>
+                                    </a>
+                                @endif
+
+                                @if(!$issuance->pdf_path && !$issuance->link)
+                                    <span class="text-gray-400 italic text-xs">No document attached</span>
+                                @endif
                             </td>
 
                             <td class="p-4 text-xs text-gray-500 font-medium whitespace-nowrap align-middle">{{ $issuance->created_at->format('M d, Y') }}</td>
@@ -129,9 +142,22 @@
                         <textarea name="description" rows="4" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none" placeholder="Enter details..."></textarea>
                     </div>
                     
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Upload PDF Document <span class="text-red-500">*</span></label>
-                        <input type="file" name="pdf_file" accept=".pdf" required class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">Upload PDF Document <span class="font-normal text-gray-400 text-xs">(Optional if link is provided)</span></label>
+                            <input type="file" name="pdf_file" accept=".pdf" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                        </div>
+                        
+                        <div class="relative flex py-1 items-center">
+                            <div class="flex-grow border-t border-gray-300"></div>
+                            <span class="flex-shrink-0 mx-4 text-gray-400 text-xs font-bold uppercase">OR / AND</span>
+                            <div class="flex-grow border-t border-gray-300"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">External Link <span class="font-normal text-gray-400 text-xs">(Optional if PDF is uploaded)</span></label>
+                            <input type="url" name="link" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="https://example.com/document">
+                        </div>
                     </div>
                 </div>
 
@@ -171,29 +197,42 @@
                         <textarea name="description" x-model="editIssuance.description" rows="4" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Replace PDF Document <span class="font-normal text-gray-400 text-xs">(Leave blank to keep current)</span></label>
-                        <input type="file" name="pdf_file" accept=".pdf" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
-                        
-                        <template x-if="editIssuance && editIssuance.pdf_path && !removePdf">
-                            <div class="mt-3 flex items-center justify-between p-2 bg-blue-50 border border-blue-100 rounded-lg">
-                                <div class="flex items-center gap-3">
-                                    <div class="p-1.5 bg-white rounded shadow-sm border border-gray-200 text-blue-600">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 space-y-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">Replace PDF Document <span class="font-normal text-gray-400 text-xs">(Leave blank to keep current)</span></label>
+                            <input type="file" name="pdf_file" accept=".pdf" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                            
+                            <template x-if="editIssuance && editIssuance.pdf_path && !removePdf">
+                                <div class="mt-3 flex items-center justify-between p-2 bg-blue-50 border border-blue-100 rounded-lg">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-1.5 bg-white rounded shadow-sm border border-gray-200 text-blue-600">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                        </div>
+                                        <div class="flex flex-col">
+                                            <span class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Current PDF</span>
+                                            <span class="text-xs text-blue-700 font-bold truncate max-w-[150px]" x-text="editIssuance.pdf_path.split('/').pop()"></span>
+                                        </div>
                                     </div>
-                                    <div class="flex flex-col">
-                                        <span class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Current PDF</span>
-                                        <span class="text-xs text-blue-700 font-bold truncate max-w-[150px]" x-text="editIssuance.pdf_path.split('/').pop()"></span>
-                                    </div>
+                                    <button type="button" @click="removePdf = true" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                    </button>
                                 </div>
-                                <button type="button" @click="removePdf = true" class="p-1.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                </button>
-                            </div>
-                        </template>
-                        <template x-if="removePdf">
-                            <span class="text-xs text-red-500 mt-2 block font-medium italic">Document will be removed upon saving.</span>
-                        </template>
+                            </template>
+                            <template x-if="removePdf">
+                                <span class="text-xs text-red-500 mt-2 block font-medium italic">Document will be removed upon saving.</span>
+                            </template>
+                        </div>
+
+                        <div class="relative flex py-1 items-center">
+                            <div class="flex-grow border-t border-gray-300"></div>
+                            <span class="flex-shrink-0 mx-4 text-gray-400 text-xs font-bold uppercase">AND / OR</span>
+                            <div class="flex-grow border-t border-gray-300"></div>
+                        </div>
+
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-1">External Link <span class="font-normal text-gray-400 text-xs">(Optional)</span></label>
+                            <input type="url" name="link" x-model="editIssuance.link" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="https://example.com/document">
+                        </div>
                     </div>
                 </div>
                 

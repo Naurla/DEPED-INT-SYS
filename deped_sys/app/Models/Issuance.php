@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Issuance extends Model
 {
-    protected $fillable = ['title', 'description', 'type', 'pdf_path', 'image_path', 'date']; // Added 'date'
+    protected $fillable = ['title', 'description', 'type', 'pdf_path', 'image_path', 'date', 'link'];// Added 'date'
 
     public function getDisplayTitleAttribute()
     {

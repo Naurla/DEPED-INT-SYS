@@ -81,6 +81,14 @@
                     Download Image
                 </a>
             @endif
+
+            {{-- External Link Button --}}
+            @if($issuance->link)
+            <a href="{{ $issuance->link }}" target="_blank" class="text-blue-600 hover:text-blue-800 hover:underline flex items-center whitespace-nowrap text-[13px] uppercase tracking-widest transition-colors font-bold">
+                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                Visit External Link
+            </a>
+            @endif
         </div>
     </div>
 
@@ -118,8 +126,45 @@
             </iframe>
         </div>
         
+    @elseif($issuance->link)
+        {{-- SCENARIO 4: External Link Exists (Clean UI Card instead of iframe) --}}
+        <div class="w-full bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
+            {{-- Card Header --}}
+            <div class="bg-blue-50 border-b border-blue-100 p-4 flex items-center">
+                <div class="bg-blue-100 p-2 rounded-lg mr-3 shadow-sm text-blue-600">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-blue-900 text-lg uppercase tracking-wide">External Link Provided</h3>
+                    <p class="text-blue-700 text-xs font-bold uppercase tracking-wider mt-0.5">This document is hosted on an external website.</p>
+                </div>
+            </div>
+            
+            {{-- Card Body --}}
+            <div class="p-8 md:p-12 flex flex-col items-center justify-center text-center bg-gray-50/50 min-h-[350px]">
+                <svg class="w-20 h-20 text-gray-300 mb-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                
+                <h4 class="text-gray-800 font-bold text-xl mb-3">Preview Not Available</h4>
+                <p class="text-gray-500 mb-8 max-w-md text-sm leading-relaxed">
+                    For security reasons, external websites (like Facebook or Google Drive) do not allow their content to be embedded directly. Please click the button below to view the content securely in a new tab.
+                </p>
+                
+                <a href="{{ $issuance->link }}" target="_blank" class="inline-flex items-center justify-center px-8 py-3.5 border border-transparent text-sm font-bold uppercase tracking-widest rounded-lg text-white bg-blue-600 hover:bg-blue-700 shadow transition-all hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                    Open Link in New Tab
+                    <svg class="ml-2.5 -mr-1 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                </a>
+                
+                <div class="mt-8 flex items-center max-w-full px-4">
+                    <span class="text-xs text-gray-400 font-bold uppercase tracking-wider mr-3 whitespace-nowrap">Target URL:</span>
+                    <p class="text-xs text-gray-500 font-mono break-all bg-white px-3 py-2 rounded shadow-sm border border-gray-200 line-clamp-1 truncate" title="{{ $issuance->link }}">
+                        {{ $issuance->link }}
+                    </p>
+                </div>
+            </div>
+        </div>
+
     @else
-        {{-- SCENARIO 4: No preview available --}}
+        {{-- SCENARIO 5: No preview available --}}
         <div class="flex flex-col items-center justify-center h-64 text-gray-500 bg-gray-50 border border-gray-200 rounded-lg shadow-inner w-full mb-8">
             <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
             <p class="font-bold text-[15px]">Preview not available</p>

@@ -85,19 +85,26 @@ class IssuanceController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
             'type' => 'required|in:advisory,memorandum,hrmpsb',
-            'pdf_file' => 'required|mimes:pdf|max:10240',
-            'date' => 'nullable|date', // Validate date
+            'pdf_file' => 'nullable|mimes:pdf|max:10240', // Changed to nullable
+            'link' => 'nullable|url|max:2000', // Added link validation
+            'date' => 'nullable|date',
         ]);
 
-        $pdfFile = $request->file('pdf_file');
-        $pdfFilename = $pdfFile->getClientOriginalName();
-        $path = $pdfFile->storeAs('issuances/' . $validated['type'], $pdfFilename, 'public');
+        $path = null;
+        
+        // Only attempt to store the file if one was actually uploaded
+        if ($request->hasFile('pdf_file')) {
+            $pdfFile = $request->file('pdf_file');
+            $pdfFilename = $pdfFile->getClientOriginalName();
+            $path = $pdfFile->storeAs('issuances/' . $validated['type'], $pdfFilename, 'public');
+        }
         
         Issuance::create([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
             'pdf_path' => $path,
+            'link' => $validated['link'] ?? null, // Save the link
             'date' => $validated['date'] ?: now()->toDateString(), // Fallback to current date
         ]);
 
@@ -112,16 +119,19 @@ class IssuanceController extends Controller
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
-            'date' => 'nullable|date', // Validate date
+            'link' => 'nullable|url|max:2000', // Added link validation
+            'date' => 'nullable|date',
         ]);
 
         $dataToUpdate = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
+            'link' => $validated['link'] ?? null, // Update the link
             'date' => $validated['date'] ?: now()->toDateString(), // Fallback to current date
         ];
 
         if ($request->hasFile('pdf_file')) {
+            // Delete old PDF if it exists
             if ($issuance->pdf_path) {
                 Storage::disk('public')->delete($issuance->pdf_path);
             }
@@ -129,6 +139,13 @@ class IssuanceController extends Controller
             $pdfFile = $request->file('pdf_file');
             $pdfFilename = $pdfFile->getClientOriginalName();
             $dataToUpdate['pdf_path'] = $pdfFile->storeAs('issuances/' . $issuance->type, $pdfFilename, 'public');
+        }
+
+        // If the user checked "Remove PDF" in the frontend (if you add that logic later) 
+        // or if you need to clear it when they provide a link instead, you can handle that here.
+        if ($request->input('remove_pdf') == '1' && $issuance->pdf_path) {
+            Storage::disk('public')->delete($issuance->pdf_path);
+            $dataToUpdate['pdf_path'] = null;
         }
 
         $issuance->update($dataToUpdate);
