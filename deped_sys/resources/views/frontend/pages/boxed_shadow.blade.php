@@ -1,8 +1,62 @@
 @extends('layouts.app')
+
 @section('content')
-<div class="container mx-auto px-6 py-12">
-    <div class="bg-white rounded-xl shadow-2xl p-10 border-t-8 border-[#a52a2a]">
-        <h1 class="text-3xl font-bold text-gray-900 mb-8 text-center">{{ $page->title }}</h1>
+<style>
+    /* =========================================================
+       HIDE SCROLLBARS (BUT KEEP CONTENT SCROLLABLE) for breadcrumb
+       ========================================================= */
+    .hide-scroll::-webkit-scrollbar {
+        display: none; /* For Chrome, Safari, and Opera */
+    }
+    
+    .hide-scroll {
+        -ms-overflow-style: none;  /* For Internet Explorer and Edge */
+        scrollbar-width: none;  /* For Firefox */
+    }
+</style>
+
+{{-- GENERATE FULL PARENT HIERARCHY --}}
+@php
+    $breadcrumbs = [];
+    $currentParent = $page->parent;
+    
+    // Loop through parents and add them to the start of the array
+    while ($currentParent) {
+        array_unshift($breadcrumbs, $currentParent);
+        $currentParent = $currentParent->parent;
+    }
+@endphp
+
+{{-- Breadcrumb matching the reference layout padding (md:px-20) --}}
+<div class="bg-gray-100 border-b border-gray-200 w-full overflow-hidden">
+    <div class="container mx-auto px-4 md:px-20 max-w-10xl py-3 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap hide-scroll">
+        <a href="/" class="hover:text-[#a52a2a] transition">Home</a>
+        
+        {{-- Fallback: Show menu location if there are no parents --}}
+        @if(empty($breadcrumbs) && !empty($page->menu_location) && !in_array($page->menu_location, ['standalone', 'main_menu']))
+            <span class="mx-2">></span>
+            <span class="capitalize">{{ str_replace('_', ' ', $page->menu_location) }}</span>
+        @endif
+
+        {{-- Output the nested Parents (e.g. HR > Sada > Try > King) --}}
+        @foreach($breadcrumbs as $breadcrumb)
+            <span class="mx-2">></span>
+            <a href="/{{ $breadcrumb->slug }}" class="hover:text-[#a52a2a] capitalize transition">
+                {{ $breadcrumb->title }}
+            </a>
+        @endforeach
+
+        {{-- The Current Page (e.g. Hello3) --}}
+        <span class="mx-2">></span>
+        <span class="text-gray-900 font-bold capitalize">{{ $page->title }}</span>
+    </div>
+</div>
+
+{{-- Main Container (Perfectly balanced left and right padding using md:px-20) --}}
+<div class="container mx-auto px-4 md:px-20 max-w-10xl py-8 md:py-12">
+    
+    <div class="bg-white rounded-xl shadow-2xl p-6 md:p-10 border-t-8 border-[#a52a2a]">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 mb-8 text-center uppercase tracking-wide">{{ $page->title }}</h1>
         
         {{-- SMART MULTI-VIDEO RENDERER --}}
         @if(!empty($page->featured_videos) && is_array($page->featured_videos))
@@ -55,5 +109,6 @@
             {!! $page->content !!}
         </div>
     </div>
+    
 </div>
 @endsection
