@@ -311,7 +311,9 @@
                         @forelse(collect($globalRecentAdvisories ?? [])->take(3) as $adv)
                             <li class="flex items-start">
                                 <span class="text-black mr-3 mt-1.5 flex-shrink-0">•</span>
-                                <a href="{{ route('issuances.show', $adv->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase transition-colors">
+                                <a href="{{ route('issuances.show', $adv->id) }}" 
+                                   class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase transition-colors line-clamp-2 break-words"
+                                   title="{{ $adv->title }} - {{ $adv->description }}">
                                     {{ $adv->created_at->format('M d, Y') }} {{ $adv->title }} - {{ $adv->description ?? 'Click to view details.' }}
                                 </a>
                             </li>
@@ -329,7 +331,9 @@
                         @forelse(collect($globalRecentMemoranda ?? [])->take(3) as $memo)
                             <li class="flex items-start">
                                 <span class="text-black mr-3 mt-1.5 flex-shrink-0">•</span>
-                                <a href="{{ route('issuances.show', $memo->id) }}" class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase transition-colors">
+                                <a href="{{ route('issuances.show', $memo->id) }}" 
+                                   class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase transition-colors line-clamp-2 break-words"
+                                   title="{{ $memo->title }} - {{ $memo->description }}">
                                     {{ $memo->created_at->format('M d, Y') }} {{ $memo->title }} - {{ $memo->description ?? 'Click to view details.' }}
                                 </a>
                             </li>

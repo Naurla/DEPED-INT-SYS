@@ -41,13 +41,16 @@
     <div x-show="activeTab === 'public'" class="space-y-12">
         @forelse($publicContents as $item)
             @php
-                $extension = pathinfo($item->csv_path, PATHINFO_EXTENSION);
-                // Check if the controller successfully parsed the table
+                $extension = strtolower(pathinfo($item->csv_path, PATHINFO_EXTENSION));
                 $hasTableData = !empty($item->tableHeader) && $item->tableData;
-                $isPdf = strtolower($extension) === 'pdf';
+                $isPdf = $extension === 'pdf';
+                $isOfficeDoc = in_array($extension, ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']);
+                $canPreview = $hasTableData || $isPdf || $isOfficeDoc;
                 
                 $pageParam = 'page_' . $item->id;
-                $isExpanded = request()->has($pageParam) ? 'true' : 'false';
+                // ADDED: Check if this item's page parameter or the explicit 'expand' parameter is in the URL
+                $isExpanded = (request()->has($pageParam) || request('expand') == $item->id) ? 'true' : 'false';
+                $fileUrl = asset('storage/' . $item->csv_path);
             @endphp
 
             <div id="item-{{ $item->id }}" x-data="{ expanded: {{ $isExpanded }} }" class="border-b border-gray-100 pb-10 last:border-0">
@@ -60,8 +63,8 @@
                 </div>
 
                 <div class="flex items-center gap-4 mt-4">
-                    {{-- 1. PREVIEW BUTTON --}}
-                    @if($hasTableData || $isPdf)
+                    @if($canPreview)
+                        {{-- PREVIEW BUTTON --}}
                         <button @click="expanded = !expanded" 
                                 class="border border-[#003366] px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#003366] hover:bg-blue-50 transition shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -69,13 +72,13 @@
                                 <path x-show="!expanded" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 <path x-show="expanded" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L3 3m12 12l6.88 6.88" />
                             </svg>
-                            <span x-text="expanded ? 'Hide Preview' : 'Preview Data'"></span>
+                            <span x-text="expanded ? 'Hide Preview' : 'Preview Document'"></span>
                         </button>
                     @endif
 
-                    {{-- 2. DOWNLOAD BUTTON --}}
                     @if($item->csv_path)
-                        <a href="{{ asset('storage/' . $item->csv_path) }}" download
+                        {{-- DOWNLOAD BUTTON --}}
+                        <a href="{{ $fileUrl }}" download
                            class="bg-gray-800 border border-gray-800 px-6 py-2 text-xs font-bold uppercase tracking-widest text-white hover:bg-black transition shadow-sm flex items-center gap-2">
                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -113,11 +116,19 @@
                             </table>
                         </div>
                         <div class="p-4 border-t border-gray-100 bg-gray-50">
-                            {{ $item->tableData->appends(request()->except('page_' . $item->id))->fragment('item-' . $item->id)->links() }}
+                            {{-- ADDED: Append all current query params and an explicit 'expand' state to the pagination links --}}
+                            {{ $item->tableData->appends(array_merge(request()->query(), ['expand' => $item->id]))->fragment('item-' . $item->id)->links() }}
                         </div>
                     @elseif($isPdf)
-                        <div class="w-full h-[700px] rounded-md overflow-hidden">
-                            <iframe src="{{ asset('storage/' . $item->csv_path) }}#toolbar=0" class="w-full h-full border-0"></iframe>
+                        <div class="w-full h-[700px] rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                            <iframe src="{{ $fileUrl }}#toolbar=0" class="w-full h-full border-0"></iframe>
+                        </div>
+                    @elseif($isOfficeDoc)
+                        <div class="w-full h-[700px] rounded-md overflow-hidden bg-gray-100 flex flex-col">
+                            <div class="bg-yellow-50 text-yellow-800 text-xs p-3 border-b border-yellow-200">
+                                <strong>Note:</strong> Document preview requires a public internet connection. If you are developing locally, download the file instead.
+                            </div>
+                            <iframe src="https://view.officeapps.live.com/op/embed.aspx?src={{ urlencode(url($fileUrl)) }}" class="w-full h-full border-0"></iframe>
                         </div>
                     @endif
                 </div>
@@ -133,12 +144,16 @@
     <div x-show="activeTab === 'private'" x-cloak class="space-y-12">
         @forelse($privateContents as $item)
             @php
-                $extension = pathinfo($item->csv_path, PATHINFO_EXTENSION);
+                $extension = strtolower(pathinfo($item->csv_path, PATHINFO_EXTENSION));
                 $hasTableData = !empty($item->tableHeader) && $item->tableData;
-                $isPdf = strtolower($extension) === 'pdf';
+                $isPdf = $extension === 'pdf';
+                $isOfficeDoc = in_array($extension, ['doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx']);
+                $canPreview = $hasTableData || $isPdf || $isOfficeDoc;
                 
                 $pageParam = 'page_' . $item->id;
-                $isExpanded = request()->has($pageParam) ? 'true' : 'false';
+                // ADDED: Check if this item's page parameter or the explicit 'expand' parameter is in the URL
+                $isExpanded = (request()->has($pageParam) || request('expand') == $item->id) ? 'true' : 'false';
+                $fileUrl = asset('storage/' . $item->csv_path);
             @endphp
 
             <div id="item-{{ $item->id }}" x-data="{ expanded: {{ $isExpanded }} }" class="border-b border-gray-100 pb-10 last:border-0">
@@ -151,7 +166,7 @@
                 </div>
 
                 <div class="flex items-center gap-4 mt-4">
-                    @if($hasTableData || $isPdf)
+                    @if($canPreview)
                         <button @click="expanded = !expanded" 
                                 class="border border-[#003366] px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#003366] hover:bg-blue-50 transition shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,12 +174,12 @@
                                 <path x-show="!expanded" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 <path x-show="expanded" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88L3 3m12 12l6.88 6.88" />
                             </svg>
-                            <span x-text="expanded ? 'Hide Preview' : 'Preview Data'"></span>
+                            <span x-text="expanded ? 'Hide Preview' : 'Preview Document'"></span>
                         </button>
                     @endif
 
                     @if($item->csv_path)
-                        <a href="{{ asset('storage/' . $item->csv_path) }}" download
+                        <a href="{{ $fileUrl }}" download
                            class="bg-gray-800 border border-gray-800 px-6 py-2 text-xs font-bold uppercase tracking-widest text-white hover:bg-black transition shadow-sm flex items-center gap-2">
                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -201,11 +216,19 @@
                             </table>
                         </div>
                         <div class="p-4 border-t border-gray-100 bg-gray-50">
-                            {{ $item->tableData->appends(request()->except('page_' . $item->id))->fragment('item-' . $item->id)->links() }}
+                            {{-- ADDED: Append all current query params and an explicit 'expand' state to the pagination links --}}
+                            {{ $item->tableData->appends(array_merge(request()->query(), ['expand' => $item->id]))->fragment('item-' . $item->id)->links() }}
                         </div>
                     @elseif($isPdf)
-                        <div class="w-full h-[700px] rounded-md overflow-hidden">
-                            <iframe src="{{ asset('storage/' . $item->csv_path) }}#toolbar=0" class="w-full h-full border-0"></iframe>
+                        <div class="w-full h-[700px] rounded-md overflow-hidden bg-gray-100 flex items-center justify-center">
+                            <iframe src="{{ $fileUrl }}#toolbar=0" class="w-full h-full border-0"></iframe>
+                        </div>
+                    @elseif($isOfficeDoc)
+                        <div class="w-full h-[700px] rounded-md overflow-hidden bg-gray-100 flex flex-col">
+                            <div class="bg-yellow-50 text-yellow-800 text-xs p-3 border-b border-yellow-200">
+                                <strong>Note:</strong> Document preview requires a public internet connection. If you are developing locally, download the file instead.
+                            </div>
+                            <iframe src="https://view.officeapps.live.com/op/embed.aspx?src={{ urlencode(url($fileUrl)) }}" class="w-full h-full border-0"></iframe>
                         </div>
                     @endif
                 </div>
