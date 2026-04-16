@@ -15,14 +15,13 @@
     editUrl: '',
     deleteUrl: '',
     deleteTitle: '',
-    formData: { title: '', content: '', school_type: 'public' },
+    formData: { title: '', content: '' },
     openEdit(content, url) {
         this.editMode = true;
         this.editItem = content;
         this.editUrl = url;
         this.formData.title = content.title;
         this.formData.content = content.content || '';
-        this.formData.school_type = content.school_type || 'public';
         this.uploadModal = true;
     },
     openCreate() {
@@ -31,7 +30,6 @@
         this.editUrl = '';
         this.formData.title = '';
         this.formData.content = '';
-        this.formData.school_type = 'public';
         this.uploadModal = true;
     },
     openDelete(url, title) {
@@ -73,7 +71,6 @@
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
                         <th class="p-4 border-b">Title</th>
-                        <th class="p-4 border-b">Type</th>
                         <th class="p-4 border-b">Description</th>
                         <th class="p-4 border-b">Document</th>
                         <th class="p-4 border-b text-right">Actions</th>
@@ -83,13 +80,6 @@
                     @forelse($contents as $content)
                     <tr class="hover:bg-gray-50 transition-colors">
                         <td class="p-4 font-bold text-gray-900 align-middle">{{ $content->title }}</td>
-                        <td class="p-4 align-middle">
-                            @if($content->school_type == 'public')
-                                <span class="bg-green-100 text-green-800 text-xs font-bold px-2.5 py-1 rounded-md border border-green-200">Public</span>
-                            @else
-                                <span class="bg-yellow-100 text-yellow-800 text-xs font-bold px-2.5 py-1 rounded-md border border-yellow-200">Private</span>
-                            @endif
-                        </td>
                         <td class="p-4 text-sm text-gray-600 max-w-xs align-middle">
                             <div x-data="{ expanded: false }">
                                 <p class="cursor-pointer hover:text-gray-900 transition-colors whitespace-normal break-words"
@@ -130,7 +120,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="p-10 text-center text-gray-500 italic">No content available yet.</td>
+                        <td colspan="4" class="p-10 text-center text-gray-500 italic">No content available yet.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -153,20 +143,12 @@
                 <div class="p-6 space-y-5">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" x-model="formData.title" placeholder="e.g. List of Schools" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                    </div>
-
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">School Classification <span class="text-red-500">*</span></label>
-                        <select name="school_type" x-model="formData.school_type" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
-                            <option value="public">Public School</option>
-                            <option value="private">Private School</option>
-                        </select>
+                        <input type="text" name="title" x-model="formData.title" placeholder="e.g. Master Junior High Curriculum" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
                     </div>
                     
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Description / Content <span class="font-normal text-gray-500 text-xs">(Optional)</span></label>
-                        <textarea name="content" x-model="formData.content" rows="4" placeholder="Briefly describe what this list contains..." class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
+                        <textarea name="content" x-model="formData.content" rows="4" placeholder="Briefly describe what this document contains..." class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
                     </div>
 
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">

@@ -17,7 +17,6 @@ class ElementaryController extends Controller
     public function store(Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
-            'school_type' => 'required|in:public,private', // <-- Added validation for school type
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
@@ -31,7 +30,9 @@ class ElementaryController extends Controller
 
         ElementaryContent::create([
             'title' => $request->title,
-            'school_type' => $request->school_type, // <-- Added saving logic for school type
+            // Pass 'public' to satisfy the strict ENUM database rule. 
+            // (The frontend ignores this now anyway)
+            'school_type' => 'public', 
             'content' => $request->content,
             'csv_path' => $path,
         ]);
@@ -42,7 +43,6 @@ class ElementaryController extends Controller
     public function update(Request $request, $id) {
         $request->validate([
             'title' => 'required|string|max:255',
-            'school_type' => 'required|in:public,private', // <-- Added validation for school type
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
@@ -59,7 +59,7 @@ class ElementaryController extends Controller
         }
 
         $elementary->title = $request->title;
-        $elementary->school_type = $request->school_type; // <-- Added updating logic for school type
+        $elementary->school_type = 'public'; // Keeps the database happy during updates
         $elementary->content = $request->content;
         $elementary->save();
 

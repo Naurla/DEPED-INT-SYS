@@ -17,7 +17,6 @@ class SeniorHighController extends Controller
     public function store(Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
-            'school_type' => 'required|in:public,private', // <-- Added validation
             'content' => 'nullable|string',
             // UPDATED: Added support for PDF, Word, and Excel
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
@@ -32,7 +31,8 @@ class SeniorHighController extends Controller
 
         SeniorHighContent::create([
             'title' => $request->title,
-            'school_type' => $request->school_type, // <-- Added saving logic
+            // Hardcoding 'public' to satisfy the strict ENUM rule in the database
+            'school_type' => 'public', 
             'content' => $request->content,
             'csv_path' => $path,
         ]);
@@ -43,7 +43,6 @@ class SeniorHighController extends Controller
     public function update(Request $request, $id) {
         $request->validate([
             'title' => 'required|string|max:255',
-            'school_type' => 'required|in:public,private', // <-- Added validation
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
@@ -60,7 +59,8 @@ class SeniorHighController extends Controller
         }
 
         $seniorHigh->title = $request->title;
-        $seniorHigh->school_type = $request->school_type; // <-- Added updating logic
+        // Keep the database happy during updates
+        $seniorHigh->school_type = 'public'; 
         $seniorHigh->content = $request->content;
         $seniorHigh->save();
 
