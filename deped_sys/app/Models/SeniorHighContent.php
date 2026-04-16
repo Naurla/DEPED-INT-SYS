@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class SeniorHighContent extends Model
 {
-    protected $fillable = ['title', 'content', 'csv_path'];
+    protected $fillable = ['title', 'content', 'csv_path', 'school_type'];
 }

@@ -17,6 +17,7 @@ class JuniorHighController extends Controller
     public function store(Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
+            'school_type' => 'required|in:public,private', // <-- Added validation
             'content' => 'nullable|string',
             // Added support for PDF, Word, and Excel
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
@@ -25,13 +26,14 @@ class JuniorHighController extends Controller
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName(); // Added time() to prevent overwriting
             // Storing in a clean directory
             $path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
 
         JuniorHighContent::create([
             'title' => $request->title,
+            'school_type' => $request->school_type, // <-- Added saving logic
             'content' => $request->content,
             'csv_path' => $path,
         ]);
@@ -42,6 +44,7 @@ class JuniorHighController extends Controller
     public function update(Request $request, $id) {
         $request->validate([
             'title' => 'required|string|max:255',
+            'school_type' => 'required|in:public,private', // <-- Added validation
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
@@ -54,11 +57,12 @@ class JuniorHighController extends Controller
                 Storage::disk('public')->delete($juniorHigh->csv_path);
             }
             $file = $request->file('csv_file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName(); // Added time()
             $juniorHigh->csv_path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
 
         $juniorHigh->title = $request->title;
+        $juniorHigh->school_type = $request->school_type; // <-- Added updating logic
         $juniorHigh->content = $request->content;
         $juniorHigh->save();
 

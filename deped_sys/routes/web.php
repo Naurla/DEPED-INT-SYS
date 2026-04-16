@@ -6,8 +6,8 @@ use App\Http\Controllers\AdvisoryController;
 use App\Http\Controllers\BannerController;
 use App\Http\Controllers\IssuanceController;
 use App\Http\Controllers\Admin\UserController; 
-use App\Http\Controllers\Admin\RoleController; // <-- Added RoleController Import
-use App\Http\Controllers\Admin\ProfileController; // <-- Added ProfileController Import
+use App\Http\Controllers\Admin\RoleController; 
+use App\Http\Controllers\Admin\ProfileController; 
 use App\Http\Controllers\Admin\ProcurementController;
 use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
@@ -28,9 +28,11 @@ use App\Http\Controllers\Admin\LearningMaterialsController as AdminLearningMater
 use App\Http\Controllers\Frontend\ModulesController as FrontendModulesController;
 use App\Http\Controllers\Admin\ModulesController as AdminModulesController;
 
-// Junior & Senior High Controllers
+// --- ELEMENTARY, JUNIOR & SENIOR HIGH CONTROLLERS (UPDATED) ---
+use App\Http\Controllers\Admin\ElementaryController;
 use App\Http\Controllers\Admin\JuniorHighController;
 use App\Http\Controllers\Admin\SeniorHighController;
+use App\Http\Controllers\Frontend\ElementaryFrontendController;
 use App\Http\Controllers\Frontend\JuniorHighFrontendController;
 use App\Http\Controllers\Frontend\SeniorHighFrontendController;
 
@@ -221,10 +223,13 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
         Route::get('/modules/{id}', [FrontendModulesController::class, 'show'])->name('modules.show');
     });
 
+    // --- ADDED ELEMENTARY ROUTE ---
+    Route::get('/elementary', [ElementaryFrontendController::class, 'index'])->name('elementary');
+
     // Junior High Route
     Route::get('/junior-high', [JuniorHighFrontendController::class, 'index'])->name('junior-high');
     
-    // UPDATED SENIOR HIGH ROUTE
+    // Senior High Route
     Route::get('/senior-high', [SeniorHighFrontendController::class, 'index'])->name('senior-high');
 });
 
@@ -367,6 +372,12 @@ Route::middleware(['auth'])->group(function () {
             Route::post('/guides', [AdminCurriculumController::class, 'storeGuide'])->name('guides.store');
             Route::put('/guides/{guide}', [AdminCurriculumController::class, 'updateGuide'])->name('guides.update');
             Route::delete('/guides/{guide}', [AdminCurriculumController::class, 'destroyGuide'])->name('guides.destroy');
+
+            // --- ADDED ELEMENTARY MANAGEMENT ROUTE ---
+            Route::resource('elementary-management', ElementaryController::class)
+                ->names('elementary')
+                ->parameters(['elementary-management' => 'elementary'])
+                ->except(['create', 'show', 'edit']);
 
             // JUNIOR HIGH MANAGEMENT ROUTES
             Route::resource('junior-high-management', JuniorHighController::class)

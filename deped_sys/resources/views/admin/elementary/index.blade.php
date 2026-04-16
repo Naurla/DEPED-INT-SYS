@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Senior High School Content')
+@section('page_title', 'Elementary School Content')
 
 @section('content')
 <style>
@@ -42,7 +42,7 @@
 }">
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Senior High School Management</h1>
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Elementary School Management</h1>
             <p class="text-sm text-gray-500 mt-1">Manage curriculum titles, descriptions, and supporting documents.</p>
         </div>
         <button @click="openCreate()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors text-sm uppercase tracking-wider">
@@ -123,8 +123,8 @@
                         </td>
                         <td class="p-4 align-middle">
                             <div class="flex justify-end gap-3 items-center">
-                                <button @click="openEdit({{ collect($content)->toJson() }}, '{{ route('admin.curriculum.senior_high.update', $content->id) }}')" class="text-blue-600 font-bold uppercase text-xs hover:underline">Edit</button>
-                                <button @click="openDelete('{{ route('admin.curriculum.senior_high.destroy', $content->id) }}', '{{ addslashes($content->title) }}')" class="text-red-600 font-bold uppercase text-xs hover:underline">Delete</button>
+                                <button @click="openEdit({{ collect($content)->toJson() }}, '{{ route('admin.curriculum.elementary.update', $content->id) }}')" class="text-blue-600 font-bold uppercase text-xs hover:underline">Edit</button>
+                                <button @click="openDelete('{{ route('admin.curriculum.elementary.destroy', $content->id) }}', '{{ addslashes($content->title) }}')" class="text-red-600 font-bold uppercase text-xs hover:underline">Delete</button>
                             </div>
                         </td>
                     </tr>
@@ -146,14 +146,14 @@
                 <button type="button" @click="uploadModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
             </div>
             
-            <form :action="editMode ? editUrl : '{{ route('admin.curriculum.senior_high.store') }}'" method="POST" enctype="multipart/form-data">
+            <form :action="editMode ? editUrl : '{{ route('admin.curriculum.elementary.store') }}'" method="POST" enctype="multipart/form-data">
                 @csrf
                 <template x-if="editMode"><input type="hidden" name="_method" value="PUT"></template>
 
                 <div class="p-6 space-y-5">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" x-model="formData.title" placeholder="e.g. List of Schools" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                        <input type="text" name="title" x-model="formData.title" placeholder="e.g. List of Elementary Schools" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
                     </div>
 
                     <div>
@@ -166,7 +166,7 @@
                     
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Description / Content <span class="font-normal text-gray-500 text-xs">(Optional)</span></label>
-                        <textarea name="content" x-model="formData.content" rows="4" placeholder="Briefly describe what this list contains..." class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
+                        <textarea name="content" x-model="formData.content" rows="4" placeholder="Briefly describe what this document contains..." class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
                     </div>
 
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
@@ -216,6 +216,5 @@
             </div>
         </div>
     </div>
-
 </div>
 @endsection

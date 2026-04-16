@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class JuniorHighContent extends Model
+class ElementaryContent extends Model
 {
     protected $fillable = ['title', 'content', 'csv_path', 'school_type'];
 }

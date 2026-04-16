@@ -17,6 +17,7 @@ class SeniorHighController extends Controller
     public function store(Request $request) {
         $request->validate([
             'title' => 'required|string|max:255',
+            'school_type' => 'required|in:public,private', // <-- Added validation
             'content' => 'nullable|string',
             // UPDATED: Added support for PDF, Word, and Excel
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
@@ -25,12 +26,13 @@ class SeniorHighController extends Controller
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName(); // Added time()
             $path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
 
         SeniorHighContent::create([
             'title' => $request->title,
+            'school_type' => $request->school_type, // <-- Added saving logic
             'content' => $request->content,
             'csv_path' => $path,
         ]);
@@ -41,6 +43,7 @@ class SeniorHighController extends Controller
     public function update(Request $request, $id) {
         $request->validate([
             'title' => 'required|string|max:255',
+            'school_type' => 'required|in:public,private', // <-- Added validation
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
         ]);
@@ -52,11 +55,12 @@ class SeniorHighController extends Controller
                 Storage::disk('public')->delete($seniorHigh->csv_path);
             }
             $file = $request->file('csv_file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName(); // Added time()
             $seniorHigh->csv_path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
 
         $seniorHigh->title = $request->title;
+        $seniorHigh->school_type = $request->school_type; // <-- Added updating logic
         $seniorHigh->content = $request->content;
         $seniorHigh->save();
 

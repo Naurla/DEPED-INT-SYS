@@ -13,51 +13,59 @@
     </div>
 </div>
 
-{{-- Main Container --}}
-<div class="container mx-auto px-4 md:px-20 max-w-10xl py-12 w-full min-h-screen">
+{{-- Main Container with Alpine.js Tab State --}}
+<div class="container mx-auto px-4 md:px-20 max-w-10xl py-12 w-full min-h-screen"
+     x-data="{ activeTab: new URLSearchParams(window.location.search).get('tab') === 'private' ? 'private' : 'public' }">
     
-    <div class="mb-12 text-left w-full break-words">
+    <div class="mb-8 text-left w-full break-words">
         <h1 class="text-3xl font-bold text-gray-900 tracking-tight uppercase">
             Senior High School Curriculum
         </h1>
     </div>
 
-    <div class="space-y-12">
-        @forelse($contents as $item)
+    {{-- Tabs Navigation --}}
+    <div class="flex border-b border-gray-200 mb-8 overflow-x-auto hide-scroll">
+        <button @click="activeTab = 'public'; window.history.replaceState(null, null, '?tab=public')"
+                :class="activeTab === 'public' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                class="py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
+            Public Schools
+        </button>
+        <button @click="activeTab = 'private'; window.history.replaceState(null, null, '?tab=private')"
+                :class="activeTab === 'private' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'"
+                class="py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
+            Private Schools
+        </button>
+    </div>
+
+    {{-- ================= PUBLIC SCHOOLS TAB ================= --}}
+    <div x-show="activeTab === 'public'" class="space-y-12">
+        @forelse($publicContents as $item)
             @php
                 $extension = pathinfo($item->csv_path, PATHINFO_EXTENSION);
                 $isCsv = strtolower($extension) === 'csv';
                 $isWord = in_array(strtolower($extension), ['doc', 'docx']);
                 $isPdf = strtolower($extension) === 'pdf';
                 
-                // Check if the current URL has a pagination parameter for this specific table
                 $pageParam = 'page_' . $item->id;
                 $isExpanded = request()->has($pageParam) ? 'true' : 'false';
             @endphp
 
-            {{-- Added dynamic ID and initialized 'expanded' based on the URL parameter --}}
             <div id="item-{{ $item->id }}" x-data="{ expanded: {{ $isExpanded }} }" class="border-b border-gray-100 pb-10 last:border-0">
-                
-                {{-- Date and Title Heading --}}
                 <h2 class="text-xl font-bold text-gray-900 uppercase tracking-tight mb-2">
                     {{ $item->created_at->format('F d, Y') }} - {{ $item->title }}
                 </h2>
                 
-                {{-- Description Preview --}}
                 <div class="text-[15px] text-gray-600 mb-6 max-w-4xl leading-relaxed">
                     {{ Str::limit($item->content, 250) }}
                 </div>
 
-                {{-- Action Row --}}
                 <div class="flex items-center gap-6">
                     @if($isCsv && !empty($item->tableHeader))
-                        {{-- Read More Button for CSV Tables --}}
                         <button @click="expanded = !expanded" 
                                 class="border border-gray-300 px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition shadow-sm">
                             <span x-text="expanded ? 'Hide Content' : 'Read More'"></span>
                         </button>
                     @elseif($item->csv_path)
-                        {{-- View Document Button (Opens in New Tab) --}}
                         <a href="{{ asset('storage/' . $item->csv_path) }}" target="_blank" rel="noopener noreferrer"
                            class="border border-gray-300 px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition shadow-sm flex items-center gap-2">
                             @if($isPdf) <span class="text-red-600">VIEW PDF</span> 
@@ -71,7 +79,6 @@
                     </span>
                 </div>
 
-                {{-- Collapsible Table Section (Only if file is CSV) --}}
                 @if($isCsv && !empty($item->tableHeader))
                     <div x-show="expanded" x-collapse x-cloak class="mt-8">
                         <div class="overflow-x-auto rounded border border-gray-200 shadow-sm">
@@ -98,9 +105,7 @@
                                 </tbody>
                             </table>
                         </div>
-                        {{-- CSV Table Pagination --}}
                         <div class="mt-4">
-                            {{-- Added ->fragment() to automatically scroll down to this item --}}
                             {{ $item->tableData->appends(request()->except('page_' . $item->id))->fragment('item-' . $item->id)->links() }}
                         </div>
                     </div>
@@ -108,7 +113,88 @@
             </div>
         @empty
             <div class="text-gray-500 text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                No curriculum data available yet for Senior High School.
+                No public school curriculum data available yet for Senior High School.
+            </div>
+        @endforelse
+    </div>
+
+    {{-- ================= PRIVATE SCHOOLS TAB ================= --}}
+    <div x-show="activeTab === 'private'" x-cloak class="space-y-12">
+        @forelse($privateContents as $item)
+            @php
+                $extension = pathinfo($item->csv_path, PATHINFO_EXTENSION);
+                $isCsv = strtolower($extension) === 'csv';
+                $isWord = in_array(strtolower($extension), ['doc', 'docx']);
+                $isPdf = strtolower($extension) === 'pdf';
+                
+                $pageParam = 'page_' . $item->id;
+                $isExpanded = request()->has($pageParam) ? 'true' : 'false';
+            @endphp
+
+            <div id="item-{{ $item->id }}" x-data="{ expanded: {{ $isExpanded }} }" class="border-b border-gray-100 pb-10 last:border-0">
+                <h2 class="text-xl font-bold text-gray-900 uppercase tracking-tight mb-2">
+                    {{ $item->created_at->format('F d, Y') }} - {{ $item->title }}
+                </h2>
+                
+                <div class="text-[15px] text-gray-600 mb-6 max-w-4xl leading-relaxed">
+                    {{ Str::limit($item->content, 250) }}
+                </div>
+
+                <div class="flex items-center gap-6">
+                    @if($isCsv && !empty($item->tableHeader))
+                        <button @click="expanded = !expanded" 
+                                class="border border-gray-300 px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition shadow-sm">
+                            <span x-text="expanded ? 'Hide Content' : 'Read More'"></span>
+                        </button>
+                    @elseif($item->csv_path)
+                        <a href="{{ asset('storage/' . $item->csv_path) }}" target="_blank" rel="noopener noreferrer"
+                           class="border border-gray-300 px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition shadow-sm flex items-center gap-2">
+                            @if($isPdf) <span class="text-red-600">VIEW PDF</span> 
+                            @elseif($isWord) <span class="text-blue-600">VIEW WORD DOC</span> 
+                            @else VIEW DOCUMENT @endif
+                        </a>
+                    @endif
+
+                    <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
+                        Posted: {{ $item->created_at->format('M d, Y') }}
+                    </span>
+                </div>
+
+                @if($isCsv && !empty($item->tableHeader))
+                    <div x-show="expanded" x-collapse x-cloak class="mt-8">
+                        <div class="overflow-x-auto rounded border border-gray-200 shadow-sm">
+                            <table class="min-w-full border-collapse text-sm text-left">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        @foreach($item->tableHeader as $header)
+                                            <th class="border-b border-r border-gray-200 px-5 py-4 text-gray-800 font-bold uppercase tracking-widest text-[11px] last:border-r-0">
+                                                {{ $header }}
+                                            </th>
+                                        @endforeach
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white">
+                                    @foreach($item->tableData as $row)
+                                        <tr class="hover:bg-gray-50 transition-colors">
+                                            @foreach($row as $cell)
+                                                <td class="border-b border-r border-gray-100 px-5 py-3 text-[14px] text-gray-700 last:border-r-0">
+                                                    {{ $cell }}
+                                                </td>
+                                            @endforeach
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="mt-4">
+                            {{ $item->tableData->appends(request()->except('page_' . $item->id))->fragment('item-' . $item->id)->links() }}
+                        </div>
+                    </div>
+                @endif
+            </div>
+        @empty
+            <div class="text-gray-500 text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+                No private school curriculum data available yet for Senior High School.
             </div>
         @endforelse
     </div>

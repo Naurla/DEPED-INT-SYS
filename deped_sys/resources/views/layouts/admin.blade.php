@@ -73,6 +73,7 @@
                       { route: 'k12.about.curriculum', label: 'K-12 Basic Ed. Curriculum' },
                       { route: 'k12.about.faq', label: 'K-12 FAQ' },
                       { route: 'learning_materials.index', label: 'Learning Materials' },
+                      { route: 'k12.elementary', label: 'Elementary School' },
                       { route: 'k12.junior-high', label: 'Junior High School' },
                       { route: 'k12.senior-high', label: 'Senior High School' }
                   ]
@@ -421,6 +422,10 @@
                             @endif
                         </div>
                     </div>
+                    @endif
+
+                    @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('elementary'))
+                    <a href="{{ route('admin.curriculum.elementary.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.elementary.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Elementary School</a>
                     @endif
 
                     @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('junior_high'))
