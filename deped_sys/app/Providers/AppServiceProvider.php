@@ -66,11 +66,29 @@ class AppServiceProvider extends ServiceProvider
                 });
             }
 
+            // --- FETCH RECENT ISSUANCES FOR FOOTER ---
+            $globalRecentAdvisories = collect();
+            $globalRecentMemoranda = collect();
+
+            if (\Illuminate\Support\Facades\Schema::hasTable('issuances')) {
+                $globalRecentAdvisories = Issuance::where('type', 'advisory')
+                                            ->latest('created_at')
+                                            ->take(3)
+                                            ->get();
+
+                $globalRecentMemoranda = Issuance::where('type', 'memorandum')
+                                            ->latest('created_at')
+                                            ->take(3)
+                                            ->get();
+            }
+
             // Share variables with all views
             $view->with('site_settings', $site_settings)
                  ->with('site_logos', $site_logos)
                  ->with('navPages', $navPages)
-                 ->with('categorizedPages', $categorizedPages); 
+                 ->with('categorizedPages', $categorizedPages)
+                 ->with('globalRecentAdvisories', $globalRecentAdvisories)
+                 ->with('globalRecentMemoranda', $globalRecentMemoranda); 
         });
     }
 }
