@@ -12,84 +12,131 @@ class ElementaryFrontendController extends Controller
 {
     public function index(Request $request)
     {
-        $publicContents = ElementaryContent::where('school_type', 'public')
-                            ->latest()
-                            ->get()
-                            ->map(fn($item) => $this->parseSpreadsheetData($item, 'ES'));
+        // Get filters from URL
+        $tab = $request->query('tab', 'public');
+        $districtFilter = $request->query('district');
+        $search = $request->query('search'); // Capture search input
 
-        $privateContents = ElementaryContent::where('school_type', 'private')
-                            ->latest()
-                            ->get()
-                            ->map(fn($item) => $this->parseSpreadsheetData($item, 'ES'));
-        
-        return view('frontend.elementary.index', compact('publicContents', 'privateContents'));
+        // Fetch ALL uploaded files and parse them (no DB where clause, so we can search inside the CSV)
+        $allContents = ElementaryContent::latest()->get()->map(function($item) use ($tab, $districtFilter, $search) {
+            return $this->parseSpreadsheetData($item, 'ES', $tab, $districtFilter, $search);
+        });
+
+        // Extract all unique districts found in the spreadsheets to populate the dropdown
+        $districts = [];
+        foreach ($allContents as $item) {
+            if (!empty($item->availableDistricts)) {
+                $districts = array_merge($districts, $item->availableDistricts);
+            }
+        }
+        $districts = array_unique($districts);
+        sort($districts);
+
+        // Filter out files that don't match the search or the district
+        $contents = $allContents->filter(function($item) use ($search, $districtFilter) {
+            $hasTableRows = $item->tableData && $item->tableData->total() > 0;
+            
+            if (!empty($search)) {
+                // Match if search is in Title, Content, OR inside the actual spreadsheet rows
+                $inTitleOrContent = (stripos($item->title, $search) !== false) || (stripos($item->content, $search) !== false);
+                return $inTitleOrContent || $hasTableRows;
+            }
+
+            if (!empty($districtFilter)) {
+                // Match if district filter has rows
+                return $hasTableRows;
+            }
+
+            // Show all files if no search or district filter is applied
+            // (Files without tables like PDFs will still show)
+            return true;
+        });
+
+        return view('frontend.elementary.index', compact('contents', 'tab', 'districts', 'districtFilter', 'search'));
     }
 
-    private function parseSpreadsheetData($item, $levelKeyword)
+    private function parseSpreadsheetData($item, $levelKeyword, $activeTab, $districtFilter, $search)
     {
         $filteredRows = []; 
         $header = [];
+        $availableDistricts = [];
         $item->tableData = null;
         $item->tableHeader = [];
+        $item->availableDistricts = [];
 
         if ($item->csv_path) {
             $extension = strtolower(pathinfo($item->csv_path, PATHINFO_EXTENSION));
             
-            // Support CSV and Excel files
             if (in_array($extension, ['csv', 'xls', 'xlsx']) && Storage::disk('public')->exists($item->csv_path)) {
                 $path = Storage::disk('public')->path($item->csv_path);
                 
                 try {
-                    // Load the file (handles both CSV and Excel automatically)
                     $spreadsheet = IOFactory::load($path);
                     $worksheet = $spreadsheet->getActiveSheet();
-                    $allData = $worksheet->toArray(); // Convert spreadsheet to array
+                    $allData = $worksheet->toArray();
 
                     $headerFound = false;
-                    $expectedSector = strtolower($item->school_type); 
-                    $allRowsFallback = [];
-                    $fallbackHeader = [];
+                    $districtColIdx = -1;
+                    $sectorColIdx = 4; // Default index if not found dynamically
+                    $classColIdx = 6;  // Default classification index
                     
-                    $rowIndex = 0;
                     foreach ($allData as $line) {
-                        // Skip completely empty rows
                         if (!$line || empty(array_filter($line))) continue;
-
-                        if ($rowIndex === 0) {
-                            $fallbackHeader = $line;
-                        } else {
-                            $allRowsFallback[] = $line;
-                        }
-                        $rowIndex++;
 
                         if (!$headerFound) {
                             $col0 = isset($line[0]) ? trim($line[0]) : '';
                             $col1 = isset($line[1]) ? trim($line[1]) : '';
+                            
+                            // Detect Header Row
                             if (stripos($col0, 'District') !== false || stripos($col1, 'beis_school_id') !== false) {
                                 $header = $line;
                                 $headerFound = true;
+                                
+                                // Dynamically find column indexes based on header names
+                                foreach ($line as $idx => $colName) {
+                                    $name = strtolower(trim($colName));
+                                    if (stripos($name, 'district') !== false) $districtColIdx = $idx;
+                                    if (stripos($name, 'sector') !== false) $sectorColIdx = $idx;
+                                }
                             }
                             continue;
                         }
 
+                        // Process Data Rows
                         if (count($line) >= 7) {
-                            $sector = strtolower(trim($line[4])); 
-                            $classification = strtoupper(trim($line[6])); 
-                            $matchesLevel = str_contains($classification, $levelKeyword) || str_contains($classification, 'ALL OFFERING');
+                            $sector = isset($line[$sectorColIdx]) ? strtolower(trim($line[$sectorColIdx])) : '';
+                            $district = ($districtColIdx !== -1 && isset($line[$districtColIdx])) ? trim($line[$districtColIdx]) : '';
+                            $classification = strtoupper(trim($line[$classColIdx])); 
 
-                            if ($sector === $expectedSector && $matchesLevel) {
+                            // Collect district for the dropdown
+                            if (!empty($district)) {
+                                $availableDistricts[$district] = true;
+                            }
+
+                            // Filtering Logic
+                            $matchesLevel = str_contains($classification, $levelKeyword) || str_contains($classification, 'ALL OFFERING');
+                            $matchesSector = ($sector === strtolower($activeTab));
+                            $matchesDistrict = empty($districtFilter) || (stripos($district, $districtFilter) !== false);
+
+                            // SEARCH LOGIC INSIDE THE ROW
+                            $matchesSearch = true;
+                            if (!empty($search)) {
+                                // Combine all columns in the row into one string to search across all cell data
+                                $rowString = implode(' ', array_map('trim', $line));
+                                if (stripos($rowString, $search) === false) {
+                                    $matchesSearch = false;
+                                }
+                            }
+
+                            if ($matchesSector && $matchesLevel && $matchesDistrict && $matchesSearch) {
                                 $filteredRows[] = $line;
                             }
                         }
                     }
                     
-                    // Fallback if strict filter found nothing
-                    if (empty($filteredRows) || empty($header)) {
-                        $filteredRows = $allRowsFallback;
-                        $header = $fallbackHeader;
-                    }
+                    $item->availableDistricts = array_keys($availableDistricts);
                     
-                    // Paginate
+                    // Paginate the filtered results
                     if (!empty($filteredRows) && !empty($header)) {
                         $perPage = 10;
                         $currentPage = LengthAwarePaginator::resolveCurrentPage('page_' . $item->id); 
@@ -103,7 +150,7 @@ class ElementaryFrontendController extends Controller
                     }
 
                 } catch (\Exception $e) {
-                    // If parsing fails, it fails silently and will just show the download button
+                    // Silently fail on parse error
                 }
             }
         }
