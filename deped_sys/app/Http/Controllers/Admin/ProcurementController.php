@@ -42,8 +42,9 @@ class ProcurementController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
-            'jpeg_file' => 'required_without:pdf_file|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
-            'pdf_file' => 'required_without:jpeg_file|mimes:pdf|max:10240',
+            'jpeg_file' => 'required_without_all:pdf_file,excel_file|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
+            'pdf_file' => 'required_without_all:jpeg_file,excel_file|mimes:pdf|max:10240',
+            'excel_file' => 'required_without_all:jpeg_file,pdf_file|mimes:csv,txt,xls,xlsx|max:10240',
             'date' => 'nullable|date', // Validate date
         ]);
 
@@ -63,11 +64,19 @@ class ProcurementController extends Controller
             $pdfPath = $pdfFile->storeAs($folderPath, $pdfFilename, 'public');
         }
 
+        $excelPath = null;
+        if ($request->hasFile('excel_file')) {
+            $excelFile = $request->file('excel_file');
+            $excelFilename = $excelFile->getClientOriginalName();
+            $excelPath = $excelFile->storeAs($folderPath, $excelFilename, 'public');
+        }
+
         BidOpportunity::create([
             'title' => $request->title,
             'description' => $request->description,
             'jpeg_path' => $jpegPath,
             'pdf_path' => $pdfPath,
+            'excel_path' => $excelPath, // Added the new path
             'category' => $category,
             'date' => $request->date ?: now()->toDateString(), // Fallback to current date if left blank
         ]);
@@ -85,6 +94,7 @@ class ProcurementController extends Controller
             'description' => 'nullable|string', 
             'jpeg_file' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
+            'excel_file' => 'nullable|mimes:csv,txt,xls,xlsx|max:10240',
             'date' => 'nullable|date', // Validate date
         ]);
 
@@ -96,6 +106,7 @@ class ProcurementController extends Controller
             'date' => $request->date ?: now()->toDateString(), // Fallback to current date if left blank
         ];
 
+        // Check removals
         if ($request->input('remove_image') == '1') {
             if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
             $dataToUpdate['jpeg_path'] = null;
@@ -106,6 +117,12 @@ class ProcurementController extends Controller
             $dataToUpdate['pdf_path'] = null;
         }
 
+        if ($request->input('remove_excel') == '1') {
+            if ($opportunity->excel_path) Storage::disk('public')->delete($opportunity->excel_path);
+            $dataToUpdate['excel_path'] = null;
+        }
+
+        // Check new uploads
         if ($request->hasFile('jpeg_file')) {
             if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
             
@@ -122,6 +139,14 @@ class ProcurementController extends Controller
             $dataToUpdate['pdf_path'] = $pdfFile->storeAs($folderPath, $pdfFilename, 'public');
         }
 
+        if ($request->hasFile('excel_file')) {
+            if ($opportunity->excel_path) Storage::disk('public')->delete($opportunity->excel_path);
+            
+            $excelFile = $request->file('excel_file');
+            $excelFilename = $excelFile->getClientOriginalName();
+            $dataToUpdate['excel_path'] = $excelFile->storeAs($folderPath, $excelFilename, 'public');
+        }
+
         $opportunity->update($dataToUpdate);
 
         return redirect()->route('admin.procurement.index', $category)
@@ -134,6 +159,7 @@ class ProcurementController extends Controller
 
         if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
         if ($opportunity->pdf_path) Storage::disk('public')->delete($opportunity->pdf_path);
+        if ($opportunity->excel_path) Storage::disk('public')->delete($opportunity->excel_path);
 
         $opportunity->delete();
 

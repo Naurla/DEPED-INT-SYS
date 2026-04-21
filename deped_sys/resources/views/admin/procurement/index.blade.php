@@ -15,10 +15,12 @@
     deleteItem: null, 
     removeImage: false, 
     removePdf: false,
+    removeExcel: false,
     openEdit(item) {
         this.editItem = item;
         this.removeImage = false;
         this.removePdf = false;
+        this.removeExcel = false;
         this.editModal = true;
     },
     openDelete(item) {
@@ -49,7 +51,7 @@
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Manage {{ $categoryTitle }}</h2>
             <p class="text-gray-500 text-sm mt-1">
                 Provide details and attach the necessary files for {{ strtolower($categoryTitle) }}. 
-                <span class="font-semibold text-red-600">You must upload at least an Image OR a PDF (or both).</span>
+                <span class="font-semibold text-red-600">You must upload at least an Image OR a PDF OR a Spreadsheet.</span>
             </p>
         </div>
         <button @click="addModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors">
@@ -66,6 +68,7 @@
                         <th class="p-4 border-b">Description</th> 
                         <th class="p-4 border-b w-32">Cover Image</th>
                         <th class="p-4 border-b w-32">Document (PDF)</th>
+                        <th class="p-4 border-b w-32">Spreadsheet</th>
                         <th class="p-4 border-b w-32">Date Uploaded</th>
                         <th class="p-4 border-b text-right w-32">Actions</th>
                     </tr>
@@ -96,6 +99,16 @@
                                     <span class="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded">No PDF</span>
                                 @endif
                             </td>
+                            <td class="p-4">
+                                @if($item->excel_path)
+                                    <a href="{{ asset('storage/' . $item->excel_path) }}" target="_blank" title="{{ basename($item->excel_path) }}" class="text-green-600 font-bold hover:text-green-800 hover:underline flex items-center text-sm whitespace-nowrap">
+                                        <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                        <span class="max-w-[150px] truncate">{{ basename($item->excel_path) }}</span>
+                                    </a>
+                                @else
+                                    <span class="text-xs font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded">No File</span>
+                                @endif
+                            </td>
                             <td class="p-4 text-sm text-gray-500 whitespace-nowrap">{{ $item->created_at->format('M d, Y') }}</td>
                             <td class="p-4 flex justify-end gap-3 items-center">
                                 <button @click="openEdit({{ collect($item)->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
@@ -104,7 +117,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="p-6 text-center text-gray-500">No {{ strtolower($categoryTitle) }} uploaded yet.</td>
+                            <td colspan="7" class="p-6 text-center text-gray-500">No {{ strtolower($categoryTitle) }} uploaded yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -118,7 +131,7 @@
 
     {{-- Add Modal --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl" @click.away="addModal = false">
+        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl" @click.away="addModal = false">
             <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white rounded-t-xl">
                 <h3 class="font-bold text-lg">Upload New {{ \Illuminate\Support\Str::singular($categoryTitle) }}</h3>
                 <button type="button" @click="addModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
@@ -140,7 +153,9 @@
                     <label class="block text-gray-700 text-sm font-bold mb-1">Description</label>
                     <textarea name="description" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">{{ old('description') }}</textarea>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+                
+                {{-- Updated to grid-cols-3 to accommodate the new excel upload --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
                     <div class="col-span-full mb-1">
                         <p class="text-sm font-semibold text-gray-700">Attachments <span class="text-xs font-normal text-gray-500">(Please provide at least one)</span></p>
                     </div>
@@ -151,6 +166,10 @@
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">PDF Document (Max 10MB)</label>
                         <input type="file" name="pdf_file" accept=".pdf" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer">
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Spreadsheet (Max 10MB)</label>
+                        <input type="file" name="excel_file" accept=".csv, .xls, .xlsx" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer">
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
@@ -163,7 +182,7 @@
 
     {{-- Edit Modal --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl" @click.away="editModal = false">
+        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl" @click.away="editModal = false">
             <div class="bg-[#a52a2a] px-6 py-4 flex justify-between items-center text-white rounded-t-xl">
                 <h3 class="font-bold text-lg">Edit {{ \Illuminate\Support\Str::singular($categoryTitle) }}</h3>
                 <button type="button" @click="editModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
@@ -172,6 +191,7 @@
                 @csrf @method('PUT')
                 <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
                 <input type="hidden" name="remove_pdf" :value="removePdf ? '1' : '0'">
+                <input type="hidden" name="remove_excel" :value="removeExcel ? '1' : '0'">
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -189,7 +209,7 @@
                     <textarea name="description" x-model="editItem.description" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none"></textarea>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
                     <div>
                         <label class="block text-gray-700 text-sm font-bold mb-1">Replace Image</label>
                         <input type="file" name="jpeg_file" accept="image/*" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer bg-white">
@@ -216,6 +236,22 @@
                                     <span class="text-xs text-red-600 font-bold truncate max-w-[120px]" x-text="editItem.pdf_path.split('/').pop()"></span>
                                 </div>
                                 <button type="button" @click="removePdf = true" class="p-1 text-red-500 hover:bg-red-100 rounded-md transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-1">Replace Spreadsheet</label>
+                        <input type="file" name="excel_file" accept=".csv, .xls, .xlsx" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-green-50 file:text-green-700 hover:file:bg-green-100 cursor-pointer bg-white">
+                        <template x-if="editItem && editItem.excel_path && !removeExcel">
+                            <div class="mt-2 flex items-center justify-between p-2 bg-green-50 border border-green-100 rounded-lg">
+                                <div class="flex items-center gap-3">
+                                    <div class="p-1 bg-white rounded shadow-sm border border-gray-200 text-green-600">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                    </div>
+                                    <span class="text-xs text-green-600 font-bold truncate max-w-[120px]" x-text="editItem.excel_path.split('/').pop()"></span>
+                                </div>
+                                <button type="button" @click="removeExcel = true" class="p-1 text-red-500 hover:bg-red-100 rounded-md transition-colors"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                             </div>
                         </template>
                     </div>

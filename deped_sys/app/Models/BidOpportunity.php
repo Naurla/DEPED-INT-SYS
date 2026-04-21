@@ -15,6 +15,7 @@ class BidOpportunity extends Model
         'description',
         'jpeg_path',
         'pdf_path',
+        'excel_path',
         'category',
         'date', // Added 'date'
     ];
