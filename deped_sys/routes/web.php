@@ -233,6 +233,11 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     Route::get('/senior-high', [SeniorHighFrontendController::class, 'index'])->name('senior-high');
 });
 
+// --- 📍 INTERACTIVE MAP ROUTE (PUBLIC) ---
+Route::get('/schools/map-directory', function () {
+    return view('frontend.schools.map_directory');
+});
+
 // Public Procurement
 Route::prefix('procurement/{category}')->name('procurement.')->group(function () {
     Route::get('/', [BidOpportunityController::class, 'index'])->name('index');
