@@ -129,7 +129,7 @@
                 </div>
                 
                 {{-- Data Container --}}
-                <div id="spreadsheet-data" class="hidden w-full overflow-x-auto text-sm"></div>
+                <div id="spreadsheet-data" class="hidden w-full text-sm"></div>
             </div>
         </div>
 
@@ -164,8 +164,8 @@
         <script>
             // Highly robust Date filter logic
             $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                var filterDateStr = $('#dateFilter').val(); // YYYY-MM-DD format from the input
-                if (!filterDateStr) return true; // Show all if no filter
+                var filterDateStr = $('#dateFilter').val(); 
+                if (!filterDateStr) return true; 
 
                 var parts = filterDateStr.split('-');
                 var fYear = parseInt(parts[0], 10);
@@ -222,84 +222,133 @@
                         const workbook = XLSX.read(ab, { type: 'array' });
                         const worksheet = workbook.Sheets[workbook.SheetNames[0]];
                         
-                        // Extract raw JSON data, but keep formatting intact
+                        // Extract raw JSON data
                         const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "", raw: false });
                         
-                        // FIX 1: Strip out completely empty rows first to clean the data pool
-                        const jsonData = rawData.filter(row => row.some(cell => String(cell).trim() !== ""));
-
                         document.getElementById('spreadsheet-loading').classList.add('hidden');
                         const dataContainer = document.getElementById('spreadsheet-data');
-                        
-                        if (jsonData.length <= 1) {
+
+                        if (rawData.length <= 1) {
                             dataContainer.innerHTML = '<p class="text-gray-500 text-center py-4">No data found in this spreadsheet.</p>';
                             dataContainer.classList.remove('hidden');
                             return;
                         }
 
-                        // Determine the maximum column length to normalize rows
+                        // 1. Determine absolute maximum columns
                         let maxCols = 0;
-                        jsonData.forEach(row => {
+                        rawData.forEach(row => {
                             if (row.length > maxCols) maxCols = row.length;
                         });
 
-                        // FIX 2: STRICT HEADER DETECTION
-                        // Look ONLY at the top 10 rows. The row with the most text is declared the header.
-                        let headerRowIndex = 0;
+                        // 2. Find the MAXIMUM density of the entire file to accurately find the True Header Row
                         let mostFilled = 0;
-                        
-                        let searchLimit = Math.min(jsonData.length, 10);
-                        for (let i = 0; i < searchLimit; i++) {
-                            let filledCount = jsonData[i].filter(cell => String(cell).trim() !== "").length;
+                        for (let i = 0; i < rawData.length; i++) {
+                            let filledCount = rawData[i].filter(cell => String(cell).trim() !== "").length;
                             if (filledCount > mostFilled) {
                                 mostFilled = filledCount;
-                                headerRowIndex = i;
                             }
                         }
 
-                        // 1. Build Header Safely
+                        // The FIRST row that matches the high density is our True Column Header
+                        let headerRowIndex = 0;
+                        for (let i = 0; i < rawData.length; i++) {
+                            let filledCount = rawData[i].filter(cell => String(cell).trim() !== "").length;
+                            // Margin of error included in case the true header is missing a column title
+                            if (filledCount >= mostFilled - 1 && filledCount > 0) {
+                                headerRowIndex = i;
+                                break;
+                            }
+                        }
+
+                        // 3. Extract Document Titles (Rows ABOVE the True Header)
+                        // This prevents them from showing up inside the table body!
+                        let titleHTML = '';
+                        let hasTitles = false;
+                        titleHTML += '<div class="mb-8 text-center bg-gray-50 p-6 rounded-lg border border-gray-200 shadow-sm">';
+                        for (let i = 0; i < headerRowIndex; i++) {
+                            const row = rawData[i] || [];
+                            let rowText = row.map(cell => String(cell).trim()).filter(text => text !== "").join(" | ");
+                            if (rowText !== "") {
+                                hasTitles = true;
+                                if (i === 0) {
+                                    titleHTML += `<h2 class="font-bold text-gray-800 uppercase tracking-widest text-lg mb-2">${rowText}</h2>`;
+                                } else {
+                                    titleHTML += `<p class="font-semibold text-gray-600 uppercase tracking-wide text-sm mb-1">${rowText}</p>`;
+                                }
+                            }
+                        }
+                        titleHTML += '</div>';
+                        if (!hasTitles) titleHTML = '';
+
+                        // 4. Build Real Table Header HTML
                         let theadHTML = '<thead><tr>';
-                        const headers = jsonData[headerRowIndex] || [];
+                        const headers = rawData[headerRowIndex] || [];
                         for (let i = 0; i < maxCols; i++) {
                             let headerName = headers[i] ? String(headers[i]).replace(/\r?\n|\r/g, " ").trim() : "";
-                            // Fallback so DataTables doesn't crash on empty headers
-                            if (!headerName) headerName = `Col ${i + 1}`; 
+                            if (!headerName) headerName = `Column ${i + 1}`; 
                             theadHTML += `<th>${headerName}</th>`;
                         }
                         theadHTML += '</tr></thead>';
 
-                        // 2. Build Body (Starts immediately AFTER the detected header row)
-                        let tbodyHTML = '<tbody>';
-                        for (let i = headerRowIndex + 1; i < jsonData.length; i++) {
-                            const row = jsonData[i];
+                        // 5. Build Body HTML (Skipping the extracted titles)
+                        let normalRowsHTML = '';
+                        let bottomRowsHTML = '';
+                        const seenData = new Set(); 
+
+                        for (let i = headerRowIndex + 1; i < rawData.length; i++) {
+                            const row = rawData[i];
                             
-                            tbodyHTML += '<tr>';
+                            let filledCount = 0;
+                            for (let j = 0; j < maxCols; j++) {
+                                if (row[j] !== undefined && String(row[j]).trim() !== "") {
+                                    filledCount++;
+                                }
+                            }
+                            let emptyCount = maxCols - filledCount;
+
+                            // Skip entirely empty rows
+                            if (filledCount === 0) continue; 
+
+                            // Check duplicates
+                            const rowStr = JSON.stringify(row);
+                            if (seenData.has(rowStr)) continue;
+                            seenData.add(rowStr);
+
+                            let trHTML = '<tr>';
                             for (let j = 0; j < maxCols; j++) {
                                 let cellVal = row[j] !== undefined ? String(row[j]).trim() : "";
-                                tbodyHTML += `<td>${cellVal}</td>`;
+                                trHTML += `<td>${cellVal}</td>`;
                             }
-                            tbodyHTML += '</tr>';
-                        }
-                        tbodyHTML += '</tbody>';
+                            trHTML += '</tr>';
 
-                        // Assemble perfect HTML structure for DataTables
-                        dataContainer.innerHTML = `<table id="excel-data-table" class="display w-full border-collapse">${theadHTML}${tbodyHTML}</table>`;
+                            // Sparse footer rows sit at the bottom
+                            if (emptyCount >= 4) {
+                                bottomRowsHTML += trHTML;
+                            } else {
+                                normalRowsHTML += trHTML;
+                            }
+                        }
+                        
+                        let tbodyHTML = `<tbody>${normalRowsHTML}${bottomRowsHTML}</tbody>`;
+
+                        // 6. Assemble Final HTML: Beautiful Document Titles + Clean DataTable
+                        dataContainer.innerHTML = titleHTML + `<div class="overflow-x-auto w-full"><table id="excel-data-table" class="display w-full border-collapse">${theadHTML}${tbodyHTML}</table></div>`;
                         dataContainer.classList.remove('hidden');
 
                         // Initialize DataTables
                         const dt = $('#excel-data-table').DataTable({
                             pageLength: 10,
                             responsive: true,
+                            order: [], // Keeps bottomRowsHTML safely at the bottom
                             language: { search: "Search Records:" }
                         });
 
-                        // Show Filter Controls and bind events
+                        // Show Filter Controls
                         document.getElementById('filter-controls').classList.remove('hidden');
                         document.getElementById('filter-controls').classList.add('flex');
                         
                         $('#dateFilter').on('change', function() { dt.draw(); });
                         
-                        // Make Clear button work perfectly
                         $('#clearDate').on('click', function() { 
                             $('#dateFilter').val(''); 
                             dt.draw(); 
