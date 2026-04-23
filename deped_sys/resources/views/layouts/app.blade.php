@@ -190,12 +190,6 @@
 
                         <a href="{{ route('learning_materials.index') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700">Learning Materials</a>
 
-                        {{-- 📍 NEW INTERACTIVE MAP LINK --}}
-<a href="{{ url('schools/map-directory') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-[#a52a2a] font-bold flex justify-between items-center transition-colors shadow-sm">
-    <span>Interactive School Map</span>
-    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-</a>
-
                         {{-- ALS --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
                             <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer">
@@ -277,6 +271,21 @@
                                 @include('partials.recursive_nav', ['page' => $customPage])
                             @endforeach
                         @endif
+                    </div>
+                </div>
+
+                {{-- Division Data (NEW BLOCK) --}}
+                <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" class="relative w-full md:w-auto border-r border-gray-300 transition-colors {{ request()->is('schools/map-directory*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
+                    <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full cursor-pointer">
+                        <span>Division Data</span>
+                        <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
+                    </div>
+                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
+                        {{-- MOVED INTERACTIVE MAP LINK --}}
+                        <a href="{{ url('schools/map-directory') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap flex items-center justify-between {{ request()->is('schools/map-directory') ? 'text-red-700 font-bold bg-red-50' : '' }}">
+                            <span>Interactive School Map</span>
+                            <svg class="w-4 h-4 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        </a>
                     </div>
                 </div>
 
