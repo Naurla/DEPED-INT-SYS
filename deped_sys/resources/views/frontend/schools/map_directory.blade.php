@@ -7,7 +7,7 @@
 
 <div class="w-full h-[75vh] min-h-[600px] border-t border-b border-gray-300 bg-gray-100">
     <iframe 
-        src="http://10.10.11.156:8000/?embed=true" 
+        src="http://10.10.11.209:8000/?embed=true" 
         class="w-full h-full"
         frameborder="0" 
         allowfullscreen>
