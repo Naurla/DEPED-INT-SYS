@@ -12,7 +12,6 @@ class OrgChartAdminController extends Controller
 {
     public function index()
     {
-        // No longer fetching users since we just type the names
         $positions = Position::with(['parent', 'assignments'])->orderBy('order_index')->get();
         return view('admin.org_chart.index', compact('positions'));
     }
@@ -46,6 +45,7 @@ class OrgChartAdminController extends Controller
         $request->validate([
             'slot_index' => 'required|integer|min:1|max:' . $position->slots_count,
             'employee_name' => 'required|string|max:255',
+            'employee_position' => 'nullable|string|max:255', // NEW: Validate position
             'employee_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
@@ -56,6 +56,7 @@ class OrgChartAdminController extends Controller
         ]);
 
         $assignment->employee_name = $request->employee_name;
+        $assignment->employee_position = $request->employee_position; // NEW: Save position
 
         // Handle the image upload
         if ($request->hasFile('employee_image')) {

@@ -3,7 +3,6 @@
 @section('page_title', 'Manage Organizational Chart')
 
 @section('content')
-{{-- Removed space-y-6 from here --}}
 <div>
 
     <div class="flex justify-between items-center mb-6">
@@ -69,14 +68,14 @@
                         <div x-data="{ expanded: false }" class="border border-gray-200 rounded-lg overflow-hidden shadow-sm">
                             
                             <div class="bg-gray-50 p-4 flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors" @click="expanded = !expanded">
-                                <div>
-                                    <h4 class="font-bold text-gray-900 text-base">{{ $position->name }}</h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">
+                                <div class="min-w-0 pr-4">
+                                    <h4 class="font-bold text-gray-900 text-base truncate">{{ $position->name }}</h4>
+                                    <p class="text-xs text-gray-500 mt-0.5 truncate">
                                         <span class="font-bold text-blue-600">{{ $position->slots_count }} Slot(s)</span> | 
                                         Reports to: <span class="font-semibold">{{ $position->parent ? $position->parent->name : 'None (Root)' }}</span>
                                     </p>
                                 </div>
-                                <div class="flex items-center space-x-4">
+                                <div class="flex items-center space-x-4 flex-shrink-0">
                                     
                                     <button type="button" @click.stop="$dispatch('open-delete-modal', { action: '{{ route('admin.org_chart.destroy', $position) }}', title: 'Are you sure you want to delete the {{ addslashes($position->name) }} position and all its slots?' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline" title="Delete Position">
                                         Delete
@@ -86,33 +85,81 @@
                                 </div>
                             </div>
 
-                            <div x-show="expanded" x-collapse x-cloak class="p-5 bg-white border-t border-gray-100">
+                            <div x-show="expanded" x-collapse x-cloak class="p-4 sm:p-5 bg-white border-t border-gray-100">
                                 <h5 class="text-sm font-bold text-gray-800 mb-3">Manage Slots</h5>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 gap-4">
                                     
                                     @for($i = 1; $i <= $position->slots_count; $i++)
                                         @php
                                             $assignment = $position->assignments->where('slot_index', $i)->first();
                                         @endphp
                                         
-                                        <div class="border border-solid border-gray-200 rounded-lg p-4 bg-gray-50/50 hover:border-gray-300 transition-colors flex flex-col justify-between">
+                                        {{-- Add x-data editMode for inline editing --}}
+                                        <div x-data="{ editMode: false }" class="border border-solid border-gray-200 rounded-lg p-3 sm:p-4 bg-gray-50/50 hover:border-gray-300 transition-colors flex flex-col justify-between">
                                             <span class="text-[10px] font-black text-gray-400 tracking-wider uppercase block mb-3">Slot {{ $i }}</span>
                                             
                                             @if($assignment && $assignment->employee_name)
-                                                <div class="flex justify-between items-center bg-white p-3 border border-gray-200 rounded-lg shadow-sm">
-                                                    <div class="flex items-center space-x-3 overflow-hidden">
-                                                        <img src="{{ $assignment->employee_image ? asset('storage/' . $assignment->employee_image) : asset('images/default-avatar.png') }}" class="w-10 h-10 rounded-md object-cover border flex-shrink-0">
-                                                        <span class="text-sm font-bold text-gray-800 truncate">{{ $assignment->employee_name }}</span>
+                                                
+                                                {{-- DISPLAY MODE --}}
+                                                <div x-show="!editMode" class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white p-3 border border-gray-200 rounded-lg shadow-sm gap-3">
+                                                    
+                                                    <div class="flex items-center space-x-3 overflow-hidden w-full">
+                                                        <img src="{{ $assignment->employee_image ? asset('storage/' . $assignment->employee_image) : asset('images/default-avatar.png') }}" class="w-10 h-10 sm:w-12 sm:h-12 rounded-md object-cover border flex-shrink-0">
+                                                        
+                                                        <div class="flex flex-col min-w-0 flex-1">
+                                                            <span class="text-sm font-bold text-gray-800 truncate" title="{{ $assignment->employee_name }}">{{ $assignment->employee_name }}</span>
+                                                            <span class="text-xs text-gray-500 truncate" title="{{ $assignment->employee_position ? $assignment->employee_position : $position->name }}">{{ $assignment->employee_position ? $assignment->employee_position : $position->name }}</span>
+                                                        </div>
                                                     </div>
                                                     
-                                                    <button type="button" @click.stop="$dispatch('open-delete-modal', { action: '{{ route('admin.org_chart.unassign', $assignment) }}', title: 'Are you sure you want to remove {{ addslashes($assignment->employee_name) }} from this slot?' })" class="text-xs text-red-600 hover:text-red-800 hover:underline font-bold uppercase ml-2">Remove</button>
+                                                    {{-- Action Buttons --}}
+                                                    <div class="flex items-center space-x-2 self-end sm:self-center flex-shrink-0 mt-2 sm:mt-0">
+                                                        <button type="button" @click="editMode = true" class="text-[11px] text-blue-700 hover:text-blue-900 font-bold uppercase bg-blue-50 px-2 py-1 rounded border border-blue-200 transition-colors">Edit</button>
+                                                        
+                                                        <button type="button" @click.stop="$dispatch('open-delete-modal', { action: '{{ route('admin.org_chart.unassign', $assignment) }}', title: 'Are you sure you want to remove {{ addslashes($assignment->employee_name) }} from this slot?' })" class="text-[11px] text-red-700 hover:text-red-900 font-bold uppercase bg-red-50 px-2 py-1 rounded border border-red-200 transition-colors">Remove</button>
+                                                    </div>
                                                 </div>
+
+                                                {{-- EDIT MODE FORM --}}
+                                                <form x-show="editMode" x-cloak action="{{ route('admin.org_chart.assign', $position) }}" method="POST" enctype="multipart/form-data" class="flex flex-col space-y-3 bg-white p-3 sm:p-4 border-2 border-blue-200 rounded-lg shadow-sm relative">
+                                                    @csrf
+                                                    <input type="hidden" name="slot_index" value="{{ $i }}">
+                                                    
+                                                    <h6 class="text-xs font-bold text-blue-800 mb-1 border-b border-blue-100 pb-2">Editing Employee Info</h6>
+                                                    
+                                                    <div>
+                                                        <label class="text-[10px] font-bold text-gray-500 uppercase">Employee Name</label>
+                                                        <input type="text" name="employee_name" value="{{ $assignment->employee_name }}" required class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label class="text-[10px] font-bold text-gray-500 uppercase">Specific Title (Optional)</label>
+                                                        <input type="text" name="employee_position" value="{{ $assignment->employee_position }}" class="w-full border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                                                    </div>
+                                                    
+                                                    <div>
+                                                        <label class="text-[10px] font-bold text-gray-500 uppercase">Replace Photo (Optional)</label>
+                                                        <input type="file" name="employee_image" accept="image/png, image/jpeg, image/jpg" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 border border-gray-300 rounded-lg p-1.5 cursor-pointer bg-white">
+                                                    </div>
+                                                    
+                                                    <div class="flex space-x-2 pt-2 mt-2">
+                                                        <button type="button" @click="editMode = false" class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-2 px-3 rounded-lg transition-colors text-xs">Cancel</button>
+                                                        <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded-lg shadow-sm transition-colors text-xs">Save Changes</button>
+                                                    </div>
+                                                </form>
+
                                             @else
+                                                {{-- EMPTY SLOT FORM --}}
                                                 <form action="{{ route('admin.org_chart.assign', $position) }}" method="POST" enctype="multipart/form-data" class="flex flex-col space-y-3 h-full justify-end">
                                                     @csrf
                                                     <input type="hidden" name="slot_index" value="{{ $i }}">
                                                     
                                                     <input type="text" name="employee_name" placeholder="Enter Employee Name" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                                                    
+                                                    <div>
+                                                        <input type="text" name="employee_position" placeholder="Specific Title (Optional)" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                                                        <p class="text-[10px] text-gray-500 mt-1 leading-tight">If blank, defaults to: <strong>{{ $position->name }}</strong></p>
+                                                    </div>
                                                     
                                                     <input type="file" name="employee_image" accept="image/png, image/jpeg, image/jpg" class="w-full text-xs text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 border border-gray-300 rounded-lg p-1.5 cursor-pointer bg-white">
                                                     

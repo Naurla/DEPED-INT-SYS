@@ -27,6 +27,9 @@ class OrgChartController extends Controller
                     $userName = strtoupper($assignment->employee_name);
                     $avatar = $assignment->employee_image ? asset('storage/' . $assignment->employee_image) : asset('images/default-avatar.png'); 
                     
+                    // NEW: Determine which title to show (Specific Title vs General Title)
+                    $displayPosition = $assignment->employee_position ? strtoupper($assignment->employee_position) : strtoupper($pos->name);
+
                     $html .= "<div class='org-slot'>";
                     
                     // BIG EDGE-TO-EDGE PHOTO
@@ -35,15 +38,13 @@ class OrgChartController extends Controller
                     // DETAILS SECTION BELOW PHOTO
                     $html .= "<div class='details-container'>";
                     $html .= "<p class='employee-name-bold'>{$userName}</p>";
-                    // Optional: You can output the role name again here, or comment it out since it's in the dark title bar
-                    $html .= "<p class='employee-position-line'>" . strtoupper($pos->name) . "</p>";
+                    
+                    // NEW: Display the correct specific position here
+                    $html .= "<p class='employee-position-line'>{$displayPosition}</p>";
                     
                     // Info Lines
                     $html .= "<div class='employee-info-lines'>";
                     $html .= "<div class='info-line'><i class='fas fa-building'></i><p><span class='label'>DepEd Office</span></p></div>";
-                    // Uncomment/edit these if you add email or phone to your database later!
-                    // $html .= "<div class='info-line'><i class='fas fa-envelope'></i><p><span class='label'>email@deped.gov.ph</span></p></div>";
-                    // $html .= "<div class='info-line'><i class='fas fa-phone'></i><p><span class='label'>09123456789</span></p></div>";
                     $html .= "</div>"; 
                     
                     $html .= "</div>"; // End details-container

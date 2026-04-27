@@ -135,6 +135,7 @@
         border-right: 1px solid #e2e8f0; /* Separation line between cards */
         border-bottom: 1px solid #e2e8f0; 
         background-color: #ffffff;
+        height: 100%; /* Ensure it stretches to match tallest neighbor */
     }
 
     /* Remove right border for the last item in a row to keep it clean */
@@ -170,6 +171,9 @@
         padding: 24px;
         box-sizing: border-box;
         text-align: center; /* Centered for balance */
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1; /* Pushes content cleanly if container stretches */
     }
 
     .employee-name-bold {
@@ -177,15 +181,28 @@
         font-weight: 800; 
         font-size: 18px; 
         line-height: 1.25; 
-        margin: 0 0 6px 0; /* Tiny gap between name and position */
+        margin: 0 0 6px 0; 
         text-transform: uppercase;
+        
+        /* NEW FIXED ALIGNMENT LOGIC */
+        min-height: 45px; /* Safely reserves exactly 2 lines of vertical space */
+        display: flex;
+        align-items: center; /* Centers 1-line names vertically in the 2-line box */
+        justify-content: center;
     }
 
     .employee-position-line {
         font-weight: 700; 
         color: #111827; 
         font-size: 13px; 
-        margin: 0; /* Removed bottom margin since office is hidden */
+        line-height: 1.4; 
+        margin: 0; 
+
+        /* NEW FIXED ALIGNMENT LOGIC */
+        min-height: 55px; /* Safely reserves exactly 3 lines of vertical space */
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
 
     /* HIDING OFFICE DETAILS ONLY */
