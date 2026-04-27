@@ -3,7 +3,6 @@
 @section('content')
     <div class="container mx-auto mt-6 px-4">
         {{-- BANNER SECTION --}}
-        {{-- Kept the fixed heights so the page layout doesn't jump, but added a background color --}}
         <div class="relative w-full h-[300px] md:h-[450px] lg:h-[500px] overflow-hidden rounded-lg bg-gray-100"
              x-data="{ activeSlide: 1, slides: {{ $banners->toJson() ?? '[]' }} }" 
              x-init="if(slides.length > 1) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
@@ -19,7 +18,6 @@
                      x-transition:leave-end="opacity-0"
                      class="absolute inset-0 flex items-center justify-center bg-gray-100">
                      
-                    {{-- Changed from object-cover to object-contain so it never crops large images or blurs small ones --}}
                     <img :src="slide" alt="Hero Banner" class="w-full h-full object-contain object-center drop-shadow-sm">
                 </div>
             </template>
@@ -37,13 +35,14 @@
         <div class="flex justify-center">
             @if(isset($latestAdvisory))
                 {{-- ADVISORY SECTION --}}
-                <div class="w-full max-w-[800px] bg-gray-50 rounded-xl p-2 border border-gray-100 shadow-sm"> 
+                {{-- Removed the background, padding, and border wrapper classes --}}
+                <div class="w-full max-w-[800px]"> 
                     <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block transition hover:opacity-90 flex justify-center">
                         
-                        {{-- Changed h-[500px] to max-h-[750px] so small images only take up the space they need, and large ones are capped --}}
+                        {{-- Added drop-shadow-md so the image pops slightly without a background box --}}
                         <img src="{{ asset('storage/' . $latestAdvisory->image_path) }}" 
                              alt="Latest Advisory" 
-                             class="w-full max-h-[500px] md:max-h-[750px] object-contain object-center rounded-lg">
+                             class="w-full max-h-[500px] md:max-h-[750px] object-contain object-center rounded-lg drop-shadow-md">
                     </a>
                 </div>
             @else

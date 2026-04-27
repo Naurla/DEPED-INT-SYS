@@ -7,27 +7,32 @@
     [x-cloak] { display: none !important; }
 </style>
 
-<div class="container mx-auto p-4" x-data="{ 
-    addModal: false, 
-    editModal: false, 
-    deleteModal: false, 
-    editItem: null, 
-    deleteItem: null, 
-    removeImage: false, 
-    removePdf: false,
-    removeExcel: false,
-    openEdit(item) {
-        this.editItem = item;
-        this.removeImage = false;
-        this.removePdf = false;
-        this.removeExcel = false;
-        this.editModal = true;
-    },
-    openDelete(item) {
-        this.deleteItem = item;
-        this.deleteModal = true;
-    }
-}">
+{{-- FIXED: We now use $dispatch listeners on the main container --}}
+<div class="container mx-auto p-4" 
+    x-data="{ 
+        addModal: false, 
+        editModal: false, 
+        deleteModal: false, 
+        editItem: {}, 
+        deleteTitle: '', 
+        removeImage: false, 
+        removePdf: false,
+        removeExcel: false
+    }"
+    @open-edit-modal.window="
+        editItem = $event.detail.item;
+        removeImage = false;
+        removePdf = false;
+        removeExcel = false;
+        document.getElementById('editForm').action = $event.detail.url;
+        editModal = true;
+    "
+    @open-delete-modal.window="
+        deleteTitle = $event.detail.title;
+        document.getElementById('deleteForm').action = $event.detail.url;
+        deleteModal = true;
+    "
+>
     
     @if(session('success'))
         <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
@@ -110,9 +115,22 @@
                                 @endif
                             </td>
                             <td class="p-4 text-sm text-gray-500 whitespace-nowrap">{{ $item->created_at->format('M d, Y') }}</td>
-                            <td class="p-4 flex justify-end gap-3 items-center">
-                                <button @click="openEdit({{ collect($item)->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
-                                <button @click="openDelete({{ collect($item)->toJson() }})" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
+                            
+                            {{-- FIXED: We inject the data safely into a local x-data block to prevent HTML breaking --}}
+                            <td class="p-4 flex justify-end gap-3 items-center" x-data="{ rowItem: {{ \Illuminate\Support\Js::from($item) }} }">
+                                
+                                <button type="button" 
+                                        @click="$dispatch('open-edit-modal', { item: rowItem, url: '{{ route('admin.procurement.update', ['category' => $category, 'id' => $item->id]) }}' })" 
+                                        class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">
+                                    Edit
+                                </button>
+                                
+                                <button type="button" 
+                                        @click="$dispatch('open-delete-modal', { title: rowItem.title, url: '{{ route('admin.procurement.destroy', ['category' => $category, 'id' => $item->id]) }}' })" 
+                                        class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">
+                                    Delete
+                                </button>
+
                             </td>
                         </tr>
                     @empty
@@ -154,7 +172,6 @@
                     <textarea name="description" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">{{ old('description') }}</textarea>
                 </div>
                 
-                {{-- Updated to grid-cols-3 to accommodate the new excel upload --}}
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200 mt-2">
                     <div class="col-span-full mb-1">
                         <p class="text-sm font-semibold text-gray-700">Attachments <span class="text-xs font-normal text-gray-500">(Please provide at least one)</span></p>
@@ -187,7 +204,8 @@
                 <h3 class="font-bold text-lg">Edit {{ \Illuminate\Support\Str::singular($categoryTitle) }}</h3>
                 <button type="button" @click="editModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
             </div>
-            <form :action="`/admin/procurement/${category}/${editItem?.id}`" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
+            
+            <form id="editForm" method="POST" enctype="multipart/form-data" class="p-6 space-y-4">
                 @csrf @method('PUT')
                 <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
                 <input type="hidden" name="remove_pdf" :value="removePdf ? '1' : '0'">
@@ -276,10 +294,9 @@
             
             <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">Confirm Deletion</h3>
             
-            {{-- Fixed word wrap for long titles --}}
             <div class="text-gray-500 text-sm mb-6 text-center max-h-40 overflow-y-auto px-1">
                 Are you sure you want to delete <br>
-                <span class="font-bold text-gray-900 break-words block mt-1" x-text="deleteItem?.title"></span>? 
+                <span class="font-bold text-gray-900 break-words block mt-1" x-text="deleteTitle"></span>? 
                 <br>This action cannot be undone.
             </div>
             
@@ -288,7 +305,7 @@
                     Cancel
                 </button>
                 
-                <form :action="`/admin/procurement/${category}/${deleteItem?.id}`" method="POST" class="flex-1 m-0 p-0 flex">
+                <form id="deleteForm" method="POST" class="flex-1 m-0 p-0 flex">
                     @csrf 
                     @method('DELETE')
                     <button type="submit" class="w-full px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors">
