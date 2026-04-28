@@ -22,7 +22,7 @@
     {{-- Map Display Section --}}
     <div class="w-full h-[75vh] min-h-[600px] border border-gray-300 rounded-lg overflow-hidden bg-gray-100 shadow-sm">
         <iframe 
-            src="http://10.10.11.209:8000/?embed=true" 
+            src="http://10.10.11.115:8000/?embed=true" 
             class="w-full h-full"
             frameborder="0" 
             allowfullscreen>
