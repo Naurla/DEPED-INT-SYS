@@ -71,12 +71,15 @@ class AppServiceProvider extends ServiceProvider
             $globalRecentMemoranda = collect();
 
             if (\Illuminate\Support\Facades\Schema::hasTable('issuances')) {
+                // FIXED: Now sorts by custom 'date' column first, then 'created_at'
                 $globalRecentAdvisories = Issuance::where('type', 'advisory')
+                                            ->latest('date')
                                             ->latest('created_at')
                                             ->take(3)
                                             ->get();
 
                 $globalRecentMemoranda = Issuance::where('type', 'memorandum')
+                                            ->latest('date')
                                             ->latest('created_at')
                                             ->take(3)
                                             ->get();

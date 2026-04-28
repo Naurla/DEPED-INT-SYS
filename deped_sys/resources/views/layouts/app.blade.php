@@ -329,7 +329,7 @@
                                 <a href="{{ route('issuances.show', $adv->id) }}" 
                                    class="text-blue-600 hover:text-blue-800 hover:underline text-[15px] font-medium leading-tight uppercase transition-colors line-clamp-2 break-words"
                                    title="{{ $adv->title }} - {{ $adv->description }}">
-                                    {{ $adv->created_at->format('M d, Y') }} {{ $adv->title }} - {{ $adv->description ?? 'Click to view details.' }}
+                                    {{ \Carbon\Carbon::parse($adv->date)->format('M d, Y') }} {{ $adv->title }} - {{ $adv->description ?? 'Click to view details.' }}
                                 </a>
                             </li>
                         @empty
