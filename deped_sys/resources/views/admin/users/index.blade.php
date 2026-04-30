@@ -7,12 +7,16 @@
     [x-cloak] { display: none !important; }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fca5a5; border-radius: 10px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #ef4444; }
 </style>
 
 <div x-data="{ 
     activeTab: 'users',
+    
+    // Global Modals
+    successModal: {{ session('success') ? 'true' : 'false' }},
+    errorModal: {{ $errors->any() ? 'true' : 'false' }},
     
     // User Modals
     showAddUserModal: false, 
@@ -135,44 +139,16 @@
         
         {{-- Dynamic Action Buttons based on Active Tab --}}
         <div>
-            <button x-show="activeTab === 'users'" @click="showAddUserModal = true; selectedRole = null" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors flex items-center">
+            <button x-show="activeTab === 'users'" @click="showAddUserModal = true; selectedRole = null" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors flex items-center text-sm uppercase tracking-wider">
                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add New User
             </button>
-            <button x-show="activeTab === 'roles'" x-cloak @click="editRoleData.permissions = []; showAddRoleModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-4 rounded-lg shadow transition-colors flex items-center">
+            <button x-show="activeTab === 'roles'" x-cloak @click="editRoleData.permissions = []; showAddRoleModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors flex items-center text-sm uppercase tracking-wider">
                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Create New Role
             </button>
         </div>
     </div>
-
-    {{-- ALERTS: Success & Error --}}
-    @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative shadow-sm">
-            <div class="flex items-start">
-                <div class="flex-shrink-0 mt-0.5">
-                    <svg class="h-4 w-4 text-green-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <div class="ml-2">
-                    <p class="text-sm font-bold whitespace-pre-wrap">{{ session('success') }}</p>
-                </div>
-            </div>
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative shadow-sm text-sm font-bold">
-            <div class="flex items-start mb-2">
-                <svg class="h-5 w-5 mr-2 text-red-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-                <span>Please fix the following errors:</span>
-            </div>
-            <ul class="list-disc pl-9 text-xs">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     {{-- NAVIGATION TABS --}}
     <div class="border-b border-gray-200 mb-6">
@@ -225,7 +201,7 @@
                             <td class="p-4 flex justify-end gap-3 items-center">
                                 @if(auth()->user()->id !== $user->id)
                                     <button @click="openEditUser({{ $user->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
-                                    <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.users.destroy', $user) }}', title: 'Are you sure you want to remove {{ addslashes($user->name) }}?' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
+                                    <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.users.destroy', $user) }}', title: '{{ addslashes($user->name) }} ({{ addslashes($user->email) }})' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                                 @else
                                     <span class="text-[10px] text-gray-500 font-bold bg-gray-100 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-wider">Current User</span>
                                 @endif
@@ -240,73 +216,77 @@
     </div>
 
     {{-- MODAL: ADD USER --}}
-    <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showAddUserModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-bold text-gray-800 text-lg">Create New User</h3>
-                <button type="button" @click="showAddUserModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+    <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddUserModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Create New User</h3>
+                <button type="button" @click="showAddUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form action="{{ route('admin.users.store') }}" method="POST" class="p-6 space-y-4">
+            <form action="{{ route('admin.users.store') }}" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" name="name" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="e.g. Juan Dela Cruz">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
-                    <input type="email" name="email" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="user@deped.gov.ph">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Assign Role</label>
-                    <select name="role_id" x-model="selectedRole" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
-                        <option value="" disabled selected>Select a role...</option>
-                        @foreach($roles as $role)
-                            <option value="{{ $role->id }}">{{ $role->name }}</option>
-                        @endforeach
-                    </select>
-                    <p class="text-xs text-gray-500 mt-1">This user will inherit all permissions assigned to this role.</p>
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all" placeholder="e.g. Juan Dela Cruz">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all" placeholder="user@deped.gov.ph">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
+                        <select name="role_id" x-model="selectedRole" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white transition-all">
+                            <option value="" disabled selected>Select a role...</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-sm text-gray-500 mt-2 italic">This user will inherit all permissions assigned to this role.</p>
+                    </div>
                 </div>
                 
-                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-                    <button type="button" @click="showAddUserModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Generate Account</button>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Generate Account</button>
+                    <button type="button" @click="showAddUserModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- MODAL: EDIT USER --}}
-    <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="showEditUserModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-bold text-gray-800 text-lg">Edit User Details</h3>
-                <button type="button" @click="showEditUserModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+    <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditUserModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Edit User Details</h3>
+                <button type="button" @click="showEditUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form :action="'/admin/users/' + editUserData.id" method="POST" class="p-6 space-y-4">
+            <form :action="'/admin/users/' + editUserData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 @method('PUT')
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Full Name</label>
-                    <input type="text" name="name" x-model="editUserData.name" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Email Address</label>
-                    <input type="email" name="email" x-model="editUserData.email" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                </div>
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Update Role</label>
-                    <select name="role_id" x-model="editUserData.role_id" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
-                        @foreach($roles as $role)
-                            <option value="{{ $role->id }}">{{ $role->name }}</option>
-                        @endforeach
-                    </select>
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="editUserData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" x-model="editUserData.email" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Update Role <span class="text-red-500">*</span></label>
+                        <select name="role_id" x-model="editUserData.role_id" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white transition-all">
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
                 
-                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
-                    <button type="button" @click="showEditUserModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Save Changes</button>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Save Changes</button>
+                    <button type="button" @click="showEditUserModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
@@ -361,154 +341,212 @@
     </div>
 
     {{-- MODAL: ADD ROLE --}}
-    <div x-show="showAddRoleModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-3xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" @click.away="showAddRoleModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-gray-800 text-lg">Create New Role</h3>
-                <button type="button" @click="showAddRoleModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+    <div x-show="showAddRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddRoleModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Create New Role</h3>
+                <button type="button" @click="showAddRoleModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form action="/admin/roles" method="POST" class="p-6 space-y-4 overflow-y-auto flex-grow">
+            <form action="/admin/roles" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Role Title</label>
-                    <input type="text" name="name" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="e.g. Content Editor">
-                </div>
-                
-                {{-- CHECKLIST: PERMISSIONS --}}
-                <div class="pt-2">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Module Access <span class="text-xs font-normal text-gray-500">(Check features this role can manage)</span></label>
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Role Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all" placeholder="e.g. Content Editor">
+                    </div>
                     
-                    <div class="space-y-4 pr-2 custom-scrollbar">
-                        <template x-for="group in permissionCategories" :key="group.category">
-                            <div class="border border-gray-200 rounded-lg overflow-hidden">
-                                
-                                <div class="bg-gray-100 p-3 border-b border-gray-200">
-                                    <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
-                                        <input type="checkbox" 
-                                               class="w-4 h-4 text-red-600 rounded focus:ring-red-500"
-                                               :checked="group.permissions.every(p => editRoleData.permissions.includes(p.value))"
-                                               @change="
-                                                   let allChecked = group.permissions.every(p => editRoleData.permissions.includes(p.value));
-                                                   if (allChecked) {
-                                                       editRoleData.permissions = editRoleData.permissions.filter(dp => !group.permissions.some(p => p.value === dp));
-                                                   } else {
-                                                       let toAdd = group.permissions.map(p => p.value).filter(r => !editRoleData.permissions.includes(r));
-                                                       editRoleData.permissions = [...editRoleData.permissions, ...toAdd];
-                                                   }
-                                               ">
-                                        <span x-text="group.category" class="text-[14px] uppercase tracking-wide"></span>
-                                    </label>
-                                </div>
-                                
-                                <div class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white">
-                                    <template x-for="perm in group.permissions" :key="perm.value">
-                                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-50 p-1.5 rounded transition-colors">
-                                            <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300">
-                                            <span x-text="perm.label"></span>
+                    {{-- CHECKLIST: PERMISSIONS --}}
+                    <div class="pt-2">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Module Access <span class="text-sm font-normal text-gray-500 normal-case ml-1 italic">(Check features this role can manage)</span></label>
+                        
+                        <div class="space-y-4 pr-2">
+                            <template x-for="group in permissionCategories" :key="group.category">
+                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div class="bg-gray-100 p-4 border-b border-gray-200">
+                                        <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
+                                            <input type="checkbox" 
+                                                   class="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                                                   :checked="group.permissions.every(p => editRoleData.permissions.includes(p.value))"
+                                                   @change="
+                                                       let allChecked = group.permissions.every(p => editRoleData.permissions.includes(p.value));
+                                                       if (allChecked) {
+                                                           editRoleData.permissions = editRoleData.permissions.filter(dp => !group.permissions.some(p => p.value === dp));
+                                                       } else {
+                                                           let toAdd = group.permissions.map(p => p.value).filter(r => !editRoleData.permissions.includes(r));
+                                                           editRoleData.permissions = [...editRoleData.permissions, ...toAdd];
+                                                       }
+                                                   ">
+                                            <span x-text="group.category" class="text-[15px] uppercase tracking-wide"></span>
                                         </label>
-                                    </template>
+                                    </div>
+                                    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
+                                        <template x-for="perm in group.permissions" :key="perm.value">
+                                            <label class="flex items-center space-x-3 text-base text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="w-5 h-5 text-red-600 rounded focus:ring-red-500 border-gray-300">
+                                                <span x-text="perm.label"></span>
+                                            </label>
+                                        </template>
+                                    </div>
                                 </div>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100 shrink-0">
-                    <button type="button" @click="showAddRoleModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Save Role</button>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Save Role</button>
+                    <button type="button" @click="showAddRoleModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- MODAL: EDIT ROLE --}}
-    <div x-show="showEditRoleModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden max-h-[90vh] flex flex-col" @click.away="showEditRoleModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center shrink-0">
-                <h3 class="font-bold text-gray-800 text-lg">Edit Role Config</h3>
-                <button type="button" @click="showEditRoleModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+    <div x-show="showEditRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditRoleModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Edit Role Config</h3>
+                <button type="button" @click="showEditRoleModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form :action="'/admin/roles/' + editRoleData.id" method="POST" class="p-6 space-y-4 overflow-y-auto flex-grow">
+            <form :action="'/admin/roles/' + editRoleData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 @method('PUT')
-                <div>
-                    <label class="block text-sm font-bold text-gray-700 mb-1">Role Title</label>
-                    <input type="text" name="name" x-model="editRoleData.name" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                </div>
-                
-                {{-- CHECKLIST: PERMISSIONS --}}
-                <div class="pt-2">
-                    <label class="block text-sm font-bold text-gray-700 mb-2">Module Access</label>
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Role Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="editRoleData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                    </div>
                     
-                    <div class="space-y-4 pr-2 custom-scrollbar">
-                        <template x-for="group in permissionCategories" :key="group.category">
-                            <div class="border border-gray-200 rounded-lg overflow-hidden">
-                                
-                                <div class="bg-gray-100 p-3 border-b border-gray-200">
-                                    <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
-                                        <input type="checkbox" 
-                                               class="w-4 h-4 text-red-600 rounded focus:ring-red-500"
-                                               :checked="group.permissions.every(p => editRoleData.permissions.includes(p.value))"
-                                               @change="
-                                                   let allChecked = group.permissions.every(p => editRoleData.permissions.includes(p.value));
-                                                   if (allChecked) {
-                                                       editRoleData.permissions = editRoleData.permissions.filter(dp => !group.permissions.some(p => p.value === dp));
-                                                   } else {
-                                                       let toAdd = group.permissions.map(p => p.value).filter(r => !editRoleData.permissions.includes(r));
-                                                       editRoleData.permissions = [...editRoleData.permissions, ...toAdd];
-                                                   }
-                                               ">
-                                        <span x-text="group.category" class="text-[14px] uppercase tracking-wide"></span>
-                                    </label>
-                                </div>
-                                
-                                <div class="p-3 grid grid-cols-1 sm:grid-cols-2 gap-2 bg-white">
-                                    <template x-for="perm in group.permissions" :key="perm.value">
-                                        <label class="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer hover:bg-gray-50 p-1.5 rounded transition-colors">
-                                            <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="w-4 h-4 text-red-600 rounded focus:ring-red-500 border-gray-300">
-                                            <span x-text="perm.label"></span>
+                    {{-- CHECKLIST: PERMISSIONS --}}
+                    <div class="pt-2">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Module Access <span class="text-sm font-normal text-gray-500 normal-case ml-1 italic">(Check features this role can manage)</span></label>
+                        
+                        <div class="space-y-4 pr-2">
+                            <template x-for="group in permissionCategories" :key="group.category">
+                                <div class="border border-gray-200 rounded-lg overflow-hidden">
+                                    <div class="bg-gray-100 p-4 border-b border-gray-200">
+                                        <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
+                                            <input type="checkbox" 
+                                                   class="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                                                   :checked="group.permissions.every(p => editRoleData.permissions.includes(p.value))"
+                                                   @change="
+                                                       let allChecked = group.permissions.every(p => editRoleData.permissions.includes(p.value));
+                                                       if (allChecked) {
+                                                           editRoleData.permissions = editRoleData.permissions.filter(dp => !group.permissions.some(p => p.value === dp));
+                                                       } else {
+                                                           let toAdd = group.permissions.map(p => p.value).filter(r => !editRoleData.permissions.includes(r));
+                                                           editRoleData.permissions = [...editRoleData.permissions, ...toAdd];
+                                                       }
+                                                   ">
+                                            <span x-text="group.category" class="text-[15px] uppercase tracking-wide"></span>
                                         </label>
-                                    </template>
+                                    </div>
+                                    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
+                                        <template x-for="perm in group.permissions" :key="perm.value">
+                                            <label class="flex items-center space-x-3 text-base text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
+                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="w-5 h-5 text-red-600 rounded focus:ring-red-500 border-gray-300">
+                                                <span x-text="perm.label"></span>
+                                            </label>
+                                        </template>
+                                    </div>
                                 </div>
-                            </div>
-                        </template>
+                            </template>
+                        </div>
                     </div>
                 </div>
 
-                <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100 shrink-0">
-                    <button type="button" @click="showEditRoleModal = false" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Update Config</button>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Config</button>
+                    <button type="button" @click="showEditRoleModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
 
-    {{-- GLOBAL MODAL: Delete Confirmation --}}
+    {{-- MODERNIZED GLOBAL MODAL: Delete Confirmation --}}
     <div x-data="{ showDeleteModal: false, deleteAction: '', deleteTitle: '' }" 
          @open-delete-modal.window="showDeleteModal = true; deleteAction = $event.detail.action; deleteTitle = $event.detail.title"
-         x-show="showDeleteModal" class="fixed inset-0 z-[100] overflow-y-auto" style="display: none;" x-cloak>
-        <div class="flex items-center justify-center min-h-screen px-4 text-center">
-            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="showDeleteModal = false"></div>
+         x-show="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity" x-cloak>
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="showDeleteModal = false">
+            
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete User?</h3>
+                <p class="text-gray-500 text-sm mb-5">You are about to permanently delete this user</p>
+                
+                <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
+                    <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
+                </div>
+                
+                <p class="text-gray-400 text-sm italic mb-8">This action cannot be undone.</p>
+            </div>
+            
+            <div class="flex gap-3">
+                <button type="button" @click="showDeleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all">
+                    Cancel
+                </button>
+                <form :action="deleteAction" method="POST" class="flex-1 m-0 p-0">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                        Yes, Delete it
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
-            <div x-show="showDeleteModal" x-transition class="bg-white rounded-2xl p-8 shadow-2xl z-[70] w-full max-w-sm transform transition-all relative">
-                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    {{-- MODERNIZED GLOBAL MODAL: Success Message --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
                 </div>
-                
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Confirm Deletion</h3>
-                <p class="text-gray-500 text-sm mb-6" x-text="deleteTitle"></p>
-                
-                <div class="flex space-x-3">
-                    <button type="button" @click="showDeleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">Cancel</button>
-                    <form :action="deleteAction" method="POST" class="flex-1">
-                        @csrf 
-                        @method('DELETE')
-                        <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition">Yes, Delete</button>
-                    </form>
+            </div>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
+                <p class="text-gray-500 text-base">
+                    @if(session('success')) {{ session('success') }} @else Operation completed successfully. @endif
+                </p>
+            </div>
+            <div class="flex">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODERNIZED GLOBAL MODAL: Error Message --}}
+    <div x-show="errorModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="errorModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
+            </div>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4">Action Failed</h3>
+                <div class="text-gray-500 text-sm text-left bg-gray-50 rounded-lg p-4 custom-scrollbar max-h-32 overflow-y-auto border border-gray-100">
+                    <ul class="list-disc pl-5 font-medium text-red-600">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="flex">
+                <button type="button" @click="errorModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                    Try Again
+                </button>
             </div>
         </div>
     </div>

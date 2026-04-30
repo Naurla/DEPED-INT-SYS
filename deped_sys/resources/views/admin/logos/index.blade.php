@@ -5,64 +5,85 @@
 @section('content')
 <style>
     [x-cloak] { display: none !important; }
+    
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #fca5a5; 
+        border-radius: 10px;
+    }
 </style>
 
 <div x-data="{ 
     addModal: false, 
     editModal: false, 
     deleteModal: false, 
-    editData: {}, 
+    successModal: {{ session('success') ? 'true' : 'false' }},
+    errorModal: {{ (session('error') || $errors->any()) ? 'true' : 'false' }},
+    removeImage: false,
+    editData: {
+        id: '',
+        name: '',
+        position: '',
+        order: '',
+        is_active: true,
+        image_path: ''
+    }, 
     deleteUrl: '',
-    deleteTitle: '' 
+    deleteTitle: '',
+    
+    openEdit(logo) {
+        this.editData = { 
+            id: logo.id, 
+            name: logo.name || '', 
+            position: logo.position, 
+            order: logo.order, 
+            is_active: !!logo.is_active, 
+            image_path: logo.image_path 
+        };
+        this.removeImage = false;
+        this.editModal = true;
+    }
 }">
-    <div class="flex justify-between items-center mb-6">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Header & Footer Logos</h2>
             <p class="text-gray-500 text-sm mt-1">Manage the logos displayed on the site.</p>
         </div>
-        <button @click="addModal = true" class="bg-red-700 text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-red-800 shadow transition-colors">
+        <button @click="addModal = true" class="bg-red-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-red-800 shadow transition-colors uppercase tracking-wider">
             + Add New Logo
         </button>
     </div>
 
-   @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-sm">
-            <strong class="font-bold">Oops!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
-
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm whitespace-nowrap">
+            <table class="w-full text-left text-sm whitespace-nowrap border-collapse">
                 <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
                     <tr>
-                        <th class="px-6 py-4 font-semibold">Image</th>
-                        <th class="px-6 py-4 font-semibold">Name</th>
-                        <th class="px-6 py-4 font-semibold">Position</th>
-                        <th class="px-6 py-4 font-semibold">Order</th>
-                        <th class="px-6 py-4 font-semibold">Status</th>
-                        <th class="px-6 py-4 font-semibold text-right">Actions</th>
+                        <th class="px-6 py-4">Image</th>
+                        <th class="px-6 py-4">Name</th>
+                        <th class="px-6 py-4">Position</th>
+                        <th class="px-6 py-4">Order</th>
+                        <th class="px-6 py-4">Status</th>
+                        <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse($logos as $logo)
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 align-middle">
                             <div class="w-16 h-16 bg-white rounded-lg flex items-center justify-center p-1 border border-gray-200 shadow-sm">
                                 <img src="{{ asset('storage/' . $logo->image_path) }}" alt="Logo" class="max-h-full max-w-full object-contain">
                             </div>
                         </td>
-                        <td class="px-6 py-4 font-semibold text-gray-900">
+                        <td class="px-6 py-4 font-bold text-gray-900 align-middle">
                             {{ $logo->name ?? 'N/A' }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 align-middle">
                             <span class="px-3 py-1 bg-gray-100 text-gray-700 border border-gray-200 rounded-full text-[10px] font-bold uppercase tracking-wider">
                                 @if($logo->position == 'left') Header Left
                                 @elseif($logo->position == 'right') Header Right
@@ -71,29 +92,24 @@
                                 @endif
                             </span>
                         </td>
-                        <td class="px-6 py-4 font-bold text-gray-900">
+                        <td class="px-6 py-4 font-bold text-gray-900 align-middle">
                             {{ $logo->order }}
                         </td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 align-middle">
                             <span class="px-3 py-1 font-bold {{ $logo->is_active ? 'text-green-800 bg-green-100' : 'text-red-800 bg-red-100' }} rounded-full text-[10px] uppercase tracking-wider">
                                 {{ $logo->is_active ? 'Active' : 'Hidden' }}
                             </span>
                         </td>
-                        <td class="px-6 py-4 flex justify-end gap-3 items-center h-[97px]">
-                            <button type="button" @click="editModal = true; editData = { id: {{ $logo->id }}, name: '{{ addslashes($logo->name) }}', position: '{{ $logo->position }}', order: {{ $logo->order }}, is_active: {{ $logo->is_active ? 'true' : 'false' }} }" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline" title="Edit">
-                                Edit
-                            </button>
-                            
-                            <button type="button" @click="deleteModal = true; deleteUrl = '{{ route('admin.logos.destroy', $logo->id) }}'; deleteTitle = '{{ addslashes($logo->name ?? 'this logo') }}'" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline" title="Delete">
-                                Delete
-                            </button>
+                        <td class="px-6 py-4 align-middle text-right">
+                            <div class="flex justify-end gap-3 items-center">
+                                <button type="button" @click="openEdit({{ $logo->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                <button type="button" @click="deleteModal = true; deleteUrl = '{{ route('admin.logos.destroy', $logo->id) }}'; deleteTitle = '{{ addslashes($logo->name ?? 'this logo') }}'" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
+                            </div>
                         </td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 italic">
-                            No logos found. Click "Add New Logo" to get started.
-                        </td>
+                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 italic">No logos found.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -102,77 +118,79 @@
     </div>
 
     {{-- ADD MODAL --}}
-    <div x-show="addModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="addModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg">Add New Logo</h3>
-                <button type="button" @click="addModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+    <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl uppercase tracking-tight">Upload New Logo</h3>
+                <button type="button" @click="addModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form action="{{ route('admin.logos.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.logos.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
-                <div class="p-6 space-y-4">
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Upload Logo Image <span class="text-red-500">*</span></label>
-                        <input type="file" name="image" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 transition-colors border border-gray-300 rounded-lg p-1.5 cursor-pointer">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Logo Name <span class="text-xs font-normal text-gray-500">(Optional)</span></label>
+                        <input type="text" name="name" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="e.g. Bagong Pilipinas">
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Logo Name <span class="text-xs font-normal text-gray-500">(Optional)</span></label>
-                        <input type="text" name="name" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm" placeholder="e.g. Bagong Pilipinas">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Position</label>
-                            <select name="position" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm bg-white">
-                                <option value="left">Header Left Side</option>
-                                <option value="right">Header Right Side</option>
-                                <option value="footer_left">Footer Left Side</option>
-                                <option value="footer_right">Footer Right Side</option>
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Position</label>
+                            <select name="position" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg bg-white outline-none focus:ring-2 focus:ring-red-500">
+                                <option value="left">Header Left</option>
+                                <option value="right">Header Right</option>
+                                <option value="footer_left">Footer Left</option>
+                                <option value="footer_right">Footer Right</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Sort Order</label>
-                            <input type="number" name="order" value="1" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm">
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Sort Order</label>
+                            <input type="number" name="order" value="1" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg outline-none focus:ring-2 focus:ring-red-500">
                         </div>
                     </div>
+
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Upload Image <span class="text-red-500">*</span></label>
+                        <input type="file" name="image" required class="w-full border border-gray-300 p-3 rounded-lg text-gray-600 file:mr-5 file:py-2.5 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                    </div>
+
                     <div class="flex items-center pt-2">
-                        <input type="checkbox" name="is_active" id="is_active" checked class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                        <label for="is_active" class="ml-2 block text-sm font-bold text-gray-700">Set as Active</label>
+                        <input type="checkbox" name="is_active" id="is_active" checked class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 cursor-pointer">
+                        <label for="is_active" class="ml-3 block text-lg font-bold text-gray-700 cursor-pointer">Set as Active</label>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 items-center border-t border-gray-100">
-                    <button type="submit" class="bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-red-800 shadow-sm transition-colors">Save Logo</button>
-                    <button @click="addModal = false" type="button" class="font-bold text-gray-600 text-sm hover:text-gray-800 transition-colors">Cancel</button>
+
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Save Logo</button>
+                    <button @click="addModal = false" type="button" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
     {{-- EDIT MODAL --}}
-    <div x-show="editModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="editModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg">Edit Logo</h3>
-                <button type="button" @click="editModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+    <div x-show="editModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl uppercase tracking-tight">Edit Logo</h3>
+                <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
 
-            <form :action="'{{ url('admin/logos') }}/' + editData.id" method="POST" enctype="multipart/form-data">
+            <form :action="'{{ url('admin/logos') }}/' + editData.id" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 @method('PUT')
-                <div class="p-6 space-y-4">
+                <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
+
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Upload New Image</label>
-                        <input type="file" name="image" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 transition-colors border border-gray-300 rounded-lg p-1.5 cursor-pointer">
-                        <p class="text-xs text-gray-400 mt-1">Leave empty to keep the current file.</p>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Logo Name</label>
+                        <input type="text" name="name" x-model="editData.name" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
                     </div>
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Logo Name</label>
-                        <input type="text" name="name" x-model="editData.name" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm">
-                    </div>
-                    <div class="grid grid-cols-2 gap-4">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Position</label>
-                            <select name="position" x-model="editData.position" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm bg-white">
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Position</label>
+                            <select name="position" x-model="editData.position" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg bg-white outline-none focus:ring-2 focus:ring-red-500">
                                 <option value="left">Header Left Side</option>
                                 <option value="right">Header Right Side</option>
                                 <option value="footer_left">Footer Left</option>
@@ -180,50 +198,114 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Sort Order</label>
-                            <input type="number" name="order" x-model="editData.order" class="w-full px-3 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm">
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Sort Order</label>
+                            <input type="number" name="order" x-model="editData.order" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg outline-none focus:ring-2 focus:ring-red-500">
                         </div>
                     </div>
+
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Replace Image</label>
+                        <input type="file" name="image" class="w-full border border-gray-300 p-3 rounded-lg text-gray-600 file:mr-5 file:py-2.5 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                        
+                        <!-- NEWLY STYLED CURRENT FILE DISPLAY -->
+                        <template x-if="editData.image_path && !removeImage">
+                            <div class="mt-4 flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-xl">
+                                <span class="text-base text-red-900 font-bold truncate max-w-[280px]" x-text="'Current: ' + editData.image_path.split('/').pop()"></span>
+                                <button type="button" @click="removeImage = true" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+                        
+                        <p class="text-sm text-gray-500 mt-3 italic text-center">Leave blank to keep the current file.</p>
+                    </div>
+
                     <div class="flex items-center pt-2">
-                        <input type="checkbox" name="is_active" id="edit_is_active" x-model="editData.is_active" class="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                        <label for="edit_is_active" class="ml-2 block text-sm font-bold text-gray-700">Set as Active</label>
+                        <input type="checkbox" name="is_active" id="edit_is_active" x-model="editData.is_active" class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500 cursor-pointer">
+                        <label for="edit_is_active" class="ml-3 block text-lg font-bold text-gray-700 cursor-pointer">Set as Active</label>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 items-center border-t border-gray-100">
-                    <button type="submit" class="bg-red-700 text-white px-5 py-2.5 rounded-lg font-bold text-sm hover:bg-red-800 shadow-sm transition-colors">Update Logo</button>
-                    <button @click="editModal = false" type="button" class="font-bold text-gray-600 text-sm hover:text-gray-800 transition-colors">Cancel</button>
+
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Logo</button>
+                    <button @click="editModal = false" type="button" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- Delete Modal --}}
-    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-2xl p-8 shadow-2xl z-50 w-full max-w-sm transform transition-all relative" @click.away="deleteModal = false">
-            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
+    {{-- MODERNIZED Delete Confirmation --}}
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
             </div>
-            
-            <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">Delete Logo?</h3>
-            <p class="text-gray-500 text-sm mb-6 text-center">Are you sure you want to delete <span class="font-bold text-gray-800" x-text="deleteTitle"></span>? This will permanently remove the logo.</p>
-            
-            <div class="flex space-x-3">
-                <button @click="deleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
-                    Cancel
-                </button>
-                
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Logo?</h3>
+                <p class="text-gray-500 text-sm mb-5 text-center px-4">You are about to permanently delete this entry:</p>
+                <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
+                    <span class="font-bold text-gray-900 break-all text-lg block text-center" x-text="deleteTitle"></span>
+                </div>
+                <p class="text-gray-400 text-sm italic mb-8">This action cannot be undone.</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">Cancel</button>
                 <form :action="deleteUrl" method="POST" class="flex-1 m-0 p-0">
-                    @csrf 
-                    @method('DELETE')
-                    <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition">
-                        Delete
-                    </button>
+                    @csrf @method('DELETE')
+                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 transition-all">Yes, Delete it</button>
                 </form>
             </div>
         </div>
     </div>
 
+    {{-- MODERNIZED Success Message --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                </div>
+            </div>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
+                <p class="text-gray-500 text-base leading-relaxed">
+                    @if(session('success')) {{ session('success') }} @else Operation completed successfully. @endif
+                </p>
+            </div>
+            <div class="flex">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 transition-all">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODERNIZED Error Message --}}
+    <div x-show="errorModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="errorModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+            </div>
+            <div class="text-center mb-8 px-4">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4 uppercase tracking-tight">Action Failed</h3>
+                <div class="text-left bg-gray-50 rounded-lg p-4 custom-scrollbar max-h-32 overflow-y-auto border border-gray-100">
+                    <ul class="list-disc pl-5 font-medium text-red-600 text-sm leading-relaxed">
+                        @if($errors->any())
+                            @foreach($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                        @else
+                            <li>{{ session('error') }}</li>
+                        @endif
+                    </ul>
+                </div>
+            </div>
+            <div class="flex">
+                <button type="button" @click="errorModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 transition-all">Try Again</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
