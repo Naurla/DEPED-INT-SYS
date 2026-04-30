@@ -119,7 +119,7 @@ Route::get('/', function () {
         $banners = $dbBanners->map(fn($banner) => asset('storage/' . $banner->image_path));
     }
 
-    return view('index', compact('latestAdvisory', 'banners'));
+    return view('/home/index', compact('latestAdvisory', 'banners'));
 })->name('login'); 
 
 // Admin Login
