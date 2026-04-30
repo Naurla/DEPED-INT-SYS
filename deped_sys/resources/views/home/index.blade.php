@@ -33,25 +33,21 @@
         </div>
     </div>
 
-    {{-- ADVISORY SECTION --}}
-    <section class="container mx-auto mt-16 px-4 mb-24">
-        <div class="flex justify-center">
-            @if(isset($latestAdvisory))
-                <div class="w-full max-w-[800px]"> 
-                    <a href="{{ asset('storage/' . $latestAdvisory->pdf_path) }}" target="_blank" class="block transition hover:opacity-90 flex justify-center">
-                        <img src="{{ asset('storage/' . $latestAdvisory->image_path) }}" 
-                             alt="Latest Advisory" 
-                             class="w-full max-h-[500px] md:max-h-[750px] object-contain object-center rounded-lg drop-shadow-md">
-                    </a>
-                </div>
-            @else
-                <div class="flex flex-col items-center py-24 w-full max-w-[800px]">
-                    <svg class="w-20 h-20 text-gray-200 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l4 4v10a2 2 0 01-2 2zM14 4v4h4" />
-                    </svg>
-                    <p class="text-gray-400 font-black uppercase tracking-widest">No Recent Advisories Found</p>
-                </div>
-            @endif
+    {{-- INTERACTIVE MAP SECTION --}}
+    <section class="container mx-auto mt-16 px-4 mb-24 flex justify-center">
+        <div class="w-full lg:w-[90%]">
+            
+            
+            {{-- Map iFrame Container --}}
+            <div class="w-full h-[75vh] min-h-[600px] border border-gray-300 rounded-xl overflow-hidden bg-gray-50 shadow-md">
+                <iframe 
+                    src="http://10.10.11.33:8000/?embed=true" 
+                    class="w-full h-full"
+                    frameborder="0" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
         </div>
     </section>
 @endsection
