@@ -176,54 +176,64 @@
         </div>
     </div>
 
-    {{-- ================= FULL-SCREEN FIXED MODALS (MOVED TO ROOT TO FIX WHITESPACE) ================= --}}
+    {{-- ================= FULL-SCREEN FIXED MODALS ================= --}}
 
     {{-- ADD STRAND --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[9999] w-screen h-screen flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden" @click.away="addModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl tracking-tight uppercase">Create Learning Strand</h3>
                 <button type="button" @click="addModal = false" class="text-4xl font-bold hover:text-gray-300">&times;</button>
             </div>
-            <form action="{{ route('admin.curriculum.strands.store') }}" method="POST" class="p-8 space-y-6">
+            <form action="{{ route('admin.curriculum.strands.store') }}" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf <input type="hidden" name="form_type" value="add_strand">
-                <div><label class="block text-gray-800 text-lg font-bold mb-2">Title <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('form_type') === 'add_strand' ? old('name') : '' }}" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
-                    @if(old('form_type') === 'add_strand') @error('name') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div><label class="block text-gray-800 text-lg font-bold mb-2">Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" value="{{ old('form_type') === 'add_strand' ? old('name') : '' }}" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                        @if(old('form_type') === 'add_strand') @error('name') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
+                    </div>
+                    <div><label class="block text-gray-800 text-lg font-bold mb-2">Content Title</label>
+                        <input type="text" name="content_title" value="{{ old('form_type') === 'add_strand' ? old('content_title') : '' }}" class="w-full border border-gray-300 p-4 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500">
+                    </div>
+                    <div><label class="block text-gray-800 text-lg font-bold mb-2">Description Bullets</label>
+                        <div class="space-y-3"><template x-for="(desc, index) in strandData.descriptions" :key="index"><div class="flex items-center gap-3"><input type="text" name="content_description[]" x-model="strandData.descriptions[index]" class="flex-grow border border-gray-300 p-3 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500 bg-white"><button type="button" @click="strandData.descriptions.splice(index, 1)" x-show="strandData.descriptions.length > 1" class="text-red-600 text-2xl font-bold px-2 rounded hover:bg-red-50">&times;</button></div></template></div>
+                        <button type="button" @click="strandData.descriptions.push('')" class="mt-4 text-blue-600 font-bold uppercase text-sm hover:underline tracking-wide">+ Add New Bullet Point</button>
+                    </div>
                 </div>
-                <div><label class="block text-gray-800 text-lg font-bold mb-2">Content Title</label>
-                    <input type="text" name="content_title" value="{{ old('form_type') === 'add_strand' ? old('content_title') : '' }}" class="w-full border border-gray-300 p-4 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500">
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md text-lg transition-colors">Save Strand</button>
+                    <button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600">Cancel</button>
                 </div>
-                <div><label class="block text-gray-800 text-lg font-bold mb-2">Description Bullets</label>
-                    <div class="space-y-3"><template x-for="(desc, index) in strandData.descriptions" :key="index"><div class="flex items-center gap-3"><input type="text" name="content_description[]" x-model="strandData.descriptions[index]" class="flex-grow border border-gray-300 p-3 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500 bg-white"><button type="button" @click="strandData.descriptions.splice(index, 1)" x-show="strandData.descriptions.length > 1" class="text-red-600 text-2xl font-bold px-2 rounded hover:bg-red-50">&times;</button></div></template></div>
-                    <button type="button" @click="strandData.descriptions.push('')" class="mt-4 text-blue-600 font-bold uppercase text-sm hover:underline tracking-wide">+ Add New Bullet Point</button>
-                </div>
-                <div class="bg-gray-50 -mx-8 -mb-8 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100"><button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md text-lg transition-colors">Save Strand</button><button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600">Cancel</button></div>
             </form>
         </div>
     </div>
 
     {{-- EDIT STRAND --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[9999] w-screen h-screen flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden" @click.away="editModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl tracking-tight uppercase">Edit Learning Strand</h3>
                 <button type="button" @click="editModal = false" class="text-4xl font-bold hover:text-gray-300">&times;</button>
             </div>
-            <form :action="'/admin/curriculum/strands/' + strandData.id" method="POST" class="p-8 space-y-6">
+            <form :action="'/admin/curriculum/strands/' + strandData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf @method('PUT') <input type="hidden" name="form_type" value="edit_strand">
-                <div><label class="block text-gray-800 text-lg font-bold mb-2">Title <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" x-model="strandData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500">
-                    @if(old('form_type') === 'edit_strand') @error('name') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div><label class="block text-gray-800 text-lg font-bold mb-2">Title <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="strandData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500">
+                        @if(old('form_type') === 'edit_strand') @error('name') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
+                    </div>
+                    <div><label class="block text-gray-800 text-lg font-bold mb-2">Content Title</label>
+                        <input type="text" name="content_title" x-model="strandData.content_title" class="w-full border border-gray-300 p-4 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500">
+                    </div>
+                    <div><label class="block text-gray-800 text-lg font-bold mb-2">Description Bullets</label>
+                        <div class="space-y-3"><template x-for="(desc, index) in strandData.descriptions" :key="index"><div class="flex items-center gap-3"><input type="text" name="content_description[]" x-model="strandData.descriptions[index]" class="flex-grow border border-gray-300 p-3 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500 bg-white"><button type="button" @click="strandData.descriptions.splice(index, 1)" x-show="strandData.descriptions.length > 1" class="text-red-600 text-2xl font-bold px-2 rounded hover:bg-red-50">&times;</button></div></template></div>
+                        <button type="button" @click="strandData.descriptions.push('')" class="mt-4 text-blue-600 font-bold uppercase text-sm hover:underline transition-colors">+ Add New Bullet Point</button>
+                    </div>
                 </div>
-                <div><label class="block text-gray-800 text-lg font-bold mb-2">Content Title</label>
-                    <input type="text" name="content_title" x-model="strandData.content_title" class="w-full border border-gray-300 p-4 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500">
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md text-lg transition-colors">Save Changes</button>
+                    <button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600">Cancel</button>
                 </div>
-                <div><label class="block text-gray-800 text-lg font-bold mb-2">Description Bullets</label>
-                    <div class="space-y-3"><template x-for="(desc, index) in strandData.descriptions" :key="index"><div class="flex items-center gap-3"><input type="text" name="content_description[]" x-model="strandData.descriptions[index]" class="flex-grow border border-gray-300 p-3 text-lg rounded-lg outline-none focus:ring-2 focus:ring-red-500 bg-white"><button type="button" @click="strandData.descriptions.splice(index, 1)" x-show="strandData.descriptions.length > 1" class="text-red-600 text-2xl font-bold px-2 rounded hover:bg-red-50">&times;</button></div></template></div>
-                    <button type="button" @click="strandData.descriptions.push('')" class="mt-4 text-blue-600 font-bold uppercase text-sm hover:underline transition-colors">+ Add New Bullet Point</button>
-                </div>
-                <div class="bg-gray-50 -mx-8 -mb-8 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100"><button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md text-lg transition-colors">Save Changes</button><button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600">Cancel</button></div>
             </form>
         </div>
     </div>
@@ -273,18 +283,18 @@
 
     {{-- FILE MODAL --}}
     <div x-show="fileModal" x-cloak class="fixed inset-0 z-[9999] w-screen h-screen flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="fileModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="fileModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-lg uppercase tracking-wider">Upload PDF Material</h3>
                 <button type="button" @click="fileModal = false" class="text-3xl font-bold">&times;</button>
             </div>
-            <form action="{{ route('admin.curriculum.materials.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.curriculum.materials.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf <input type="hidden" name="learning_strand_id" :value="activeStrandId">
-                <div class="p-8 space-y-5">
+                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
                     <div><label class="block text-sm font-bold text-gray-700 mb-2 uppercase">PDF Title</label><input type="text" name="title" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"></div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Select PDF File</label><input type="file" name="pdf_file" accept=".pdf" required class="w-full border border-gray-300 p-3 rounded-lg text-sm text-gray-600 bg-white"></div>
                 </div>
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100">
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-all shadow-sm">Upload Material</button>
                     <button type="button" @click="fileModal = false" class="px-5 py-2.5 font-bold text-gray-600 text-sm hover:text-gray-800">Cancel</button>
                 </div>
@@ -294,22 +304,22 @@
 
     {{-- EDIT GUIDE MODAL --}}
     <div x-show="editGuideModal" x-cloak class="fixed inset-0 z-[9999] w-screen h-screen flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
-        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="editGuideModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editGuideModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-lg uppercase tracking-wider">Edit Curriculum Guide</h3>
                 <button type="button" @click="editGuideModal = false" class="text-3xl font-bold">&times;</button>
             </div>
-            <form :action="'/admin/curriculum/guides/' + guideData.id" method="POST">
+            <form :action="'/admin/curriculum/guides/' + guideData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
                 @csrf @method('PUT') <input type="hidden" name="form_type" value="edit_guide">
                 <input type="hidden" name="guide_id" :value="guideData.id">
-                <div class="p-8 space-y-5">
+                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
                     <div><label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Guide Title</label>
                         <input type="text" name="title" x-model="guideData.title" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
                         @if(old('form_type') === 'edit_guide') @error('title') <p class="text-red-500 text-[10px] mt-1 font-bold">{{ $message }}</p> @enderror @endif
                     </div>
                     <div><label class="block text-sm font-bold text-gray-700 mb-2 uppercase">URL Link</label><input type="url" name="link" x-model="guideData.link" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all"></div>
                 </div>
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100">
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-100 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg text-sm transition-all shadow-sm">Save Changes</button>
                     <button type="button" @click="editGuideModal = false" class="px-5 py-2.5 font-bold text-gray-600 text-sm hover:text-gray-800 transition-colors">Cancel</button>
                 </div>

@@ -112,15 +112,21 @@
 
     {{-- Add Modal --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden" @click.away="addModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
+            
+            <!-- Fixed Header -->
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Upload New Chart</h3>
                 <button type="button" @click="addModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
-            <form action="{{ route('admin.cid.store') }}" method="POST" enctype="multipart/form-data">
+
+            <!-- Flex Form -->
+            <form action="{{ route('admin.cid.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 <input type="hidden" name="form_type" value="add">
-                <div class="p-8 space-y-6">
+                
+                <!-- Scrollable Content Area -->
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Chart Title <span class="text-red-500">*</span></label>
                         <input type="text" name="title" value="{{ old('form_type') === 'add' ? old('title') : '' }}" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
@@ -136,7 +142,9 @@
                         @if(old('form_type') === 'add') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
                 </div>
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-200">
+
+                <!-- Fixed Footer -->
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md text-lg">Upload Chart</button>
                     <button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800">Cancel</button>
                 </div>
@@ -146,17 +154,23 @@
 
     {{-- Edit Modal --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden" @click.away="editModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+            
+            <!-- Fixed Header -->
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Edit Chart</h3>
                 <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
-            <form :action="`/admin/cid/${editItem?.id}`" method="POST" enctype="multipart/form-data">
+
+            <!-- Flex Form -->
+            <form :action="`/admin/cid/${editItem?.id}`" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf @method('PUT')
                 <input type="hidden" name="form_type" value="edit">
                 <input type="hidden" name="id" :value="editItem?.id">
                 <input type="hidden" name="existing_image" :value="editItem?.image_path">
-                <div class="p-8 space-y-6">
+                
+                <!-- Scrollable Content Area -->
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Chart Title <span class="text-red-500">*</span></label>
                         <input type="text" name="title" x-model="editItem.title" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
@@ -172,7 +186,9 @@
                         <p class="text-sm text-gray-500 mt-2 italic">Leave blank to keep current chart image.</p>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-200">
+
+                <!-- Fixed Footer -->
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md text-lg">Update Chart</button>
                     <button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800">Cancel</button>
                 </div>

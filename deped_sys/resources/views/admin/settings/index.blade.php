@@ -3,6 +3,22 @@
 @section('page_title', 'Site Settings')
 
 @section('content')
+<style>
+    [x-cloak] { display: none !important; }
+
+    /* Subtle scrollbar for the delete modal target box */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #fca5a5; 
+        border-radius: 10px;
+    }
+</style>
+
 <div x-data="{
     emails: Object.values({{ json_encode(old('contact_email', $settings->contact_email ?? [''])) }}),
     phones: Object.values({{ json_encode(old('contact_phone', $settings->contact_phone ?? [''])) }}),
@@ -11,6 +27,7 @@
     
     // Modal State
     deleteModal: false,
+    successModal: {{ session('success') ? 'true' : 'false' }},
     deleteTarget: null,
     deleteIndex: null,
     deleteParentIndex: null,
@@ -45,13 +62,7 @@
         </div>
     </div>
 
-    {{-- Alerts --}}
-    @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
-            {{ session('success') }}
-        </div>
-    @endif
-
+    {{-- Error Alerts --}}
     @if ($errors->any())
         <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative shadow-sm text-sm">
             <strong class="font-bold">Oops! Could not save changes:</strong>
@@ -99,7 +110,7 @@
                         <textarea name="footer_about" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">{{ old('footer_about', $settings->footer_about) }}</textarea>
                     </div>
 
-                    {{-- Contact Lists grouped in reference style gray box --}}
+                    {{-- Contact Lists --}}
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         
                         <div>
@@ -107,7 +118,7 @@
                             <template x-for="(email, index) in emails" :key="index">
                                 <div class="flex mb-2 items-center gap-2">
                                     <input type="email" :name="'contact_email['+index+']'" x-model="emails[index]" class="flex-1 border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="e.g., email@deped.gov.ph">
-                                    <button type="button" @click="confirmDelete('email', index, 'this email')" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2" title="Remove">Remove</button>
+                                    <button type="button" @click="confirmDelete('email', index, emails[index] || 'this email')" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2" title="Remove">Remove</button>
                                 </div>
                             </template>
                             <button type="button" @click="emails.push('')" class="text-xs font-bold uppercase text-blue-600 hover:text-blue-800 hover:underline mt-1">+ Add Email</button>
@@ -118,7 +129,7 @@
                             <template x-for="(phone, index) in phones" :key="index">
                                 <div class="flex mb-2 items-center gap-2">
                                     <input type="text" :name="'contact_phone['+index+']'" x-model="phones[index]" class="flex-1 border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                    <button type="button" @click="confirmDelete('phone', index, 'this phone number')" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2" title="Remove">Remove</button>
+                                    <button type="button" @click="confirmDelete('phone', index, phones[index] || 'this phone number')" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2" title="Remove">Remove</button>
                                 </div>
                             </template>
                             <button type="button" @click="phones.push('')" class="text-xs font-bold uppercase text-blue-600 hover:text-blue-800 hover:underline mt-1">+ Add Phone</button>
@@ -129,7 +140,7 @@
                             <template x-for="(address, index) in addresses" :key="index">
                                 <div class="flex mb-2 items-center gap-2">
                                     <input type="text" :name="'address['+index+']'" x-model="addresses[index]" class="flex-1 border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                    <button type="button" @click="confirmDelete('address', index, 'this address')" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2" title="Remove">Remove</button>
+                                    <button type="button" @click="confirmDelete('address', index, addresses[index] || 'this address')" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2" title="Remove">Remove</button>
                                 </div>
                             </template>
                             <button type="button" @click="addresses.push('')" class="text-xs font-bold uppercase text-blue-600 hover:text-blue-800 hover:underline mt-1">+ Add Address</button>
@@ -146,7 +157,7 @@
                     <div class="space-y-4">
                         <template x-for="(section, sIndex) in sections" :key="sIndex">
                             <div class="border border-gray-200 p-6 rounded-lg bg-white relative shadow-sm">
-                                <button type="button" @click="confirmDelete('section', sIndex, 'this footer category')" class="absolute top-6 right-6 text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline">Remove Category</button>
+                                <button type="button" @click="confirmDelete('section', sIndex, section.title || 'this footer category')" class="absolute top-6 right-6 text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline">Remove Category</button>
                                 
                                 <div class="mb-4 w-3/4 pr-24">
                                     <label class="block text-gray-700 text-sm font-bold mb-1">Category Title <span class="text-red-500">*</span></label>
@@ -165,7 +176,7 @@
                                         <div class="flex gap-3 mb-2 items-center">
                                             <input type="text" x-model="link.label" :name="'footer_sections['+sIndex+'][links]['+lIndex+'][label]'" placeholder="Link Title (e.g. GOV.PH)" class="w-1/3 border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
                                             <input type="text" x-model="link.url" :name="'footer_sections['+sIndex+'][links]['+lIndex+'][url]'" placeholder="URL (e.g. https://gov.ph)" class="flex-1 border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                            <button type="button" @click="confirmDelete('link', lIndex, 'this link', sIndex)" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2">Remove</button>
+                                            <button type="button" @click="confirmDelete('link', lIndex, link.label || 'this link', sIndex)" class="text-xs font-bold uppercase text-red-600 hover:text-red-800 hover:underline px-2">Remove</button>
                                         </div>
                                     </template>
                                     
@@ -186,47 +197,76 @@
 
             {{-- Form Action Footer --}}
             <div class="bg-gray-50 p-6 border-t border-gray-200 flex justify-end">
-                <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition-colors text-sm">
+                <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">
                     Save All Settings
                 </button>
             </div>
         </form>
     </div>
 
-    {{-- GLOBAL MODAL: Delete Confirmation --}}
-    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] overflow-y-auto" style="display: none;">
-        <div class="flex items-center justify-center min-h-screen px-4 text-center">
-            <div class="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity" @click="deleteModal = false"></div>
-
-            <div x-show="deleteModal" x-transition class="bg-white rounded-2xl p-8 shadow-2xl z-[70] w-full max-w-sm transform transition-all relative">
-                
-                <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    {{-- MODERNIZED GLOBAL MODAL: Delete/Remove Confirmation --}}
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
+            
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
                     </svg>
                 </div>
+            </div>
+            
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Confirm Removal</h3>
+                <p class="text-gray-500 text-sm mb-5 px-4 leading-relaxed">Are you sure you want to remove this item? You will still need to click <strong class="text-gray-700">"Save All Settings"</strong> to make this change permanent.</p>
                 
-                <h3 class="text-xl font-bold text-gray-800 mb-2">Confirm Removal</h3>
-                <p class="text-gray-500 text-sm mb-6">Are you sure you want to remove <span class="font-bold text-gray-800" x-text="deleteTitle"></span>? You will still need to click "Save All Settings" to make this permanent.</p>
-                
-                <div class="flex space-x-3">
-                    <button type="button" @click="deleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold hover:bg-gray-200 transition">
-                        Cancel
-                    </button>
-                    
-                    <button type="button" @click="executeDelete()" class="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl font-bold hover:bg-red-700 shadow-lg shadow-red-200 transition">
-                        Remove
-                    </button>
+                <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
+                    <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all focus:outline-none focus:ring-2 focus:ring-gray-200">
+                    Cancel
+                </button>
+                
+                <button type="button" @click="executeDelete()" class="flex-1 inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 transition-all focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Yes, Remove
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODERNIZED GLOBAL MODAL: Success Message --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
+            
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
+                <p class="text-gray-500 text-base leading-relaxed px-4">
+                    @if(session('success'))
+                        {{ session('success') }}
+                    @else
+                        Site settings updated successfully.
+                    @endif
+                </p>
+            </div>
+            
+            <div class="flex">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 transition-all focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Continue
+                </button>
             </div>
         </div>
     </div>
 
 </div>
 @endsection
-
-@push('styles')
-<style>
-    [x-cloak] { display: none !important; }
-</style>
-@endpush

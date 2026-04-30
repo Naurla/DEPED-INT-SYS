@@ -5,19 +5,44 @@
 @section('content')
 <style>
     [x-cloak] { display: none !important; }
+
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #fca5a5; 
+        border-radius: 10px;
+    }
 </style>
 
 <div x-data="{ 
     bannerModal: false, 
     deleteModal: false, 
     editModal: false,
+    successModal: {{ session('success') ? 'true' : 'false' }},
+    errorModal: {{ $errors->any() ? 'true' : 'false' }},
+    removeImage: false,
     bannerId: null,
     editId: null,
     editOrder: 1,
     originalEditOrder: 1,
     editStatus: '1',
+    currentImagePath: '',
     deleteTitle: '',
-    occupiedOrders: @json($banners->where('is_active', 1)->pluck('sort_order')->values()->toArray())
+    occupiedOrders: @json($banners->where('is_active', 1)->pluck('sort_order')->values()->toArray()),
+
+    openEdit(banner, displayName) {
+        this.editId = banner.id;
+        this.editOrder = banner.sort_order;
+        this.originalEditOrder = banner.sort_order;
+        this.editStatus = banner.is_active ? '1' : '0';
+        this.currentImagePath = banner.image_path;
+        this.removeImage = false;
+        this.editModal = true;
+    }
 }">
 
     <div class="flex justify-between items-center mb-6">
@@ -30,24 +55,6 @@
             Add New Banner
         </button>
     </div>
-
-    {{-- Success Message --}}
-    @if(session('success'))
-        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative shadow-sm text-sm font-bold">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    {{-- Error Message (Triggered if order conflict bypasses frontend) --}}
-    @if($errors->any())
-        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative shadow-sm text-sm font-bold">
-            <ul class="list-disc pl-5">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="overflow-x-auto">
@@ -64,10 +71,8 @@
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse($banners as $banner)
                     
-                    {{-- Clean up the file name for display --}}
                     @php
                         $basename = basename($banner->image_path);
-                        // Strips the 10-digit timestamp if it exists, leaving the clean name
                         $displayName = preg_replace('/^\d{10}_/', '', $basename);
                     @endphp
 
@@ -95,8 +100,8 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 align-middle text-right">
-                            <div class="flex justify-end gap-3 items-center">
-                                <button @click="editId = {{ $banner->id }}; editOrder = {{ $banner->sort_order }}; originalEditOrder = {{ $banner->sort_order }}; editStatus = '{{ $banner->is_active ? 1 : 0 }}'; editModal = true" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                            <div class="flex justify-end gap-3 items-center text-right">
+                                <button @click="openEdit({{ $banner->toJson() }}, '{{ addslashes($displayName) }}')" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
                                 <button @click="bannerId = {{ $banner->id }}; deleteTitle = '{{ addslashes($displayName) }}'; deleteModal = true" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Remove</button>
                             </div>
                         </td>
@@ -113,25 +118,25 @@
 
     {{-- ADD MODAL --}}
     <div x-show="bannerModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="bannerModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-bold text-gray-800 text-lg">Upload New Banner</h3>
-                <button type="button" @click="bannerModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="bannerModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl uppercase tracking-tight">Upload New Banner</h3>
+                <button type="button" @click="bannerModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.banners.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Select Banner Image <span class="text-red-500">*</span></label>
-                        <input type="file" name="image" required class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 transition-colors border border-gray-300 rounded-lg p-1.5 cursor-pointer">
-                        <p class="text-[10px] text-gray-400 mt-2 italic">Recommended size: 1920x600px (JPG/PNG)</p>
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Select Banner Image <span class="text-red-500">*</span></label>
+                        <input type="file" name="image" required class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                        <p class="text-xs text-gray-500 mt-3 italic">Recommended size: 1920x600px (JPG/PNG)</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Display Order</label>
-                            <select name="sort_order" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-red-500 focus:border-red-500">
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Display Order</label>
+                            <select name="sort_order" class="w-full border border-gray-300 p-4 rounded-lg text-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
                                 <template x-for="i in 10">
                                     <option :value="i" 
                                             :disabled="occupiedOrders.includes(i)" 
@@ -141,44 +146,60 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Status</label>
-                            <select name="is_active" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-red-500 focus:border-red-500">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Initial Status</label>
+                            <select name="is_active" class="w-full border border-gray-300 p-4 rounded-lg text-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
+                                <option value="1">Active (Visible)</option>
+                                <option value="0">Inactive (Hidden)</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 items-center border-t border-gray-100">
-                    <button @click="bannerModal = false" type="button" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Upload Now</button>
+                
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg uppercase">Upload Now</button>
+                    <button @click="bannerModal = false" type="button" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- EDIT MODAL --}}
+    {{-- EDIT MODAL (Fixed Image Preview) --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-md shadow-2xl overflow-hidden" @click.away="editModal = false">
-            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                <h3 class="font-bold text-gray-800 text-lg">Edit Banner</h3>
-                <button type="button" @click="editModal = false" class="text-gray-400 hover:text-gray-600 text-2xl font-bold">&times;</button>
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl uppercase tracking-tight">Edit Banner</h3>
+                <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <form :action="'/admin/banners/' + editId" method="POST" enctype="multipart/form-data">
+            <form :action="'/admin/banners/' + editId" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 @method('PUT')
-                <div class="p-6 space-y-4">
-                    <div>
-                        <label class="block text-sm font-bold text-gray-700 mb-1">Upload New Image (Optional)</label>
-                        <input type="file" name="image" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 transition-colors border border-gray-300 rounded-lg p-1.5 cursor-pointer">
-                        <p class="text-[10px] text-gray-400 mt-2 italic">Leave empty to keep the current image.</p>
+                <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
+
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Replace Image (Optional)</label>
+                        <input type="file" name="image" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                        
+                        <!-- NEWLY ADDED: Current Image Preview Box -->
+                        <template x-if="currentImagePath && !removeImage">
+                            <div class="mt-4 flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-xl">
+                                <span class="text-base text-red-900 font-bold truncate max-w-[280px]" x-text="'Current: ' + currentImagePath.split('/').pop()"></span>
+                                <button type="button" @click="removeImage = true" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg transition-colors">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </template>
+
+                        <p class="text-sm text-gray-500 mt-3 italic text-center">Leave blank to keep the current banner image.</p>
                     </div>
 
-                    <div class="grid grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Display Order</label>
-                            <select name="sort_order" x-model.number="editOrder" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-red-500 focus:border-red-500">
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Display Position</label>
+                            <select name="sort_order" x-model.number="editOrder" class="w-full border border-gray-300 p-4 rounded-lg text-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
                                 <template x-for="i in 10">
                                     <option :value="i" 
                                             :disabled="occupiedOrders.includes(i) && i !== originalEditOrder" 
@@ -188,50 +209,86 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-sm font-bold text-gray-700 mb-1">Status</label>
-                            <select name="is_active" x-model="editStatus" class="w-full border border-gray-300 rounded-lg p-2 text-sm focus:ring-red-500 focus:border-red-500">
+                            <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Visibility Status</label>
+                            <select name="is_active" x-model="editStatus" class="w-full border border-gray-300 p-4 rounded-lg text-lg focus:ring-2 focus:ring-red-500 outline-none bg-white">
                                 <option value="1">Active</option>
                                 <option value="0">Inactive</option>
                             </select>
                         </div>
                     </div>
                 </div>
-                <div class="bg-gray-50 px-6 py-4 flex justify-end gap-3 items-center border-t border-gray-100">
-                    <button @click="editModal = false" type="button" class="px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
-                    <button type="submit" class="px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors uppercase tracking-wider">Save Changes</button>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg uppercase">Save Changes</button>
+                    <button @click="editModal = false" type="button" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- DELETE MODAL --}}
-    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity" style="display: none;">
-        <div class="bg-white rounded-2xl p-8 shadow-2xl z-50 w-full max-w-sm transform transition-all relative" @click.away="deleteModal = false">
-            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
+    {{-- MODERNIZED DELETE MODAL --}}
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
             </div>
-            
-            <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">Delete Banner?</h3>
-            <div class="text-gray-500 text-sm mb-6 text-center">
-                Are you sure you want to remove <br>
-                <span class="font-bold text-gray-900 break-all block mt-1 px-2" x-text="deleteTitle"></span> 
-                <br>This cannot be undone.
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Delete Banner?</h3>
+                <p class="text-gray-500 text-sm mb-5 text-center px-4">You are about to permanently delete this slider image:</p>
+                <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
+                    <span class="font-bold text-gray-900 break-all text-lg block text-center" x-text="deleteTitle"></span>
+                </div>
+                <p class="text-gray-400 text-sm italic mb-8">This action cannot be undone.</p>
             </div>
-            
-            <div class="flex space-x-3 border-t border-gray-100 pt-4">
-                <button type="button" @click="deleteModal = false" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">
-                    Cancel
-                </button>
-                
-                <form :action="'/admin/banners/' + bannerId" method="POST" class="flex-1 m-0 p-0 flex">
-                    @csrf 
-                    @method('DELETE')
-                    <button type="submit" class="w-full px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors">
-                        Delete
-                    </button>
+            <div class="flex gap-3">
+                <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all focus:ring-2 focus:ring-gray-200">Cancel</button>
+                <form :action="'/admin/banners/' + bannerId" method="POST" class="flex-1 m-0 p-0">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 transition-all focus:ring-2 focus:ring-red-500">Yes, Delete it</button>
                 </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- SUCCESS MODAL --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg>
+                </div>
+            </div>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center uppercase tracking-tight">Success!</h3>
+                <p class="text-gray-500 text-base leading-relaxed px-4 text-center">
+                    @if(session('success')) {{ session('success') }} @else Operation completed successfully. @endif
+                </p>
+            </div>
+            <div class="flex">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3.5 text-base font-bold text-white shadow-sm hover:bg-red-700 transition-all focus:ring-2 focus:ring-red-500 uppercase">Continue</button>
+            </div>
+        </div>
+    </div>
+
+    {{-- ERROR MODAL --}}
+    <div x-show="errorModal" x-cloak class="fixed inset-0 z-[120] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="errorModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                </div>
+            </div>
+            <div class="text-center mb-8 px-4">
+                <h3 class="text-2xl font-bold text-gray-900 mb-4 uppercase tracking-tight text-center">Action Failed</h3>
+                <div class="text-left bg-gray-50 rounded-lg p-4 custom-scrollbar max-h-32 overflow-y-auto border border-gray-100">
+                    <ul class="list-disc pl-5 font-medium text-red-600 text-sm leading-relaxed">
+                        @foreach($errors->all() as $error) <li>{{ $error }}</li> @endforeach
+                    </ul>
+                </div>
+            </div>
+            <div class="flex">
+                <button type="button" @click="errorModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3.5 text-base font-bold text-white shadow-sm hover:bg-red-700 transition-all focus:ring-2 focus:ring-red-500 uppercase">Try Again</button>
             </div>
         </div>
     </div>
