@@ -14,12 +14,8 @@ class CurriculumController extends Controller
 {
     public function index()
     {
-        // Get or create the single curriculum page record
         $pageData = CurriculumPage::firstOrCreate([]);
-        
         $strands = LearningStrand::with('materials')->orderBy('sort_order')->get();
-        
-        // Fetch the guides for the new section
         $guides = CurriculumGuide::all();
 
         return view('admin.curriculum.index', compact('pageData', 'strands', 'guides'));
@@ -34,7 +30,6 @@ class CurriculumController extends Controller
 
         $page = CurriculumPage::firstOrCreate([]);
 
-        // Handle Image Removal
         if ($request->input('remove_image') == 1) {
             if ($page->banner_image_path) {
                 Storage::disk('public')->delete($page->banner_image_path);
@@ -42,7 +37,6 @@ class CurriculumController extends Controller
             }
         }
 
-        // Handle Image Upload & Replace
         if ($request->hasFile('banner_image')) {
             if ($page->banner_image_path) {
                 Storage::disk('public')->delete($page->banner_image_path);
@@ -59,13 +53,14 @@ class CurriculumController extends Controller
     public function storeStrand(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:learning_strands,name',
             'content_title' => 'nullable|string|max:255',
-            'content_description' => 'nullable|array', // Now expects an array
-            'content_description.*' => 'nullable|string', // Validates each bullet point
+            'content_description' => 'nullable|array',
+            'content_description.*' => 'nullable|string',
+        ], [
+            'name.unique' => 'A strand with this title already exists.'
         ]);
 
-        // Clean out any empty strings from the array and re-index
         $descriptions = $request->content_description 
             ? array_values(array_filter($request->content_description, fn($val) => !is_null($val) && trim($val) !== '')) 
             : [];
@@ -73,7 +68,7 @@ class CurriculumController extends Controller
         LearningStrand::create([
             'name' => $request->name,
             'content_title' => $request->content_title,
-            'content_description' => $descriptions, // Pass the clean array
+            'content_description' => $descriptions,
         ]);
         
         return back()->with('success', 'Strand added successfully.');
@@ -82,13 +77,14 @@ class CurriculumController extends Controller
     public function updateStrand(Request $request, LearningStrand $strand)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:learning_strands,name,' . $strand->id,
             'content_title' => 'nullable|string|max:255',
-            'content_description' => 'nullable|array', // Now expects an array
+            'content_description' => 'nullable|array',
             'content_description.*' => 'nullable|string',
+        ], [
+            'name.unique' => 'A strand with this title already exists.'
         ]);
 
-        // Clean out any empty strings from the array and re-index
         $descriptions = $request->content_description 
             ? array_values(array_filter($request->content_description, fn($val) => !is_null($val) && trim($val) !== '')) 
             : [];
@@ -96,7 +92,7 @@ class CurriculumController extends Controller
         $strand->update([
             'name' => $request->name,
             'content_title' => $request->content_title,
-            'content_description' => $descriptions, // Pass the clean array
+            'content_description' => $descriptions,
         ]);
         
         return back()->with('success', 'Strand updated successfully.');
@@ -138,15 +134,13 @@ class CurriculumController extends Controller
         return back()->with('success', 'Material deleted.');
     }
 
-    // ==========================================
-    // NEW CURRICULUM GUIDES METHODS
-    // ==========================================
-
     public function storeGuide(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:curriculum_guides,title',
             'link' => 'required|url|max:255'
+        ], [
+            'title.unique' => 'A curriculum guide with this title already exists.'
         ]);
 
         CurriculumGuide::create($request->all());
@@ -157,8 +151,10 @@ class CurriculumController extends Controller
     public function updateGuide(Request $request, CurriculumGuide $guide)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:curriculum_guides,title,' . $guide->id,
             'link' => 'required|url|max:255'
+        ], [
+            'title.unique' => 'A curriculum guide with this title already exists.'
         ]);
 
         $guide->update($request->all());
@@ -169,7 +165,6 @@ class CurriculumController extends Controller
     public function destroyGuide(CurriculumGuide $guide)
     {
         $guide->delete();
-
         return redirect()->back()->with('success', 'Curriculum Guide deleted successfully!');
     }
 }

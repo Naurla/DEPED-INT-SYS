@@ -4,19 +4,20 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CurriculumGuide;
+use App\Models\CurriculumPage; // Added
+use App\Models\LearningStrand; // Added
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class CurriculumGuideController extends Controller
 {
     public function index() {
-    $pageData = CurriculumPage::first();
-    $strands = LearningStrand::with('materials')->get();
-    $guides = CurriculumGuide::all(); // ADD THIS LINE
+        $pageData = CurriculumPage::first();
+        $strands = LearningStrand::with('materials')->get();
+        $guides = CurriculumGuide::all();
 
-    // Pass $guides to the view
-    return view('admin.curriculum.index', compact('pageData', 'strands', 'guides'));
-}
+        return view('admin.curriculum.index', compact('pageData', 'strands', 'guides'));
+    }
 
     public function getData(Request $request)
     {
@@ -42,20 +43,34 @@ class CurriculumGuideController extends Controller
         }
     }
 
-   public function storeGuide(Request $request) {
-    $request->validate(['title' => 'required', 'link' => 'required|url']);
-    CurriculumGuide::create($request->all());
-    return back()->with('success', 'Curriculum Guide added!');
-}
+    public function storeGuide(Request $request) {
+        // Unique validation added with custom error message
+        $request->validate([
+            'title' => 'required|string|max:255|unique:curriculum_guides,title',
+            'link' => 'required|url'
+        ], [
+            'title.unique' => 'A curriculum guide with this title already exists. Please provide a unique title.'
+        ]);
 
-public function updateGuide(Request $request, CurriculumGuide $guide) {
-    $request->validate(['title' => 'required', 'link' => 'required|url']);
-    $guide->update($request->all());
-    return back()->with('success', 'Curriculum Guide updated!');
-}
+        CurriculumGuide::create($request->all());
+        return back()->with('success', 'Curriculum Guide added!');
+    }
 
-public function destroyGuide(CurriculumGuide $guide) {
-    $guide->delete();
-    return back()->with('success', 'Curriculum Guide deleted!');
-}
+    public function updateGuide(Request $request, CurriculumGuide $guide) {
+        // Unique validation ignoring current record
+        $request->validate([
+            'title' => 'required|string|max:255|unique:curriculum_guides,title,' . $guide->id,
+            'link' => 'required|url'
+        ], [
+            'title.unique' => 'A curriculum guide with this title already exists. Please provide a unique title.'
+        ]);
+
+        $guide->update($request->all());
+        return back()->with('success', 'Curriculum Guide updated!');
+    }
+
+    public function destroyGuide(CurriculumGuide $guide) {
+        $guide->delete();
+        return back()->with('success', 'Curriculum Guide deleted!');
+    }
 }

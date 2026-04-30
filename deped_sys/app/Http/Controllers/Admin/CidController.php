@@ -11,16 +11,18 @@ class CidController extends Controller
 {
     public function index()
     {
-        $cids = Cid::latest()->paginate(5);;
+        $cids = Cid::latest()->paginate(5);
         return view('admin.cid.index', compact('cids'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:cids,title',
             'description' => 'nullable|string',
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:5120', 
+        ], [
+            'title.unique' => 'A CID Chart with this title already exists. Please use a unique title.'
         ]);
 
         $data = $request->only(['title', 'description']);
@@ -34,9 +36,11 @@ class CidController extends Controller
     public function update(Request $request, Cid $cid)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:cids,title,' . $cid->id,
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+        ], [
+            'title.unique' => 'A CID Chart with this title already exists. Please use a unique title.'
         ]);
 
         $data = $request->only(['title', 'description']);

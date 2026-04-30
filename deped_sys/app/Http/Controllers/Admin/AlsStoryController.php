@@ -17,11 +17,14 @@ class AlsStoryController extends Controller
 
     public function store(Request $request)
     {
+        // Added unique validation rule and custom error messages
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:als_stories,title',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv,doc,docx|max:10240',
+        ], [
+            'title.unique' => 'This Story Title already exists. Please provide a unique entry.'
         ]);
 
         $data = $request->only(['title', 'content']);
@@ -47,11 +50,14 @@ class AlsStoryController extends Controller
     {
         $alsStory = AlsStory::findOrFail($id);
 
+        // Added unique validation rule that ignores the current record
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:als_stories,title,' . $id,
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv,doc,docx|max:10240',
+        ], [
+            'title.unique' => 'This Story Title already exists. Please provide a unique entry.'
         ]);
 
         $data = $request->only(['title', 'content']);

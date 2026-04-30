@@ -18,10 +18,12 @@ class AlsImplementerController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:als_implementers,title',
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv,doc,docx|max:10240',
+        ], [
+            'title.unique' => 'This Name / Month already exists. Please provide a unique entry.'
         ]);
 
         $data = $request->only(['title', 'content']);
@@ -48,10 +50,12 @@ class AlsImplementerController extends Controller
         $alsImplementer = AlsImplementer::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:als_implementers,title,' . $id,
             'content' => 'required|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv,doc,docx|max:10240',
+        ], [
+            'title.unique' => 'This Name / Month already exists. Please provide a unique entry.'
         ]);
 
         $data = $request->only(['title', 'content']);
