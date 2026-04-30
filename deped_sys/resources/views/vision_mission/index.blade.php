@@ -36,44 +36,41 @@
         <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">Vision, Mission, Core Values, and Mandate</h1>
     </div>
 
-    <div class="flex flex-col lg:flex-row gap-12">
+    {{-- Content Section - Now spanning the full width of the container --}}
+    <div class="w-full">
         
-        <div class="w-full lg:w-3/4">
+        <div class="mb-12 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Vision</h2>
             
-            <div class="mb-12 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Vision</h2>
-                
-                <div class="{{ $richTextClasses }}">
-                    {!! $data->vision ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
+            <div class="{{ $richTextClasses }}">
+                {!! $data->vision ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
             </div>
-
-            <div class="mb-12 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Mission</h2>
-                
-                <div class="{{ $richTextClasses }}">
-                    {!! $data->mission ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
-            </div>
-
-            <div class="mb-12 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Core Values</h2>
-                
-                <div class="{{ $richTextClasses }}">
-                    {!! $data->core_values ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
-            </div>
-
-            <div class="mb-8 w-full break-words">
-                <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Mandate</h2>
-                
-                <div class="{{ $richTextClasses }}">
-                    {!! $data->mandate ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
-                </div>
-            </div>
-
         </div>
-        
+
+        <div class="mb-12 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Mission</h2>
+            
+            <div class="{{ $richTextClasses }}">
+                {!! $data->mission ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+            </div>
+        </div>
+
+        <div class="mb-12 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Core Values</h2>
+            
+            <div class="{{ $richTextClasses }}">
+                {!! $data->core_values ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+            </div>
+        </div>
+
+        <div class="mb-8 w-full break-words">
+            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">Mandate</h2>
+            
+            <div class="{{ $richTextClasses }}">
+                {!! $data->mandate ?? '<p class="text-gray-400 italic">No content available yet.</p>' !!}
+            </div>
+        </div>
+
     </div>
 </div>
 

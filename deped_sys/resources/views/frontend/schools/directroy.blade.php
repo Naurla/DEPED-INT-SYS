@@ -6,7 +6,7 @@
     
     <div class="w-full h-[75vh] min-h-[650px] rounded-3xl overflow-hidden shadow-2xl border border-gray-200 bg-gray-50">
         <iframe 
-            src="http://10.10.11.115:8000/?embed=true" 
+            src="http://10.10.10.109:8000/?embed=true" 
             class="w-full h-full" 
             frameborder="0" 
             allowfullscreen>

@@ -76,7 +76,7 @@
 
     .google-visualization-orgchart-table {
         border-collapse: collapse !important; 
-        margin: 0 auto !important; 
+        margin: 0 !important; 
     }
 
     .google-visualization-orgchart-lineleft,
