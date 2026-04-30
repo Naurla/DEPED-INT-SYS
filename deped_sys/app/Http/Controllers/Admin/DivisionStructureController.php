@@ -18,9 +18,17 @@ class DivisionStructureController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:division_structures,name',
             'main_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'pdf_documents.*' => 'nullable|mimes:pdf|max:10000',
+        ], [
+            'name.required' => 'Please provide a title for this structure.',
+            'name.unique' => 'This title already exists. Please provide a unique entry.',
+            'main_photo.image' => 'The banner photo must be an image file.',
+            'main_photo.mimes' => 'The banner photo must be a file of type: jpeg, png, jpg.',
+            'main_photo.max' => 'The banner photo must not be larger than 2MB.',
+            'pdf_documents.*.mimes' => 'All attached documents must be valid PDF files.',
+            'pdf_documents.*.max' => 'Each PDF document must not exceed 10MB in size.',
         ]);
 
         $data = $request->except(['main_photo', 'pdf_documents']);
@@ -55,9 +63,17 @@ class DivisionStructureController extends Controller
     public function update(Request $request, DivisionStructure $divisionStructure)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:division_structures,name,' . $divisionStructure->id,
             'main_photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
             'pdf_documents.*' => 'nullable|mimes:pdf|max:10000',
+        ], [
+            'name.required' => 'Please provide a title for this structure.',
+            'name.unique' => 'This title already exists. Please provide a unique entry.',
+            'main_photo.image' => 'The banner photo must be an image file.',
+            'main_photo.mimes' => 'The banner photo must be a file of type: jpeg, png, jpg.',
+            'main_photo.max' => 'The banner photo must not be larger than 2MB.',
+            'pdf_documents.*.mimes' => 'All attached documents must be valid PDF files.',
+            'pdf_documents.*.max' => 'Each PDF document must not exceed 10MB in size.',
         ]);
 
         $data = $request->except(['main_photo', 'pdf_documents']);

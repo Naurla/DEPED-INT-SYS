@@ -82,12 +82,18 @@ class IssuanceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:issuances,title',
             'description' => 'nullable|string', 
             'type' => 'required|in:advisory,memorandum,hrmpsb',
-            'pdf_file' => 'nullable|mimes:pdf|max:10240', // Changed to nullable
-            'link' => 'nullable|url|max:2000', // Added link validation
+            'pdf_file' => 'nullable|mimes:pdf|max:10240',
+            'link' => 'nullable|url|max:2000',
             'date' => 'nullable|date',
+        ], [
+            'title.required' => 'Please provide a document title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'pdf_file.mimes' => 'The document must be a valid PDF file.',
+            'pdf_file.max' => 'The PDF document must not exceed 10MB in size.',
+            'link.url' => 'Please provide a valid URL for the external link.',
         ]);
 
         $path = null;
@@ -116,11 +122,17 @@ class IssuanceController extends Controller
         $issuance = Issuance::findOrFail($id);
 
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:issuances,title,' . $id,
             'description' => 'nullable|string', 
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
-            'link' => 'nullable|url|max:2000', // Added link validation
+            'link' => 'nullable|url|max:2000', 
             'date' => 'nullable|date',
+        ], [
+            'title.required' => 'Please provide a document title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'pdf_file.mimes' => 'The document must be a valid PDF file.',
+            'pdf_file.max' => 'The PDF document must not exceed 10MB in size.',
+            'link.url' => 'Please provide a valid URL for the external link.',
         ]);
 
         $dataToUpdate = [

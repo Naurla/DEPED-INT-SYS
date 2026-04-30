@@ -60,7 +60,7 @@
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
-            Add New Entry
+            Add New Als Implementer
         </button>
     </div>
 
@@ -134,7 +134,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="6" class="p-10 text-center text-gray-500 italic">No records found. Click "Add New Entry" to get started!</td></tr>
+                        <tr><td colspan="6" class="p-10 text-center text-gray-500 italic">No records found. Click "Add New Als Implementer" to get started!</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -153,7 +153,7 @@
             
             <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-2xl">Upload New Entry</h3>
+                <h3 class="font-bold text-2xl">Upload New Als Implementer</h3>
                 <button type="button" @click="addModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
 
@@ -192,7 +192,7 @@
 
                 <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Upload Entry</button>
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Upload Als Implementer</button>
                     <button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
@@ -205,7 +205,7 @@
             
             <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-2xl">Edit Entry</h3>
+                <h3 class="font-bold text-2xl">Edit Als Implementer</h3>
                 <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
 
@@ -284,9 +284,9 @@
             
             <!-- Text Content -->
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Entry?</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Als Implementer?</h3>
                 <p class="text-gray-500 text-sm mb-5">
-                    You are about to permanently delete this entry:
+                    You are about to permanently delete this Als Implementer:
                 </p>
                 
                 <!-- Target Highlight (Scrollable, no background, bold dark text) -->

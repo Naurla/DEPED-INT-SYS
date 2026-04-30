@@ -16,9 +16,14 @@ class ElementaryController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:elementary_contents,title',
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
+        ], [
+            'title.required' => 'Please provide a title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'csv_file.mimes' => 'The document must be a file of type: csv, txt, pdf, doc, docx, xls, xlsx.',
+            'csv_file.max' => 'The document must not exceed 10MB in size.'
         ]);
 
         $path = null;
@@ -42,9 +47,14 @@ class ElementaryController extends Controller
 
     public function update(Request $request, $id) {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:elementary_contents,title,' . $id,
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
+        ], [
+            'title.required' => 'Please provide a title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'csv_file.mimes' => 'The document must be a file of type: csv, txt, pdf, doc, docx, xls, xlsx.',
+            'csv_file.max' => 'The document must not exceed 10MB in size.'
         ]);
 
         $elementary = ElementaryContent::findOrFail($id);

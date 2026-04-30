@@ -24,13 +24,16 @@
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Title</label>
-                <input type="text" name="name" value="{{ $divisionStructure->name }}" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm">
+                <input type="text" name="name" value="{{ old('name', $divisionStructure->name) }}" required class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:border-red-500 focus:ring-1 focus:ring-red-500 text-sm">
+                @error('name') 
+                    <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> 
+                @enderror
             </div>
 
             <div>
                 <label class="block text-sm font-bold text-gray-700 mb-1">Content Text</label>
                 <p class="text-[11px] text-gray-500 mb-2">Modify your content below.</p>
-                <textarea name="descriptions[]" class="rich-text-editor w-full">{{ is_array($divisionStructure->descriptions) && count($divisionStructure->descriptions) > 0 ? $divisionStructure->descriptions[0] : '' }}</textarea>
+                <textarea name="descriptions[]" class="rich-text-editor w-full">{{ old('descriptions.0', (is_array($divisionStructure->descriptions) && count($divisionStructure->descriptions) > 0 ? $divisionStructure->descriptions[0] : '')) }}</textarea>
             </div>
 
             <div class="border-t border-gray-100 pt-4 space-y-4">
@@ -41,12 +44,21 @@
                         <p class="text-[11px] text-green-600 font-bold mb-2">Current photo exists. Uploading a new one will replace it.</p>
                     @endif
                     <input type="file" name="main_photo" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-bold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 border border-gray-300 rounded-lg p-1.5 cursor-pointer">
+                    @error('main_photo') 
+                        <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> 
+                    @enderror
                 </div>
 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">Add Additional PDFs (Optional)</label>
                     <p class="text-[11px] text-blue-600 font-bold mb-2 leading-tight">Upload more PDFs here. They will automatically become links. To delete old PDFs, go back to the list page and use the (Remove) button.</p>
                     <input type="file" name="pdf_documents[]" multiple accept=".pdf" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 border border-gray-300 rounded-lg p-1.5 cursor-pointer">
+                    @error('pdf_documents') 
+                        <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> 
+                    @enderror
+                    @error('pdf_documents.*') 
+                        <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> 
+                    @enderror
                 </div>
 
             </div>

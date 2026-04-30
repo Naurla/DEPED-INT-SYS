@@ -18,11 +18,19 @@ class EnrollmentStatisticController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:enrollment_statistics,title',
             'school_year' => 'nullable|string|max:50',
             'content' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv|max:10240',
+        ], [
+            'title.required' => 'Please provide a title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'image.image' => 'The attachment must be an image.',
+            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif, webp.',
+            'image.max' => 'The image must not be larger than 2MB.',
+            'file.mimes' => 'The document must be a file of type: pdf, xlsx, xls, csv.',
+            'file.max' => 'The document must not exceed 10MB in size.',
         ]);
 
         $data = $request->only(['title', 'school_year', 'content']);
@@ -49,15 +57,30 @@ class EnrollmentStatisticController extends Controller
         $enrollmentStatistic = EnrollmentStatistic::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:enrollment_statistics,title,' . $id,
             'school_year' => 'nullable|string|max:50',
             'content' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
             'file' => 'nullable|mimes:pdf,xlsx,xls,csv|max:10240',
+        ], [
+            'title.required' => 'Please provide a title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'image.image' => 'The attachment must be an image.',
+            'image.mimes' => 'The image must be a file of type: jpeg, png, jpg, gif, webp.',
+            'image.max' => 'The image must not be larger than 2MB.',
+            'file.mimes' => 'The document must be a file of type: pdf, xlsx, xls, csv.',
+            'file.max' => 'The document must not exceed 10MB in size.',
         ]);
 
         $data = $request->only(['title', 'school_year', 'content']);
 
+        // Handle explicit image removal
+        if ($request->input('remove_image') == '1' && $enrollmentStatistic->image_path) {
+            Storage::disk('public')->delete($enrollmentStatistic->image_path);
+            $data['image_path'] = null;
+        }
+
+        // Handle new image upload
         if ($request->hasFile('image')) {
             if ($enrollmentStatistic->image_path) Storage::disk('public')->delete($enrollmentStatistic->image_path);
             $file = $request->file('image');
@@ -65,6 +88,13 @@ class EnrollmentStatisticController extends Controller
             $data['image_path'] = $file->storeAs('enrollment_statistics/images', $filename, 'public');
         }
 
+        // Handle explicit file removal
+        if ($request->input('remove_file') == '1' && $enrollmentStatistic->file_path) {
+            Storage::disk('public')->delete($enrollmentStatistic->file_path);
+            $data['file_path'] = null;
+        }
+
+        // Handle new file upload
         if ($request->hasFile('file')) {
             if ($enrollmentStatistic->file_path) Storage::disk('public')->delete($enrollmentStatistic->file_path);
             $file = $request->file('file');

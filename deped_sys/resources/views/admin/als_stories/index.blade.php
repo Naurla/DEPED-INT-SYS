@@ -263,9 +263,9 @@
             
             <!-- Text Content -->
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Entry?</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Als Story?</h3>
                 <p class="text-gray-500 text-sm mb-5">
-                    You are about to permanently delete this entry:
+                    You are about to permanently delete this Als Story:
                 </p>
                 
                 <!-- Target Highlight (Scrollable, no background, bold dark text) -->

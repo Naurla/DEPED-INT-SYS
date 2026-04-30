@@ -51,7 +51,7 @@
             <p class="text-gray-500 text-sm mt-1">Manage organizational charts for CID.</p>
         </div>
         <button @click="addModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors text-sm uppercase tracking-wider">
-            + Upload Chart
+            + Add New Chart
         </button>
     </div>
 

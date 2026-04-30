@@ -237,8 +237,8 @@
                 </div>
             </div>
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Delete Entry?</h3>
-                <p class="text-gray-500 text-sm mb-5 leading-relaxed px-4 text-center">You are about to permanently delete this entry. This action cannot be undone.</p>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Delete Strand?</h3>
+                <p class="text-gray-500 text-sm mb-5 leading-relaxed px-4 text-center">You are about to permanently delete this strand. This action cannot be undone.</p>
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar text-center px-4">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>
