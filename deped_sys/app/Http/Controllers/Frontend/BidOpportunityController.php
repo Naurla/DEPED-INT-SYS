@@ -31,7 +31,7 @@ class BidOpportunityController extends Controller
                                        ->latest()
                                        ->paginate(5);
         
-        return view('list', [
+        return view('/procurement/list', [
             'type_name' => $this->getCategoryTitle($category),
             'type_path' => 'procurement/' . $category, 
             'items' => $opportunities,
@@ -45,7 +45,7 @@ class BidOpportunityController extends Controller
         // FILTER: Ensure the item actually belongs to this category
         $opportunity = BidOpportunity::where('category', $category)->findOrFail($id);
         
-        return view('read_more', [
+        return view('/procurement/read_more', [
             'type_name' => $this->getCategoryTitle($category),
             'type_path' => 'procurement/' . $category, 
             'item' => $opportunity,

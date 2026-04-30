@@ -76,6 +76,6 @@ class OrgChartController extends Controller
             ];
         }
 
-        return view('frontend.org-chart', compact('chartData'));
+        return view('frontend./executive_committee/index', compact('chartData'));
     }
 }
