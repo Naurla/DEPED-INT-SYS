@@ -5,31 +5,45 @@
 @section('content')
 <style>
     [x-cloak] { display: none !important; }
+    
+    /* Subtle scrollbar for the modal target box */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent; 
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #fca5a5; 
+        border-radius: 10px;
+    }
 </style>
 
 <div class="container mx-auto px-4 py-6" x-data="{ 
-    uploadModal: false, 
+    uploadModal: {{ $errors->any() ? 'true' : 'false' }}, 
     deleteModal: false,
-    editMode: false,
-    editItem: null,
-    editUrl: '',
+    successModal: {{ session('success') ? 'true' : 'false' }},
+    editMode: {{ old('form_type') === 'edit' ? 'true' : 'false' }},
+    editItem: { csv_path: '{{ addslashes(old('existing_csv_path', '')) }}' },
+    editUrl: '{{ old('edit_url', '') }}',
     deleteUrl: '',
     deleteTitle: '',
-    formData: { title: '', content: '' },
+    isSubmitting: false,
+    
     openEdit(content, url) {
         this.editMode = true;
         this.editItem = content;
         this.editUrl = url;
-        this.formData.title = content.title;
-        this.formData.content = content.content || '';
+        document.getElementById('form_title').value = content.title;
+        document.getElementById('form_content').value = content.content || '';
         this.uploadModal = true;
     },
     openCreate() {
         this.editMode = false;
         this.editItem = null;
         this.editUrl = '';
-        this.formData.title = '';
-        this.formData.content = '';
+        document.getElementById('form_title').value = '';
+        document.getElementById('form_content').value = '';
         this.uploadModal = true;
     },
     openDelete(url, title) {
@@ -43,27 +57,13 @@
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Junior High School Management</h1>
             <p class="text-sm text-gray-500 mt-1">Manage curriculum titles, descriptions, and supporting documents.</p>
         </div>
-        <button @click="openCreate()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors text-sm uppercase tracking-wider">
-            + Add New Content
+        <button @click="openCreate()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors text-sm flex items-center uppercase tracking-wider">
+            <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Add New List
         </button>
     </div>
-
-    @if(session('success'))
-        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded-lg relative shadow-sm">
-            <p class="font-bold text-sm">{{ session('success') }}</p>
-        </div>
-    @endif
-
-    @if($errors->any())
-        <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-lg relative shadow-sm">
-            <strong class="font-bold text-sm">Oops! Please check your inputs:</strong>
-            <ul class="list-disc pl-5 mt-1 text-xs">
-                @foreach($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
 
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="overflow-x-auto">
@@ -79,14 +79,14 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($contents as $content)
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 font-bold text-gray-900 align-middle">{{ $content->title }}</td>
+                        <td class="p-4 font-bold text-gray-900 align-middle break-words max-w-xs md:max-w-md">{{ $content->title }}</td>
                         <td class="p-4 text-sm text-gray-600 max-w-xs align-middle">
                             <div x-data="{ expanded: false }">
                                 <p class="cursor-pointer hover:text-gray-900 transition-colors whitespace-normal break-words"
                                    :class="expanded ? '' : 'line-clamp-2 italic'"
                                    @click="expanded = !expanded"
                                    title="Click to show/hide">
-                                    {{ $content->content }}
+                                    {{ $content->content ?? 'N/A' }}
                                 </p>
                             </div>
                         </td>
@@ -103,7 +103,7 @@
                                     if ($isExcel) $docColor = 'text-green-600 hover:text-green-800';
                                     if ($isPdf) $docColor = 'text-red-600 hover:text-red-800';
                                 @endphp
-                                <a href="{{ asset('storage/' . $content->csv_path) }}" target="_blank" class="{{ $docColor }} font-bold hover:underline inline-flex items-center text-xs whitespace-nowrap">
+                                <a href="{{ asset('storage/' . $content->csv_path) }}" target="_blank" class="{{ $docColor }} font-bold hover:underline inline-flex items-center text-xs whitespace-nowrap transition-colors">
                                     <svg class="w-4 h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                     {{ Str::limit(basename($content->csv_path), 20) }}
                                 </a>
@@ -128,76 +128,126 @@
         </div>
     </div>
 
-    {{-- MODAL: ADD/EDIT CONTENT --}}
-    <div x-show="uploadModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-lg shadow-2xl overflow-hidden" @click.away="uploadModal = false">
-            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white">
-                <h3 class="font-bold text-lg" x-text="editMode ? 'Edit Content' : 'Add New Content'"></h3>
-                <button type="button" @click="uploadModal = false" class="hover:text-gray-200 text-2xl font-bold">&times;</button>
+    {{-- EXACT MATCH MODAL: ADD/EDIT CONTENT --}}
+    <div x-show="uploadModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) uploadModal = false">
+            
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl" x-text="editMode ? 'Edit List' : 'Upload New List'"></h3>
+                <button type="button" @click="uploadModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
             </div>
             
-            <form :action="editMode ? editUrl : '{{ route('admin.curriculum.junior_high.store') }}'" method="POST" enctype="multipart/form-data">
+            <form :action="editMode ? editUrl : '{{ route('admin.curriculum.junior_high.store') }}'" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
                 @csrf
                 <template x-if="editMode"><input type="hidden" name="_method" value="PUT"></template>
+                
+                <input type="hidden" name="form_type" :value="editMode ? 'edit' : 'add'">
+                <input type="hidden" name="edit_url" :value="editUrl">
+                <input type="hidden" name="existing_csv_path" :value="editItem ? editItem.csv_path : ''">
 
-                <div class="p-6 space-y-5">
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" x-model="formData.title" placeholder="e.g. Master Junior High Curriculum" required class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Title <span class="text-red-500">*</span></label>
+                        <input type="text" id="form_title" name="title" value="{{ old('title') }}" placeholder="e.g. Master Curriculum" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none" :readonly="isSubmitting">
+                        @error('title') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror
                     </div>
                     
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Description / Content <span class="font-normal text-gray-500 text-xs">(Optional)</span></label>
-                        <textarea name="content" x-model="formData.content" rows="4" placeholder="Briefly describe what this document contains..." class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Description / Content <span class="font-normal text-gray-500 text-base">(Optional)</span></label>
+                        <textarea id="form_content" name="content" rows="6" placeholder="Briefly describe what this document contains..." class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none" :readonly="isSubmitting">{{ old('content') }}</textarea>
+                        @error('content') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror
                     </div>
 
-                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                        <label class="block text-gray-700 text-sm font-bold mb-1" x-text="editMode ? 'Replace Document' : 'Upload Document'"></label>
-                        <input type="file" name="csv_file" accept=".csv,.xlsx,.xls,.doc,.docx,.pdf" class="w-full border border-gray-300 p-2 rounded-lg text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                    <div class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        <label class="block text-gray-800 text-lg font-bold mb-2" x-text="editMode ? 'Replace Document' : 'Upload Document'"></label>
+                        <input type="file" name="csv_file" accept=".csv,.xlsx,.xls,.doc,.docx,.pdf" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                        @error('csv_file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror
                         
                         <template x-if="editMode && editItem && editItem.csv_path">
-                            <div class="mt-3 flex items-center p-2 bg-blue-50 border border-blue-100 rounded-lg">
-                                <span class="text-xs font-bold text-blue-700 truncate max-w-[200px]" x-text="'Current: ' + editItem.csv_path.split('/').pop()"></span>
+                            <div class="mt-3 flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <span class="text-base text-blue-800 font-bold truncate max-w-[300px]" x-text="'Current File: ' + editItem.csv_path.split('/').pop()"></span>
                             </div>
                         </template>
                     </div>
                 </div>
                 
-                <div class="bg-gray-50 px-6 py-4 flex flex-row-reverse gap-3 items-center border-t border-gray-100">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition-colors text-sm" x-text="editMode ? 'Save Changes' : 'Create Entry'"></button>
-                    <button type="button" @click="uploadModal = false" class="px-5 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting" x-text="editMode ? 'Update List' : 'Upload List'"></span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Uploading...
+                        </span>
+                    </button>
+                    <button type="button" @click="uploadModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    {{-- GLOBAL MODAL: Delete Confirmation --}}
-    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity" style="display: none;">
-        <div class="bg-white rounded-2xl p-8 shadow-2xl z-50 w-full max-w-sm transform transition-all relative" @click.away="deleteModal = false">
-            <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
+    {{-- MODERNIZED GLOBAL MODAL: Delete Confirmation --}}
+    <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="if (!isSubmitting) deleteModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
             </div>
-            
-            <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">Confirm Deletion</h3>
-            <p class="text-gray-500 text-sm mb-6 text-center">Are you sure you want to delete <br><span class="font-bold text-gray-800" x-text="deleteTitle"></span>? <br>This action cannot be undone.</p>
-            
-            <div class="flex space-x-3 border-t border-gray-100 pt-4">
-                <button type="button" @click="deleteModal = false" class="flex-1 px-4 py-2.5 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete List?</h3>
+                <p class="text-gray-500 text-sm mb-5">You are about to permanently delete this list:</p>
+                <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
+                    <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
+                </div>
+                <p class="text-gray-400 text-sm italic mb-8">This action cannot be undone.</p>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" @click="deleteModal = false" :disabled="isSubmitting" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 transition-all disabled:opacity-50">
                     Cancel
                 </button>
-                
-                <form :action="deleteUrl" method="POST" class="flex-1 m-0 p-0 flex">
+                <form :action="deleteUrl" method="POST" class="flex-1 m-0 p-0 flex" @submit="isSubmitting = true">
                     @csrf 
                     @method('DELETE')
-                    <button type="submit" class="w-full px-4 py-2.5 bg-red-700 text-white rounded-xl font-bold text-sm hover:bg-red-800 shadow-sm transition-colors">
-                        Delete
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-700': !isSubmitting}" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 transition-all">
+                        <span x-show="!isSubmitting">Yes, Delete it</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Deleting...
+                        </span>
                     </button>
                 </form>
             </div>
         </div>
     </div>
 
+    {{-- MODERNIZED GLOBAL MODAL: Success Message --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+            </div>
+            <div class="text-center mb-8">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
+                <p class="text-gray-500 text-base">
+                    @if(session('success'))
+                        {{ session('success') }}
+                    @else
+                        Operation completed successfully.
+                    @endif
+                </p>
+            </div>
+            <div class="flex">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-700 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 transition-all">
+                    Continue
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection

@@ -16,17 +16,20 @@ class JuniorHighController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:junior_high_contents,title',
             'content' => 'nullable|string',
-            // Added support for PDF, Word, and Excel
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
+        ], [
+            'title.required' => 'Please provide a title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'csv_file.mimes' => 'The document must be a file of type: csv, txt, pdf, doc, docx, xls, xlsx.',
+            'csv_file.max' => 'The document must not exceed 10MB in size.'
         ]);
 
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
-            $filename = time() . '_' . $file->getClientOriginalName(); // Added time() to prevent overwriting
-            // Storing in a clean directory
+            $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
 
@@ -43,9 +46,14 @@ class JuniorHighController extends Controller
 
     public function update(Request $request, $id) {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:junior_high_contents,title,' . $id,
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
+        ], [
+            'title.required' => 'Please provide a title.',
+            'title.unique' => 'This title already exists. Please provide a unique entry.',
+            'csv_file.mimes' => 'The document must be a file of type: csv, txt, pdf, doc, docx, xls, xlsx.',
+            'csv_file.max' => 'The document must not exceed 10MB in size.'
         ]);
 
         $juniorHigh = JuniorHighContent::findOrFail($id);
@@ -56,7 +64,7 @@ class JuniorHighController extends Controller
                 Storage::disk('public')->delete($juniorHigh->csv_path);
             }
             $file = $request->file('csv_file');
-            $filename = time() . '_' . $file->getClientOriginalName(); // Added time()
+            $filename = time() . '_' . $file->getClientOriginalName();
             $juniorHigh->csv_path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
 
