@@ -149,16 +149,21 @@
 
     {{-- Add Modal (Extra Large size, clearer text) --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden" @click.away="addModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
+            
+            <!-- Fixed Header -->
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Upload New Entry</h3>
                 <button type="button" @click="addModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
-            <form action="{{ route('admin.als-implementers.store') }}" method="POST" enctype="multipart/form-data">
+
+            <!-- Flex Form -->
+            <form action="{{ route('admin.als-implementers.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 <input type="hidden" name="form_type" value="add">
                 
-                <div class="p-8 space-y-6">
+                <!-- Scrollable Content Area -->
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Implementer Name & Month <span class="text-red-500">*</span></label>
                         <input type="text" name="title" value="{{ old('form_type') === 'add' ? old('title') : '' }}" required placeholder="e.g., Juan Dela Cruz - January 2024" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
@@ -185,7 +190,8 @@
                     </div>
                 </div>
 
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200">
+                <!-- Fixed Footer -->
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Upload Entry</button>
                     <button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
@@ -195,12 +201,16 @@
 
     {{-- Edit Modal (Extra Large size, clearer text) --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden" @click.away="editModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+            
+            <!-- Fixed Header -->
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Edit Entry</h3>
                 <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
-            <form :action="`/admin/als-implementers/${editImplementer?.id}`" method="POST" enctype="multipart/form-data">
+
+            <!-- Flex Form -->
+            <form :action="`/admin/als-implementers/${editImplementer?.id}`" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf @method('PUT')
                 <input type="hidden" name="form_type" value="edit">
                 <input type="hidden" name="id" :value="editImplementer?.id">
@@ -209,7 +219,8 @@
                 <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
                 <input type="hidden" name="remove_file" :value="removeFile ? '1' : '0'">
 
-                <div class="p-8 space-y-6">
+                <!-- Scrollable Content Area -->
+                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Implementer Name & Month <span class="text-red-500">*</span></label>
                         <input type="text" name="title" x-model="editImplementer.title" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
@@ -249,7 +260,8 @@
                     </div>
                 </div>
                 
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200">
+                <!-- Fixed Footer -->
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Record</button>
                     <button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
