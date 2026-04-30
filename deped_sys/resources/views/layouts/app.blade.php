@@ -20,7 +20,6 @@
 </head>
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen relative" 
     x-data="{ 
-        loginModal: {{ $errors->any() || session('status') || session('reset_success') ? 'true' : 'false' }}, 
         mobileMenu: false,
         qrModal: false
     }">
@@ -274,14 +273,13 @@
                     </div>
                 </div>
 
-                {{-- Division Data (NEW BLOCK) --}}
+                {{-- Division Data --}}
                 <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" class="relative w-full md:w-auto border-r border-gray-300 transition-colors {{ request()->is('schools/map-directory*') ? 'bg-[#e6e6e6] hover:bg-gray-300' : 'hover:bg-white' }}">
                     <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full cursor-pointer">
                         <span>Division Data</span>
                         <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                     <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
-                        {{-- MOVED INTERACTIVE MAP LINK --}}
                         <a href="{{ url('schools/map-directory') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap flex items-center justify-between {{ request()->is('schools/map-directory') ? 'text-red-700 font-bold bg-red-50' : '' }}">
                             <span>Interactive School Map</span>
                             <svg class="w-4 h-4 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
@@ -289,7 +287,7 @@
                     </div>
                 </div>
 
-                {{-- RE-ADDED: Standalone Custom Main Menus loop --}}
+                {{-- Standalone Custom Main Menus loop --}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
                         @if($navPage->show_in_nav)
@@ -457,150 +455,62 @@
 
         </div>
 
-        <button @click="loginModal = true" class="absolute bottom-4 right-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
+        <a href="/admin/login" class="absolute bottom-4 right-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
             </svg>
-        </button>
+        </a>
     </footer>
 
-    {{-- CUSTOMER SATISFACTION QR CODE WIDGET --}}
+    {{-- NEW & IMPROVED: CUSTOMER SATISFACTION FLOATING BUTTON --}}
     @if(request()->is('/') && !empty($site_settings->qr_link))
         
-        {{-- Desktop: Expanded QR Sidebar --}}
-        <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="absolute left-0 top-[250px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-4 hidden md:flex flex-col items-center group transition-all duration-300 hover:translate-x-2 border border-l-0 border-white/20 cursor-pointer">
-            <div class="text-white text-center text-[12px] font-bold uppercase tracking-wider mb-3 leading-snug">
-                CUSTOMER<br>SATISFACTION<br>MEASUREMENT
-            </div>
-            <div class="p-2 bg-white rounded shadow-sm opacity-95 group-hover:opacity-100 transition-opacity group-hover:scale-105 duration-300">
-                {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(120)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
-            </div>
-        </a>
-
-        {{-- Mobile: Floating Button --}}
-        <button @click="qrModal = true" class="absolute left-0 top-[250px] z-[90] bg-[#a52a2a] shadow-[4px_4px_15px_rgba(0,0,0,0.25)] rounded-r-xl p-3 flex md:hidden flex-col items-center border border-l-0 border-white/20 cursor-pointer focus:outline-none">
-            <svg class="w-8 h-8 text-white mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-            <span class="text-white text-[10px] font-bold tracking-wider">CSM</span>
+        {{-- Unified Floating Button (Bottom Left) --}}
+        <button @click="qrModal = true" class="fixed bottom-6 left-6 z-[90] bg-[#a52a2a] text-white p-3 md:px-5 md:py-3 rounded-full shadow-lg hover:bg-red-800 hover:scale-105 hover:shadow-xl transition-all duration-300 flex items-center gap-2 focus:outline-none group">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+            </svg>
+            <span class="hidden md:inline font-bold text-sm tracking-wider uppercase">Customer Satisfaction Survey</span>
         </button>
 
-        {{-- Mobile: QR Pop-up Modal --}}
-        <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4" x-show="qrModal" x-cloak x-transition>
-            <div class="bg-white w-full max-w-sm rounded-lg shadow-2xl overflow-hidden relative" @click.away="qrModal = false">
-                <button @click="qrModal = false" class="absolute top-3 right-3 text-gray-200 hover:text-white transition-colors focus:outline-none z-10">
+        {{-- Smooth Pop-up Modal --}}
+        <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" 
+             x-show="qrModal" 
+             x-cloak 
+             x-transition.opacity>
+             
+            <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl overflow-hidden relative" 
+                 @click.away="qrModal = false"
+                 x-show="qrModal" 
+                 x-transition:enter="transition ease-out duration-300" 
+                 x-transition:enter-start="opacity-0 scale-95" 
+                 x-transition:enter-end="opacity-100 scale-100">
+                
+                {{-- Close Button --}}
+                <button @click="qrModal = false" class="absolute top-4 right-4 text-white hover:text-gray-200 transition-colors focus:outline-none z-10">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                 </button>
-                <div class="bg-[#a52a2a] py-4 px-6 text-center">
-                    <h3 class="text-white font-bold text-lg uppercase tracking-wide">Customer Satisfaction</h3>
+                
+                {{-- Modal Header --}}
+                <div class="bg-gradient-to-r from-[#a52a2a] to-red-800 py-6 px-6 text-center">
+                    <h3 class="text-white font-bold text-xl uppercase tracking-wider">Your Feedback Matters</h3>
+                    <p class="text-red-100 text-sm mt-1">Help us improve our services</p>
                 </div>
-                <div class="p-8 flex flex-col items-center justify-center">
-                    <div class="p-2 bg-white rounded shadow-md mb-4 inline-block border border-gray-200">
-                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(200)->color(0, 0, 0)->generate($site_settings->qr_link) !!}
+                
+                {{-- Modal Body --}}
+                <div class="p-8 flex flex-col items-center justify-center bg-gray-50">
+                    <div class="p-3 bg-white rounded-xl shadow-sm mb-6 border border-gray-100 transition-transform hover:scale-105 duration-300">
+                        {!! \SimpleSoftwareIO\QrCode\Facades\QrCode::size(180)->color(0, 0, 0)->margin(1)->generate($site_settings->qr_link) !!}
                     </div>
-                    <p class="text-sm text-gray-600 mb-6 text-center">Scan this QR code to rate our services, or tap the button below to proceed directly to the form.</p>
-                    <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="w-full bg-[#a52a2a] text-white text-center font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-md uppercase tracking-wider block">
-                        Open Form Directly
+                    <p class="text-sm text-gray-600 mb-6 text-center">Scan the QR code with your phone camera, or simply tap the button below to open the Customer Satisfaction Measurement form.</p>
+                    
+                    <a href="{{ $site_settings->qr_link }}" target="_blank" rel="noopener noreferrer" class="w-full bg-[#a52a2a] text-white text-center font-bold py-3.5 rounded-xl hover:bg-red-800 transition-all shadow-md hover:shadow-lg uppercase tracking-wider block">
+                        Open Survey Form
                     </a>
                 </div>
             </div>
         </div>
     @endif
-
-    {{-- LOGIN & RESET MODAL --}}
-    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-50 px-4" 
-         x-show="loginModal" 
-         x-cloak 
-         x-transition>
-         
-        <div class="bg-white w-full max-w-md rounded-lg shadow-2xl overflow-hidden relative" 
-             @click.away="loginModal = false"
-             x-data="{ view: '{{ session('reset_success') ? 'login' : (session('status') || old('code') ? 'reset' : (old('email') && !$errors->has('password') ? 'forgot' : 'login')) }}' }">
-             
-            <div class="bg-[#a52a2a] py-4 px-6 flex justify-between items-center">
-                <h3 class="text-white font-bold text-lg uppercase tracking-wide" 
-                    x-text="view === 'login' ? 'Admin Login' : (view === 'forgot' ? 'Forgot Password' : 'Reset Password')">
-                </h3>
-                <button @click="loginModal = false" class="text-white hover:text-gray-300 transition-colors focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-            
-            <div class="p-8">
-                {{-- Session Status Messages --}}
-                @if (session('status') || session('reset_success'))
-                    <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative text-sm">
-                        {{ session('status') ?? session('reset_success') }}
-                    </div>
-                @endif
-                
-                {{-- Error Messages --}}
-                @if ($errors->any())
-                    <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative text-sm">
-                        <strong class="font-bold">Error:</strong>
-                        <span class="block sm:inline">{{ $errors->first() }}</span>
-                    </div>
-                @endif
-
-                {{-- LOGIN FORM --}}
-                <form action="{{ route('admin.login') }}" method="POST" x-show="view === 'login'" x-transition.opacity.duration.200ms>
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                    </div>
-                    <div class="mb-2">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Password</label>
-                        <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                    </div>
-                    <div class="flex justify-end mb-6">
-                        <button type="button" @click="view = 'forgot'" class="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none">Forgot Password?</button>
-                    </div>
-                    <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider">Sign In</button>
-                </form>
-
-                {{-- FORGOT PASSWORD FORM (Sends Email Code) --}}
-                <form action="/admin/password/email" method="POST" x-show="view === 'forgot'" x-cloak x-transition.opacity.duration.200ms>
-                    @csrf
-                    <p class="text-sm text-gray-600 mb-5 text-center">Enter your email address and we will send you a code to reset your password.</p>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                    </div>
-                    <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider mb-4">Send Reset Code</button>
-                    
-                    <div class="text-center flex flex-col gap-2 mt-2">
-                        <button type="button" @click="view = 'reset'" class="text-sm text-blue-600 hover:text-blue-800 hover:underline focus:outline-none">Already have a code?</button>
-                        <button type="button" @click="view = 'login'" class="text-sm text-gray-500 hover:text-gray-800 hover:underline focus:outline-none">Back to Login</button>
-                    </div>
-                </form>
-
-                {{-- RESET PASSWORD FORM (Verifies Code and Updates Password) --}}
-                <form action="/admin/password/reset" method="POST" x-show="view === 'reset'" x-cloak x-transition.opacity.duration.200ms>
-                    @csrf
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Address</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Reset Code</label>
-                        <input type="text" name="code" value="{{ old('code') }}" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none" placeholder="e.g. 123456">
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">New Password</label>
-                        <input type="password" name="password" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Confirm Password</label>
-                        <input type="password" name="password_confirmation" required class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                    </div>
-                    <button type="submit" class="w-full bg-[#a52a2a] text-white font-bold py-3 rounded hover:bg-red-800 transition-colors shadow-lg uppercase tracking-wider mb-4">Reset Password</button>
-                    
-                    <div class="text-center">
-                        <button type="button" @click="view = 'forgot'" class="text-sm text-gray-500 hover:text-gray-800 hover:underline focus:outline-none">Back</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
     
     <script async charset="utf-8" src="//cdn.embedly.com/widgets/platform.js"></script>
     <script>

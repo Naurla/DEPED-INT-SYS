@@ -3,9 +3,8 @@
 @section('content')
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-{{-- Breadcrumb: Used md:px-20 to give EQUAL padding on both left and right --}}
+{{-- Breadcrumb --}}
 <div class="bg-gray-100 border-b border-gray-200 w-full overflow-hidden">
-    {{-- Added 'hide-scroll' here to prevent breadcrumb scrollbars on tiny screens --}}
     <div class="container mx-auto px-4 md:px-20 max-w-10xl py-3 text-xs sm:text-sm text-gray-600 overflow-x-auto whitespace-nowrap hide-scroll">
         <a href="/" class="hover:text-[#003366] transition">Home</a>
         <span class="mx-2">></span>
@@ -17,7 +16,7 @@
     </div>
 </div>
 
-{{-- Main Container: Used md:px-20 for EQUAL padding on both left and right --}}
+{{-- Main Container --}}
 <div class="container mx-auto px-4 md:px-20 max-w-10xl py-8 md:py-12 w-full overflow-hidden min-h-screen">
     
     {{-- Header Section --}}
@@ -25,84 +24,125 @@
         <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">Executive Committee</h1>
     </div>
     
-    {{-- Chart Container: Added 'hide-scroll' here to remove the bottom scrollbar --}}
-    <div id="chart_div" class="overflow-x-auto w-full pb-12 hide-scroll"></div>
+    {{-- Tailwind/CSS Org Chart Container --}}
+    <div class="overflow-x-auto w-full pb-12 hide-scroll flex justify-center">
+        <div id="org-tree-container" class="min-w-max">
+            {{-- The JS below will inject the <ul><li> tree here --}}
+        </div>
+    </div>
 </div>
 
-<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript">
-    google.charts.load('current', {packages:["orgchart"]});
-    google.charts.setOnLoadCallback(drawChart);
-
-    function drawChart() {
-        var data = new google.visualization.DataTable();
-        data.addColumn('string', 'Name');
-        data.addColumn('string', 'Manager');
-        data.addColumn('string', 'ToolTip');
-
-        var chartNodes = @json($chartData);
-        data.addRows(chartNodes);
-
-        var chart = new google.visualization.OrgChart(document.getElementById('chart_div'));
+    document.addEventListener("DOMContentLoaded", function() {
+        // Grab the exact same data you were passing to Google Charts
+        const flatData = @json($chartData);
         
-        chart.draw(data, {
-            allowHtml: true,
-            nodeClass: 'custom-node',
-            size: 'large'
-        });
-    }
+        const nodes = {};
+        let rootId = null;
 
-    window.addEventListener('resize', drawChart);
+        // 1. Parse flat data into a workable object dictionary
+        flatData.forEach(row => {
+            let id, html;
+            const nodeData = row[0];
+            const parentId = row[1];
+
+            if (typeof nodeData === 'object' && nodeData !== null) {
+                id = nodeData.v;
+                html = nodeData.f || id;
+            } else {
+                id = nodeData;
+                html = nodeData;
+            }
+
+            nodes[id] = { id, html, parentId, children: [] };
+        });
+
+        // 2. Map children to their parents to build the hierarchy
+        Object.values(nodes).forEach(node => {
+            if (node.parentId && nodes[node.parentId]) {
+                nodes[node.parentId].children.push(node);
+            } else {
+                if (!rootId) rootId = node.id; // First node without a parent is root
+            }
+        });
+
+        // 3. Recursively build nested ul/li elements for the tree
+        function buildTreeHTML(node) {
+            if (!node) return '';
+            
+            let html = `<li>`;
+            html += `<div class="inline-block relative z-10 transition-transform duration-300 hover:-translate-y-1">${node.html}</div>`;
+
+            if (node.children.length > 0) {
+                html += `<ul>`;
+                node.children.forEach(child => {
+                    html += buildTreeHTML(child);
+                });
+                html += `</ul>`;
+            }
+            html += `</li>`;
+            return html;
+        }
+
+        // 4. Inject into the DOM
+        const treeContainer = document.getElementById('org-tree-container');
+        if (rootId && nodes[rootId]) {
+            treeContainer.innerHTML = `<ul class="org-tree">` + buildTreeHTML(nodes[rootId]) + `</ul>`;
+        }
+    });
 </script>
 
 <style>
     /* =========================================================
-       1. GOOGLE CHARTS NATIVE STYLE OVERRIDES
+       1. PURE CSS TREE LINES (Hidden)
        ========================================================= */
-       
-    .custom-node {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
-        padding: 0 !important;
+    .org-tree, .org-tree ul {
+        display: flex;
+        justify-content: center;
+        padding-top: 40px; 
+        position: relative;
+        padding-left: 0;
+        margin: 0;
     }
-    
-    .google-visualization-orgchart-node-hover, 
-    .google-visualization-orgchart-nodesel {
-        background-color: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+    .org-tree { padding-top: 0; } /* Root ul doesn't need top padding */
+
+    .org-tree li {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        list-style-type: none;
+        position: relative;
+        padding: 40px 10px 0 10px;
     }
 
-    .google-visualization-orgchart-table {
-        border-collapse: collapse !important; 
-        margin: 0 !important; 
+    /* HIDE ALL CONNECTING LINES */
+    .org-tree li::before, 
+    .org-tree li::after, 
+    .org-tree ul::before {
+        display: none !important;
     }
 
-    .google-visualization-orgchart-lineleft,
-    .google-visualization-orgchart-lineright,
-    .google-visualization-orgchart-linebottom,
-    .google-visualization-orgchart-linetop {
-        border: none !important;
+    /* Provide downward spacing for single children */
+    .org-tree li:only-child {
+        padding-top: 40px;
     }
 
     /* =========================================================
-       2. EDGE-TO-EDGE PORTRAIT DESIGN (HORIZONTAL SUPPORT)
+       2. YOUR CARD DESIGNS
        ========================================================= */
        
     .org-node {
         background-color: #ffffff;
         border-radius: 12px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
         border: 1px solid #e2e8f0; 
-        min-width: 320px; 
-        width: max-content; /* Allows node to expand horizontally */
+        min-width: 280px; 
+        width: max-content;
         max-width: 95vw; 
         display: inline-block;
         font-family: 'Inter', sans-serif;
         overflow: hidden; 
-        margin-top: 25px;
-        margin-bottom: 25px;
     }
 
     .org-title {
@@ -119,10 +159,10 @@
 
     .org-slots {
         display: flex;
-        flex-direction: row; /* Display roles side-by-side */
-        flex-wrap: wrap; /* Wrap if there are too many */
+        flex-direction: row;
+        flex-wrap: wrap; 
         justify-content: center;
-        align-items: stretch; /* Keeps height consistent across row */
+        align-items: stretch;
         gap: 0; 
         padding: 0; 
     }
@@ -130,20 +170,18 @@
     .org-slot {
         display: flex;
         flex-direction: column;
-        width: 320px; /* Fixed width per staff member */
+        width: 300px;
         flex: 0 0 auto;
-        border-right: 1px solid #e2e8f0; /* Separation line between cards */
+        border-right: 1px solid #e2e8f0; 
         border-bottom: 1px solid #e2e8f0; 
         background-color: #ffffff;
-        height: 100%; /* Ensure it stretches to match tallest neighbor */
+        height: 100%; 
     }
 
-    /* Remove right border for the last item in a row to keep it clean */
     .org-slot:last-child {
         border-right: none;
     }
 
-    /* The Massive Edge-to-Edge Image */
     .employee-photo-hero {
         width: 100%;
         height: 340px; 
@@ -165,15 +203,14 @@
         margin: 0;
     }
 
-    /* Details Box Below The Image */
     .details-container {
         width: 100%;
         padding: 24px;
         box-sizing: border-box;
-        text-align: center; /* Centered for balance */
+        text-align: center; 
         display: flex;
         flex-direction: column;
-        flex-grow: 1; /* Pushes content cleanly if container stretches */
+        flex-grow: 1; 
     }
 
     .employee-name-bold {
@@ -183,11 +220,9 @@
         line-height: 1.25; 
         margin: 0 0 6px 0; 
         text-transform: uppercase;
-        
-        /* NEW FIXED ALIGNMENT LOGIC */
-        min-height: 45px; /* Safely reserves exactly 2 lines of vertical space */
+        min-height: 45px; 
         display: flex;
-        align-items: center; /* Centers 1-line names vertically in the 2-line box */
+        align-items: center; 
         justify-content: center;
     }
 
@@ -197,20 +232,16 @@
         font-size: 13px; 
         line-height: 1.4; 
         margin: 0; 
-
-        /* NEW FIXED ALIGNMENT LOGIC */
-        min-height: 55px; /* Safely reserves exactly 3 lines of vertical space */
+        min-height: 55px; 
         display: flex;
         align-items: center;
         justify-content: center;
     }
 
-    /* HIDING OFFICE DETAILS ONLY */
     .employee-info-lines {
         display: none !important;
     }
 
-    /* Vacant Styles */
     .org-slot.vacant .details-container {
         opacity: 0.6;
     }
@@ -224,49 +255,37 @@
        3. RESPONSIVE QUERIES
        ========================================================= */
     @media (max-width: 768px) {
-        #chart_div {
-            overflow-x: auto !important; /* Allow scrolling horizontally if needed */
-            width: 100%;
+        /* On small screens, break the horizontal tree into a vertical stack */
+        .org-tree, .org-tree ul {
+            flex-direction: column;
+            align-items: center;
+            padding-top: 20px;
         }
 
-        .google-visualization-orgchart-table,
-        .google-visualization-orgchart-table tbody,
-        .google-visualization-orgchart-table tr {
-            display: block !important;
-            width: 100% !important;
-            height: auto !important;
+        .org-tree li {
+            padding: 20px 0 0 0;
         }
 
-        .google-visualization-orgchart-table td {
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important; 
-            width: 100% !important;
-            height: auto !important;
-        }
-
-        .google-visualization-orgchart-lineleft,
-        .google-visualization-orgchart-lineright,
-        .google-visualization-orgchart-linebottom,
-        .google-visualization-orgchart-linetop {
-            display: none !important;
+        /* Use a simple downward line on mobile to connect elements (Hidden now) */
+        .org-tree li:not(:first-child) {
+            border-top: none;
+            margin-top: 20px;
+            position: relative;
         }
 
         .org-node {
             width: 100% !important;
-            max-width: 360px; /* Scales nicely on mobile */
-            margin: 16px auto !important; 
-            display: block;
+            max-width: 360px;
+            margin: 0 auto !important; 
         }
 
-        /* Stack cards vertically on smaller mobile screens */
         .org-slots {
             flex-direction: column; 
         }
 
         .org-slot {
             width: 100%;
-            border-right: none; /* Remove side border on mobile */
+            border-right: none; 
             border-bottom: 1px solid #e2e8f0;
         }
 
@@ -276,15 +295,15 @@
     }
 
     /* =========================================================
-       4. HIDE SCROLLBARS (BUT KEEP CONTENT SCROLLABLE)
+       4. HIDE SCROLLBARS
        ========================================================= */
     .hide-scroll::-webkit-scrollbar {
-        display: none; /* For Chrome, Safari, and Opera */
+        display: none; 
     }
     
     .hide-scroll {
-        -ms-overflow-style: none;  /* For Internet Explorer and Edge */
-        scrollbar-width: none;  /* For Firefox */
+        -ms-overflow-style: none;  
+        scrollbar-width: none;  
     }
 </style>
 @endsection

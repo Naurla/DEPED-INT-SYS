@@ -18,37 +18,38 @@
     
     <div class="mb-12 text-left w-full break-words">
         <h1 class="text-3xl font-bold text-gray-900 tracking-tight uppercase">
-            Learning Materials
+            LEARNING MATERIALS
         </h1>
     </div>
 
-    <div class="w-full lg:w-3/4 space-y-12">
+    {{-- Changed from lg:w-3/4 to w-full so it spans the whole page --}}
+    <div class="w-full space-y-12">
         @forelse($materials as $material)
             <div class="border-b border-gray-100 pb-10 last:border-0 group">
                 
-                {{-- Date and Title Heading (Matched to your reference) --}}
-                <a href="{{ route('learning_materials.show', $material->id) }}" class="block mb-2">
-                    <h2 class="text-xl font-bold text-gray-900 uppercase tracking-tight group-hover:text-red-700 transition-colors">
-                        {{ $material->created_at->format('F d, Y') }} - {{ $material->title }}
+                {{-- Date and Title Heading --}}
+                <a href="{{ route('learning_materials.show', $material->id) }}" class="block mb-4">
+                    <h2 class="text-[1.3rem] font-bold text-gray-900 uppercase tracking-tight hover:text-gray-700 transition-colors leading-snug">
+                        {{ strtoupper($material->created_at->format('F d, Y')) }} - {{ strtoupper($material->title) }}
                     </h2>
                 </a>
                 
                 {{-- Description Preview --}}
-                <div class="text-[15px] text-gray-600 mb-6 leading-relaxed max-w-4xl">
+                <div class="text-[15px] text-gray-600 mb-6 leading-relaxed w-full">
                     {{ Str::limit(strip_tags($material->description), 250) }}
                 </div>
 
                 {{-- Action Row --}}
                 <div class="flex items-center gap-6">
-                    {{-- Read More Button (Styled like your image) --}}
+                    {{-- Read More Button --}}
                     <a href="{{ route('learning_materials.show', $material->id) }}" 
-                       class="border border-gray-300 px-6 py-2 text-xs font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition shadow-sm rounded-sm">
-                        Read More
+                       class="border border-gray-200 px-6 py-2.5 text-xs font-bold uppercase tracking-widest text-gray-700 hover:bg-gray-50 transition shadow-sm rounded-sm">
+                        READ MORE
                     </a>
 
                     {{-- Posted Meta Tag --}}
                     <span class="text-[11px] font-bold text-gray-400 uppercase tracking-widest">
-                        Uploaded: {{ $material->created_at->format('M d, Y') }}
+                        POSTED: {{ strtoupper($material->created_at->format('M d, Y')) }}
                     </span>
                 </div>
             </div>
@@ -59,8 +60,8 @@
         @endforelse
     </div>
 
-    {{-- Pagination --}}
-    <div class="mt-12 lg:w-3/4">
+    {{-- Pagination (Also updated to w-full to match) --}}
+    <div class="mt-12 w-full">
         {{ $materials->links() }}
     </div>
 

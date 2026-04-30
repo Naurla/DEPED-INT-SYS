@@ -120,23 +120,31 @@ Route::get('/', function () {
     }
 
     return view('/home/index', compact('latestAdvisory', 'banners'));
-})->name('login'); 
+}); // <--- REMOVED ->name('login') from here
 
-// Admin Login
+
+// ==========================================
+// ADMIN AUTHENTICATION ROUTES
+// ==========================================
+
+// 1. Show the dedicated login page (Given the 'login' name for Laravel's auth middleware)
+Route::get('/admin/login', function () {
+    // Note: Make sure your blade file is named login.blade.php and is inside the resources/views/auth folder
+    // If you saved it in resources/views/admin/login.blade.php, change 'auth.login' to 'admin.login'
+    return view('auth.login'); 
+})->name('login');
+
+// 2. Handle the login POST request (Fixed typo: removed slash before 'login')
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 
-// Fallback: If someone types /admin/login in the URL bar, redirect to homepage and open the modal
-Route::get('/admin/login', function () {
-    return redirect('/')->withErrors(['email' => 'Please log in to continue.']);
-});
-
-// Admin Password Reset Routes
+// 3. Admin Password Reset Routes
 Route::post('/admin/password/email', [AdminController::class, 'sendResetCode'])->name('admin.password.email');
 Route::post('/admin/password/reset', [AdminController::class, 'resetPassword'])->name('admin.password.reset');
 
-// Fallback for password resets typed in the URL
-Route::get('/admin/password/email', function () { return redirect('/'); });
-Route::get('/admin/password/reset', function () { return redirect('/'); });
+// 4. Fallbacks: If someone types the reset routes in the URL bar, redirect to the new login page
+Route::get('/admin/password/email', function () { return redirect()->route('login'); });
+Route::get('/admin/password/reset', function () { return redirect()->route('login'); });
+
 
 // Quality Management System (QMS) Public Route
 Route::get('/qms', function () {
