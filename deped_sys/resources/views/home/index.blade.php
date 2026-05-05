@@ -2,7 +2,8 @@
 
 @section('content')
     {{-- BANNER SECTION --}}
-    <div class="container mx-auto mt-6 px-4 flex justify-center">
+    {{-- Added 'hidden md:flex' here. It hides on mobile, and shows as flex on tablets/desktops. --}}
+    <div class="hidden md:flex container mx-auto mt-6 px-4 justify-center">
         {{-- w-full on mobile, w-[90%] (90%) on large screens. Fixed heights keep the box constant. --}}
         <div class="relative w-full lg:w-[90%] h-[300px] md:h-[450px] lg:h-[600px] overflow-hidden rounded-xl bg-gray-100 shadow-sm"
              x-data="{ activeSlide: 1, slides: {{ $banners->toJson() ?? '[]' }} }" 
@@ -33,10 +34,9 @@
         </div>
     </div>
 
-    {{-- INTERACTIVE MAP SECTION --}}
+    {{-- INTERACTIVE MAP SECTION (Shows everywhere) --}}
     <section class="container mx-auto mt-16 px-4 mb-24 flex justify-center">
         <div class="w-full lg:w-[90%]">
-            
             
             {{-- Map iFrame Container --}}
             <div class="w-full h-[75vh] min-h-[600px] border border-gray-300 rounded-xl overflow-hidden bg-gray-50 shadow-md">
