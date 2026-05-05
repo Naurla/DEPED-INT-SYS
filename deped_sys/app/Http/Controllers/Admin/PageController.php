@@ -39,15 +39,20 @@ class PageController extends Controller
 
     public function store(Request $request)
     {
+        // Custom inline error message
+        $messages = [
+            'title.unique' => 'This Page Title already exists. Please provide a unique entry.',
+        ];
+
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:pages,title',
             'content' => 'nullable', 
             'layout_template' => 'required|string',
-            'parent_selection' => 'nullable|string', // <-- Unified Field
+            'parent_selection' => 'nullable|string', 
             'featured_videos' => 'nullable|array',
             'featured_videos.*.url' => 'nullable|url',
             'featured_videos.*.shape' => 'nullable|in:landscape,portrait'
-        ]);
+        ], $messages);
 
         $parentId = null;
         $menuLocation = null;
@@ -86,15 +91,20 @@ class PageController extends Controller
 
     public function update(Request $request, Page $page)
     {
+        // Custom inline error message
+        $messages = [
+            'title.unique' => 'This Page Title already exists. Please provide a unique entry.',
+        ];
+
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:pages,title,' . $page->id,
             'content' => 'nullable', 
             'layout_template' => 'required|string',
-            'parent_selection' => 'nullable|string', // <-- Unified Field
+            'parent_selection' => 'nullable|string', 
             'featured_videos' => 'nullable|array',
             'featured_videos.*.url' => 'nullable|url',
             'featured_videos.*.shape' => 'nullable|in:landscape,portrait'
-        ]);
+        ], $messages);
 
         $parentId = null;
         $menuLocation = null;

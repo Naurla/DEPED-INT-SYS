@@ -3,85 +3,107 @@
 @section('page_title', 'Create New Page')
 
 @section('content')
-<div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-5xl mx-auto">
-    <div class="flex justify-between items-center mb-6 border-b pb-4">
-        <h2 class="text-xl font-bold text-gray-800 uppercase">Create New Page</h2>
-        <a href="{{ route('admin.pages.index') }}" class="text-gray-500 hover:text-gray-800 font-bold text-sm">← Back to List</a>
-    </div>
-    
-    <form action="{{ route('admin.pages.store') }}" method="POST">
-        @csrf
+<div x-data="{ successModal: {{ session('success') ? 'true' : 'false' }} }">
+    <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200 max-w-5xl mx-auto">
+        <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <h2 class="text-xl font-bold text-gray-800 uppercase">Create New Page</h2>
+            <a href="{{ route('admin.pages.index') }}" class="text-gray-500 hover:text-gray-800 font-bold text-sm">← Back to List</a>
+        </div>
         
-        <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Page Title</label>
-            <input type="text" name="title" value="{{ old('title') }}" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none" required>
-        </div>
-
-        {{-- SINGLE UNIFIED PARENT DROPDOWN --}}
-        <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Parent Category (Optional)</label>
-            <select name="parent_selection" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                <option value="">-- No Parent (Make this a Standalone Menu Item) --</option>
-                
-                <optgroup label="Hardcoded Site Menus">
-                    <option value="menu_about" {{ old('parent_selection') == 'menu_about' ? 'selected' : '' }}>About Section</option>
-                    <option value="menu_issuances" {{ old('parent_selection') == 'menu_issuances' ? 'selected' : '' }}>Issuances Section</option>
-                    <option value="menu_k12" {{ old('parent_selection') == 'menu_k12' ? 'selected' : '' }}>K to 12 Section</option>
-                    <option value="menu_procurement" {{ old('parent_selection') == 'menu_procurement' ? 'selected' : '' }}>Procurement Section</option>
-                </optgroup>
-
-                @if(isset($allPages) && $allPages->isNotEmpty())
-                    <optgroup label="Dynamic Custom Pages">
-                        @foreach($allPages as $parentPage)
-                            <option value="{{ $parentPage->id }}" {{ old('parent_selection') == (string)$parentPage->id ? 'selected' : '' }}>
-                                {{ $parentPage->title }}
-                            </option>
-                        @endforeach
-                    </optgroup>
-                @endif
-            </select>
-            <p class="text-xs text-gray-500 mt-1">Select an existing site section or another custom page to nest this under.</p>
-        </div>
-
-        <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Frontend Layout Style</label>
-            <select name="layout_template" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
-                <option value="default" {{ old('layout_template') == 'default' ? 'selected' : '' }}>Default View (Standard Width)</option>
-                <option value="full_width" {{ old('layout_template') == 'full_width' ? 'selected' : '' }}>Full Width (No Margins)</option>
-                <option value="boxed_shadow" {{ old('layout_template') == 'boxed_shadow' ? 'selected' : '' }}>Boxed with Shadow</option>
-            </select>
-        </div>
-
-        {{-- DYNAMIC MULTI-VIDEO SECTION --}}
-        <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
-            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
-                <div>
-                    <label class="block text-gray-800 font-bold text-lg">Featured Videos</label>
-                    <p class="text-xs text-gray-500">Add multiple responsive videos. Leave blank if none.</p>
-                </div>
-                <button type="button" id="add-video-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm font-bold text-sm flex items-center transition-colors">
-                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                    Add Video
-                </button>
-            </div>
+        <form action="{{ route('admin.pages.store') }}" method="POST">
+            @csrf
             
-            <div id="video-container" class="space-y-6"></div>
-        </div>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Page Title <span class="text-red-500">*</span></label>
+                <input type="text" name="title" value="{{ old('title') }}" 
+                       class="w-full border @error('title') border-red-500 @else border-gray-300 @enderror px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none" required>
+                @error('title')
+                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                @enderror
+            </div>
 
-        <div class="mb-4">
-            <label class="block text-gray-700 font-bold mb-2">Page Content</label>
-            <textarea name="content" id="rich-editor" class="w-full">{{ old('content') }}</textarea>
-        </div>
+            {{-- SINGLE UNIFIED PARENT DROPDOWN --}}
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Parent Category (Optional)</label>
+                <select name="parent_selection" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    <option value="">-- No Parent (Make this a Standalone Menu Item) --</option>
+                    
+                    <optgroup label="Hardcoded Site Menus">
+                        <option value="menu_about" {{ old('parent_selection') == 'menu_about' ? 'selected' : '' }}>About Section</option>
+                        <option value="menu_issuances" {{ old('parent_selection') == 'menu_issuances' ? 'selected' : '' }}>Issuances Section</option>
+                        <option value="menu_k12" {{ old('parent_selection') == 'menu_k12' ? 'selected' : '' }}>K to 12 Section</option>
+                        <option value="menu_procurement" {{ old('parent_selection') == 'menu_procurement' ? 'selected' : '' }}>Procurement Section</option>
+                    </optgroup>
 
-        <div class="mb-6 flex items-center">
-            <input type="checkbox" name="show_in_nav" id="showNav" value="1" class="w-4 h-4 text-[#a52a2a] border-gray-300 rounded focus:ring-[#a52a2a]" checked>
-            <label class="ml-2 text-gray-700 font-bold" for="showNav">Show in Public Navigation Menu</label>
-        </div>
+                    @if(isset($allPages) && $allPages->isNotEmpty())
+                        <optgroup label="Dynamic Custom Pages">
+                            @foreach($allPages as $parentPage)
+                                <option value="{{ $parentPage->id }}" {{ old('parent_selection') == (string)$parentPage->id ? 'selected' : '' }}>
+                                    {{ $parentPage->title }}
+                                </option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                </select>
+                <p class="text-xs text-gray-500 mt-1">Select an existing site section or another custom page to nest this under.</p>
+            </div>
 
-        <button type="submit" class="bg-[#a52a2a] hover:bg-red-800 text-white font-bold py-2 px-6 rounded transition-colors shadow-md">
-            Publish Page
-        </button>
-    </form>
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Frontend Layout Style</label>
+                <select name="layout_template" class="w-full border border-gray-300 px-4 py-2 rounded focus:ring-2 focus:ring-[#a52a2a] outline-none">
+                    <option value="default" {{ old('layout_template') == 'default' ? 'selected' : '' }}>Default View (Standard Width)</option>
+                    <option value="full_width" {{ old('layout_template') == 'full_width' ? 'selected' : '' }}>Full Width (No Margins)</option>
+                    <option value="boxed_shadow" {{ old('layout_template') == 'boxed_shadow' ? 'selected' : '' }}>Boxed with Shadow</option>
+                </select>
+            </div>
+
+            {{-- DYNAMIC MULTI-VIDEO SECTION --}}
+            <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-xl">
+                <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-200">
+                    <div>
+                        <label class="block text-gray-800 font-bold text-lg">Featured Videos</label>
+                        <p class="text-xs text-gray-500">Add multiple responsive videos. Leave blank if none.</p>
+                    </div>
+                    <button type="button" id="add-video-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow-sm font-bold text-sm flex items-center transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                        Add Video
+                    </button>
+                </div>
+                
+                <div id="video-container" class="space-y-6"></div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-gray-700 font-bold mb-2">Page Content</label>
+                <textarea name="content" id="rich-editor" class="w-full">{{ old('content') }}</textarea>
+            </div>
+
+            <div class="mb-6 flex items-center">
+                <input type="checkbox" name="show_in_nav" id="showNav" value="1" class="w-4 h-4 text-[#a52a2a] border-gray-300 rounded focus:ring-[#a52a2a]" checked>
+                <label class="ml-2 text-gray-700 font-bold" for="showNav">Show in Public Navigation Menu</label>
+            </div>
+
+            <button type="submit" class="bg-[#a52a2a] hover:bg-red-800 text-white font-bold py-2 px-6 rounded transition-colors shadow-md">
+                Publish Page
+            </button>
+        </form>
+    </div>
+
+    {{-- Red Success Modal --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[105] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-8 shadow-2xl z-50 w-full max-w-sm transform transition-all relative text-center" @click.away="successModal = false">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-4">
+                <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+            <div class="mt-2 mb-6">
+                <p class="text-sm text-gray-500">{{ session('success') }}</p>
+            </div>
+            <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2.5 bg-red-700 text-base font-bold text-white hover:bg-red-800 transition-colors sm:text-sm">
+                Continue
+            </button>
+        </div>
+    </div>
 </div>
 
 @push('scripts')
@@ -253,6 +275,7 @@
     .ck-content li { margin-bottom: 0.5rem !important; display: list-item !important; }
     .ck-content .image { max-width: 100%; margin: 1.5rem auto !important; display: block !important; }
     .ck-content .image img { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+    [x-cloak] { display: none !important; }
 </style>
 @endpush
 @endsection

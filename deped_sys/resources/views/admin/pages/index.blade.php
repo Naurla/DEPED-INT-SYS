@@ -7,13 +7,8 @@
     [x-cloak] { display: none !important; }
 </style>
 
-<div>
-
-    @if(session('success'))
-        <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm">
-            {{ session('success') }}
-        </div>
-    @endif
+{{-- We wrap the whole content in this x-data to handle the success modal --}}
+<div x-data="{ successModal: {{ session('success') ? 'true' : 'false' }} }">
 
     <div class="flex justify-between items-center mb-6">
         <div>
@@ -53,7 +48,6 @@
                             <td class="p-4 flex justify-end gap-3 items-center">
                                 <a href="{{ route('admin.pages.edit', $page->id) }}" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</a>
                                 
-                                {{-- Trigger Delete Modal --}}
                                 <button type="button" @click="$dispatch('open-delete-modal', { action: '{{ route('admin.pages.destroy', $page->id) }}', title: 'Are you sure you want to delete the page {{ addslashes($page->title) }}?' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">
                                     Delete
                                 </button>
@@ -69,6 +63,22 @@
         </div>
     </div>
 
+    {{-- RED SUCCESS MODAL --}}
+    <div x-show="successModal" x-cloak class="fixed inset-0 z-[105] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-2xl p-8 shadow-2xl z-50 w-full max-w-sm transform transition-all relative text-center" @click.away="successModal = false">
+            <div class="mx-auto flex items-center justify-center h-16 w-16 rounded-full bg-red-50 mb-4">
+                <svg class="h-8 w-8 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-2">Success!</h3>
+            <div class="mt-2 mb-6">
+                <p class="text-sm text-gray-500">{{ session('success') }}</p>
+            </div>
+            <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent shadow-sm px-4 py-2.5 bg-red-700 text-base font-bold text-white hover:bg-red-800 transition-colors sm:text-sm">
+                Continue
+            </button>
+        </div>
+    </div>
+
     {{-- GLOBAL MODAL: Delete Confirmation --}}
     <div x-data="{ showDeleteModal: false, deleteAction: '', deleteTitle: '' }" 
          @open-delete-modal.window="showDeleteModal = true; deleteAction = $event.detail.action; deleteTitle = $event.detail.title"
@@ -76,25 +86,16 @@
         
         <div class="bg-white rounded-2xl p-8 shadow-2xl z-50 w-full max-w-sm" @click.away="showDeleteModal = false">
             <div class="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                </svg>
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
             </div>
-            
             <h3 class="text-xl font-bold text-gray-800 mb-2 text-center">Confirm Deletion</h3>
             <p class="text-gray-500 text-sm mb-6 text-center" x-text="deleteTitle"></p>
-            
             <div class="flex space-x-3 border-t border-gray-100 pt-4">
-                <button type="button" @click="showDeleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">
-                    Cancel
-                </button>
-                
+                <button type="button" @click="showDeleteModal = false" class="flex-1 px-4 py-2 bg-gray-100 text-gray-600 rounded-xl font-bold text-sm hover:bg-gray-200 transition-colors">Cancel</button>
                 <form :action="deleteAction" method="POST" class="flex-1 m-0 p-0">
                     @csrf 
                     @method('DELETE')
-                    <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 shadow-lg shadow-red-200 transition-colors">
-                        Delete
-                    </button>
+                    <button type="submit" class="w-full px-4 py-2 bg-red-600 text-white rounded-xl font-bold text-sm hover:bg-red-700 shadow-lg shadow-red-200 transition-colors">Delete</button>
                 </form>
             </div>
         </div>

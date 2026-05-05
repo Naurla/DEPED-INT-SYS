@@ -6,11 +6,11 @@ use App\Models\Banner;
 use App\Models\Advisory; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class BannerController extends Controller
 {
     public function index() {
-        // Only get ACTIVE banners and order them by sort_order
         $banners = Banner::where('is_active', true)
             ->orderBy('sort_order', 'asc')
             ->get()
@@ -19,7 +19,6 @@ class BannerController extends Controller
             });
 
         $advisories = Advisory::all();
-
         return view('index', compact('banners', 'advisories'));
     }
 
@@ -32,15 +31,11 @@ class BannerController extends Controller
                 'max:2048',
                 function ($attribute, $value, $fail) use ($request) {
                     if ($request->hasFile('image')) {
-                        // Check if the exact filename already exists in the banners directory
                         $originalName = $request->file('image')->getClientOriginalName();
-                        
-                        // We check the database to see if any existing banner's image path ends with this original name
-                        // Because we prepend a timestamp (e.g., 1712345678_banner.png), we search using LIKE %_filename.ext
+                        // Search for the original filename suffix in the database
                         $exists = Banner::where('image_path', 'LIKE', '%_' . $originalName)->exists();
-                        
                         if ($exists) {
-                            $fail("An image named '{$originalName}' has already been uploaded. Please choose a different file or rename it.");
+                            $fail("An image named '{$originalName}' has already been uploaded. Please rename the file.");
                         }
                     }
                 }
@@ -48,9 +43,12 @@ class BannerController extends Controller
             'sort_order' => [
                 'required',
                 'integer',
+                'min:1',
                 function ($attribute, $value, $fail) use ($request) {
+                    // Only block duplicates if the banner is being set to Active
                     if ($request->is_active == 1) {
-                        if (Banner::where('is_active', 1)->where('sort_order', $value)->exists()) {
+                        $exists = Banner::where('is_active', 1)->where('sort_order', $value)->exists();
+                        if ($exists) {
                             $fail("Position {$value} is already occupied by an active banner.");
                         }
                     }
@@ -58,12 +56,9 @@ class BannerController extends Controller
             ],
             'is_active' => 'required|boolean'
         ]);
-    
-        // 1. Get the original file name
+
         $file = $request->file('image');
-        // 2. Prepend a timestamp so multiple files with the same name don't overwrite each other technically on the disk
         $filename = time() . '_' . $file->getClientOriginalName();
-        // 3. Save it to storage using storeAs instead of store
         $path = $file->storeAs('banners', $filename, 'public');
         
         Banner::create([
@@ -85,14 +80,12 @@ class BannerController extends Controller
                 function ($attribute, $value, $fail) use ($request, $banner) {
                     if ($request->hasFile('image')) {
                         $originalName = $request->file('image')->getClientOriginalName();
-                        
-                        // Check if the new image name exists, but ignore the current banner being edited
+                        // Check if name exists in OTHER banners
                         $exists = Banner::where('id', '!=', $banner->id)
                                         ->where('image_path', 'LIKE', '%_' . $originalName)
                                         ->exists();
-                        
                         if ($exists) {
-                            $fail("An image named '{$originalName}' has already been uploaded to another banner slot.");
+                            $fail("The filename '{$originalName}' is already used by another banner.");
                         }
                     }
                 }
@@ -100,6 +93,7 @@ class BannerController extends Controller
             'sort_order' => [
                 'required',
                 'integer',
+                'min:1',
                 function ($attribute, $value, $fail) use ($request, $banner) {
                     if ($request->is_active == 1) {
                         $conflict = Banner::where('is_active', 1)
@@ -107,7 +101,7 @@ class BannerController extends Controller
                                           ->where('id', '!=', $banner->id)
                                           ->exists();
                         if ($conflict) {
-                            $fail("Position {$value} is already occupied by another active banner.");
+                            $fail("Sort order {$value} is already assigned to another active banner.");
                         }
                     }
                 },
@@ -120,34 +114,30 @@ class BannerController extends Controller
             'is_active' => $request->is_active,
         ];
 
-        // Only process the image if a new one was uploaded
         if ($request->hasFile('image')) {
             if ($banner->image_path) {
                 Storage::disk('public')->delete($banner->image_path);
             }
             
-            // Save the newly updated file with its original name as well
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
             $data['image_path'] = $file->storeAs('banners', $filename, 'public');
         }
         
         $banner->update($data);
-        
         return back()->with('success', 'Banner updated successfully!');
     }
 
     public function destroy(Banner $banner) {
-        Storage::disk('public')->delete($banner->image_path);
+        if ($banner->image_path) {
+            Storage::disk('public')->delete($banner->image_path);
+        }
         $banner->delete();
-        
-        return back()->with('success', 'Banner deleted!');
+        return back()->with('success', 'Banner deleted successfully!');
     }
 
     public function adminIndex() {
-        // Order the table by sort_order in the admin panel too
         $banners = Banner::orderBy('sort_order', 'asc')->get(); 
-
         return view('admin.banners.index', compact('banners'));
     }
-}
+}   

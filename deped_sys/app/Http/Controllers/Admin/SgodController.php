@@ -17,14 +17,21 @@ class SgodController extends Controller
 
     public function store(Request $request)
     {
+        $messages = [
+            'title.unique' => 'This Title already exists. Please provide a unique entry.',
+        ];
+
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:sgods,title',
             'description' => 'nullable|string',
-           'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+        ], $messages);
 
         $data = $request->only(['title', 'description']);
-        $data['image_path'] = $request->file('image')->store('sgod/images', 'public');
+        
+        if ($request->hasFile('image')) {
+            $data['image_path'] = $request->file('image')->store('sgod/images', 'public');
+        }
 
         Sgod::create($data);
 
@@ -33,11 +40,16 @@ class SgodController extends Controller
 
     public function update(Request $request, Sgod $sgod)
     {
+        $messages = [
+            'title.unique' => 'This Title already exists. Please provide a unique entry.',
+        ];
+
         $request->validate([
-            'title' => 'required|string|max:255',
+            // Ignore the current record's ID to allow updating without triggering the unique error on itself
+            'title' => 'required|string|max:255|unique:sgods,title,' . $sgod->id,
             'description' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ]);
+        ], $messages);
 
         $data = $request->only(['title', 'description']);
 

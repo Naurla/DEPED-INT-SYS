@@ -26,6 +26,11 @@ class ProcurementController extends Controller
 
     public function index(Request $request, $category)
     {
+        // Clear old edit_id if there are no errors to prevent modal from sticking open
+        if (!session()->has('errors') && !session()->has('error_duplicate')) {
+            session()->forget(['edit_id', 'edit_url']);
+        }
+
         $categoryTitle = $this->getCategoryTitle($category);
         $query = BidOpportunity::where('category', $category)->latest();
         
@@ -39,13 +44,26 @@ class ProcurementController extends Controller
 
     public function store(Request $request, $category)
     {
+        // 1. Manual Duplicate Check for Inline Error Design
+        $existing = BidOpportunity::where('category', $category)->where('title', $request->title)->first();
+        if ($existing) {
+            return back()
+                ->withInput()
+                ->with('error_duplicate', 'This Title already exists. Please provide a unique entry.');
+        }
+
+        // 2. Standard Validation
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
             'jpeg_file' => 'required_without_all:pdf_file,excel_file|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'required_without_all:jpeg_file,excel_file|mimes:pdf|max:10240',
             'excel_file' => 'required_without_all:jpeg_file,pdf_file|mimes:csv,txt,xls,xlsx|max:10240',
-            'date' => 'nullable|date', // Validate date
+            'date' => 'nullable|date', 
+        ], [
+            'jpeg_file.required_without_all' => 'You must upload at least an Image, PDF, or Spreadsheet.',
+            'pdf_file.required_without_all' => 'You must upload at least an Image, PDF, or Spreadsheet.',
+            'excel_file.required_without_all' => 'You must upload at least an Image, PDF, or Spreadsheet.',
         ]);
 
         $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
@@ -76,9 +94,9 @@ class ProcurementController extends Controller
             'description' => $request->description,
             'jpeg_path' => $jpegPath,
             'pdf_path' => $pdfPath,
-            'excel_path' => $excelPath, // Added the new path
+            'excel_path' => $excelPath, 
             'category' => $category,
-            'date' => $request->date ?: now()->toDateString(), // Fallback to current date if left blank
+            'date' => $request->date ?: now()->toDateString(), 
         ]);
 
         return redirect()->route('admin.procurement.index', $category)
@@ -89,13 +107,28 @@ class ProcurementController extends Controller
     {
         $opportunity = BidOpportunity::where('category', $category)->findOrFail($id);
 
+        // 1. Manual Duplicate Check for Inline Error Design (Ignoring self)
+        $existing = BidOpportunity::where('category', $category)
+            ->where('title', $request->title)
+            ->where('id', '!=', $id)
+            ->first();
+
+        if ($existing) {
+            return back()
+                ->withInput()
+                ->with('error_duplicate', 'This Title already exists. Please provide a unique entry.')
+                ->with('edit_id', $id) // Keep edit modal open
+                ->with('edit_url', route('admin.procurement.update', ['category' => $category, 'id' => $id]));
+        }
+
+        // 2. Standard Validation
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
             'jpeg_file' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:5120',
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
             'excel_file' => 'nullable|mimes:csv,txt,xls,xlsx|max:10240',
-            'date' => 'nullable|date', // Validate date
+            'date' => 'nullable|date', 
         ]);
 
         $folderPath = 'procurement/' . $category . '/' . now()->format('F_Y');
@@ -103,7 +136,7 @@ class ProcurementController extends Controller
         $dataToUpdate = [
             'title' => $request->title,
             'description' => $request->description,
-            'date' => $request->date ?: now()->toDateString(), // Fallback to current date if left blank
+            'date' => $request->date ?: now()->toDateString(), 
         ];
 
         // Check removals

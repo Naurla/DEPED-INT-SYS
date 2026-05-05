@@ -15,23 +15,27 @@ class SeniorHighController extends Controller
     }
 
     public function store(Request $request) {
+        $messages = [
+            'title.unique' => 'This Title already exists. Please provide a unique entry.',
+            'csv_file.max' => 'The document must not be larger than 10MB.',
+            'csv_file.mimes' => 'The document must be a file of type: csv, txt, pdf, doc, docx, xls, xlsx.',
+        ];
+
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'required|string|max:255|unique:senior_high_contents,title',
             'content' => 'nullable|string',
-            // UPDATED: Added support for PDF, Word, and Excel
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
-        ]);
+        ], $messages);
 
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
-            $filename = time() . '_' . $file->getClientOriginalName(); // Added time()
+            $filename = time() . '_' . $file->getClientOriginalName(); 
             $path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
 
         SeniorHighContent::create([
             'title' => $request->title,
-            // Hardcoding 'public' to satisfy the strict ENUM rule in the database
             'school_type' => 'public', 
             'content' => $request->content,
             'csv_path' => $path,
@@ -41,11 +45,18 @@ class SeniorHighController extends Controller
     }
 
     public function update(Request $request, $id) {
+        $messages = [
+            'title.unique' => 'This Title already exists. Please provide a unique entry.',
+            'csv_file.max' => 'The document must not be larger than 10MB.',
+            'csv_file.mimes' => 'The document must be a file of type: csv, txt, pdf, doc, docx, xls, xlsx.',
+        ];
+
         $request->validate([
-            'title' => 'required|string|max:255',
+            // Ignore current record's ID to allow updating without changing the title
+            'title' => 'required|string|max:255|unique:senior_high_contents,title,' . $id,
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
-        ]);
+        ], $messages);
 
         $seniorHigh = SeniorHighContent::findOrFail($id);
 
@@ -54,17 +65,16 @@ class SeniorHighController extends Controller
                 Storage::disk('public')->delete($seniorHigh->csv_path);
             }
             $file = $request->file('csv_file');
-            $filename = time() . '_' . $file->getClientOriginalName(); // Added time()
+            $filename = time() . '_' . $file->getClientOriginalName(); 
             $seniorHigh->csv_path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
 
         $seniorHigh->title = $request->title;
-        // Keep the database happy during updates
         $seniorHigh->school_type = 'public'; 
         $seniorHigh->content = $request->content;
         $seniorHigh->save();
 
-        return back()->with('success', 'Updated successfully.');
+        return back()->with('success', 'Senior High entry updated successfully.');
     }
 
     public function destroy($id) {
@@ -75,6 +85,6 @@ class SeniorHighController extends Controller
         }
         
         $seniorHigh->delete();
-        return back()->with('success', 'Deleted successfully.');
+        return back()->with('success', 'Senior High entry deleted successfully.');
     }
 }

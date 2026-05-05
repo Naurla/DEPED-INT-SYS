@@ -18,25 +18,30 @@ class SiteLogoController extends Controller
 
     public function store(Request $request)
     {
+        // Custom user-friendly messages
+        $messages = [
+            'name.required' => 'The Logo Name is now required.',
+            'name.unique' => 'A logo with the name ":input" already exists. Please provide a unique name.',
+        ];
+
         $request->validate([
-            'name' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255|unique:site_logos,name', // Now Required and Unique
             'image' => 'required|image|max:2048',
             'position' => 'required|in:left,right,footer_left,footer_right',
             'order' => 'integer'
-        ]);
+        ], $messages);
 
         $order = $request->order ?? 1;
 
-        // Check if a logo already exists in this position with this exact order
+        // Duplication Check for Position + Order
         $existingLogo = SiteLogo::where('position', $request->position)
                                 ->where('order', $order)
                                 ->first();
 
-        // If it exists, redirect back with a user-friendly error message
         if ($existingLogo) {
             return redirect()->back()
-                ->withInput() // Keeps the user's typed inputs
-                ->with('error', 'A logo already exists in this section with Sort Order ' . $order . '. Please choose a different order number or edit the existing logo instead.');
+                ->withInput()
+                ->with('error', 'Section Conflict: A logo already exists in the ' . str_replace('_', ' ', $request->position) . ' with Sort Order ' . $order . '.');
         }
 
         $path = $request->file('image')->store('logos', 'public');
@@ -55,12 +60,17 @@ class SiteLogoController extends Controller
 
     public function update(Request $request, SiteLogo $logo)
     {
+        $messages = [
+            'name.required' => 'The Logo Name is now required.',
+            'name.unique' => 'A logo with the name ":input" already exists.',
+        ];
+
         $request->validate([
-            'name' => 'nullable|string|max:255',
+            'name' => 'required|string|max:255|unique:site_logos,name,' . $logo->id, // Required + Unique ignore self
             'image' => 'nullable|image|max:2048',
             'position' => 'required|in:left,right,footer_left,footer_right',
             'order' => 'integer'
-        ]);
+        ], $messages);
 
         $order = $request->order ?? 1;
 
@@ -73,7 +83,7 @@ class SiteLogoController extends Controller
         if ($conflictLogo) {
             return redirect()->back()
                 ->withInput()
-                ->with('error', 'Another logo already exists in this section with Sort Order ' . $order . '. Please choose a different order number.');
+                ->with('error', 'Sort Order Conflict: Another logo is already using order ' . $order . ' in this section.');
         }
 
         if ($request->hasFile('image')) {
