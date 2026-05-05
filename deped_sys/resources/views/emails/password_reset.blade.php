@@ -2,35 +2,43 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Verification Code</title>
 </head>
-<body style="font-family: Arial, sans-serif; background-color: #f3f4f6; margin: 0; padding: 40px 20px;">
-    <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+<body style="font-family: 'Inter', Arial, sans-serif; background-color: #f9fafb; margin: 0; padding: 20px 10px;">
+    <div style="max-width: 500px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.05); border: 1px solid #f1f1f1;">
         
-        <div style="padding: 20px; text-align: center; border-bottom: 1px solid #f3f4f6;">
-            <h3 style="margin: 0; color: #333; font-size: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Department of Education</h3>
-            <p style="margin: 5px 0 0; color: #6b7280; font-size: 12px; text-transform: uppercase; font-weight: bold;">Zamboanga City Division</p>
+        <!-- Official Banner from Google Drive -->
+        <div style="width: 100%; overflow: hidden;">
+            <img src="https://lh3.googleusercontent.com/u/0/d/1yFN8P0TXfG29-TIqk6e1EVMOJWzY_8rZ" alt="DepEd Zamboanga City Banner" style="width: 100%; height: auto; display: block;">
         </div>
 
-        <div style="background-color: #a52a2a; padding: 15px; text-align: center;">
-            <h2 style="margin: 0; color: #ffffff; font-size: 18px; letter-spacing: 2px; font-weight: bold;">VERIFICATION CODE</h2>
-        </div>
-
-        <div style="padding: 30px; text-align: center;">
-            <p style="margin: 0 0 20px; color: #555; font-size: 15px; line-height: 1.5;">
-                Here is your verification code.<br>
-                Don't share it with anyone else.
-            </p>
-
-            <div style="background-color: #f9f9f9; border: 2px dashed #ccc; border-radius: 8px; padding: 15px 30px; margin: 0 auto 20px; display: inline-block;">
-                <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333; font-family: monospace;">{{ $code }}</span>
+        <div style="padding: 40px 30px; text-align: center;">
+            <div style="margin-bottom: 25px;">
+                <h2 style="margin: 0; color: #111827; font-size: 22px; font-weight: 800; letter-spacing: -0.5px;">Verify Your Identity</h2>
+                <p style="margin: 10px 0 0; color: #6b7280; font-size: 15px; line-height: 1.6;">
+                    Please use the code below to complete your password reset. For security, do not share this code.
+                </p>
             </div>
 
-            <p style="margin: 0; color: #888; font-size: 13px;">
-                Code will expire in 10 minutes.
-            </p>
+            <!-- Modern Code Box -->
+            <div style="background-color: #fdf2f2; border: 1px solid #fecaca; border-radius: 16px; padding: 25px 10px; margin: 30px 0;">
+                <span style="font-size: 36px; font-weight: 900; letter-spacing: 12px; color: #a52a2a; font-family: 'Courier New', monospace; margin-left: 12px;">{{ $code }}</span>
+            </div>
+
+            <div style="margin-top: 30px; padding-top: 25px; border-top: 1px solid #f3f4f6;">
+                <p style="margin: 0; color: #9ca3af; font-size: 12px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">
+                    Code expires in <span style="color: #ef4444; font-weight: 700;">10 minutes</span>
+                </p>
+            </div>
         </div>
 
+        <div style="padding: 25px; text-align: center; background-color: #f9fafb;">
+            <p style="margin: 0; font-size: 11px; color: #9ca3af; line-height: 1.5;">
+                If you did not request this, you can safely ignore this email.<br>
+                &copy; 2026 DepEd Zamboanga City
+            </p>
+        </div>
     </div>
 </body>
 </html>
