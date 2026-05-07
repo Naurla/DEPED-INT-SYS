@@ -3,94 +3,112 @@
 @section('page_title', 'Manage Vision & Mission')
 
 @section('content')
-<style>
-    [x-cloak] { display: none !important; }
-</style>
+<div class="w-full pb-10">
 
-<div x-data="{ successModal: {{ session('success') ? 'true' : 'false' }} }">
+    {{-- Standard Success Alert --}}
+    @if(session('success'))
+        <div class="mb-6 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative shadow-sm w-full text-left">
+            <span class="block sm:inline font-bold text-left">{{ session('success') }}</span>
+        </div>
+    @endif
 
-    <div class="flex justify-between items-center mb-6">
-        <div>
+    <div class="flex justify-between items-center mb-6 w-full text-left">
+        <div class="text-left">
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Manage Vision, Mission, Core Values, & Mandate</h2>
-            <p class="text-gray-500 text-sm mt-1">Update the core organizational statements and official mandate.</p>
+            <p class="text-gray-500 text-sm mt-1">Review core statements above and update them using the fields below.</p>
         </div>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <form action="{{ route('admin.vision_mission.update') }}" method="POST">
-            @csrf
-            
-            <div class="p-6 space-y-6">
-                
-                <div>
-                    <label for="vision" class="block text-gray-700 text-sm font-bold mb-2">Vision</label>
-                    <textarea class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none editor" 
-                              id="vision" name="vision" rows="5">{{ old('vision', $data->vision ?? '') }}</textarea>
-                </div>
-
-                <div>
-                    <label for="mission" class="block text-gray-700 text-sm font-bold mb-2">Mission</label>
-                    <textarea class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none editor" 
-                              id="mission" name="mission" rows="5">{{ old('mission', $data->mission ?? '') }}</textarea>
-                </div>
-
-                <div>
-                    <label for="core_values" class="block text-gray-700 text-sm font-bold mb-2">Core Values</label>
-                    <textarea class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none editor" 
-                              id="core_values" name="core_values" rows="5">{{ old('core_values', $data->core_values ?? '') }}</textarea>
-                </div>
-
-                <div>
-                    <label for="mandate" class="block text-gray-700 text-sm font-bold mb-2">Mandate</label>
-                    <textarea class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none editor" 
-                              id="mandate" name="mandate" rows="5">{{ old('mandate', $data->mandate ?? '') }}</textarea>
-                </div>
-
+    <div class="space-y-12 w-full">
+        
+        {{-- 1. VISION SECTION --}}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-800 text-left">Vision</h3>
             </div>
+            <div class="p-6">
+                {{-- Display Box --}}
+                <div class="w-full border border-gray-200 p-4 text-sm rounded-lg min-h-[80px] text-gray-800 leading-relaxed !text-left whitespace-pre-wrap break-words mb-6 bg-gray-50/30">@if(!empty($data->vision)){!! nl2br(e($data->vision)) !!}@else<span class="text-gray-400 italic">No vision statement set.</span>@endif</div>
 
-            <div class="bg-gray-50 p-4 border-t border-gray-200 flex justify-end">
-                <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition-colors text-sm">
-                    Save Changes
-                </button>
+                {{-- Edit Form --}}
+                <form action="{{ route('admin.vision_mission.update') }}" method="POST">
+                    @csrf
+                    <label class="block text-gray-700 text-xs font-bold mb-2 uppercase tracking-wide">Edit Vision</label>
+                    <textarea class="w-full border border-gray-300 p-4 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none !text-left mb-4" 
+                              name="vision" rows="4">{{ old('vision', $data->vision ?? '') }}</textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors text-xs uppercase">Save Vision</button>
+                    </div>
+                </form>
             </div>
-
-        </form>
-    </div>
-
-    {{-- MODERNIZED GLOBAL MODAL: Success Message --}}
-    <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
-            
-            <!-- Soft Double-Ring Icon -->
-            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
-                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
-                    </svg>
-                </div>
-            </div>
-            
-            <!-- Text Content -->
-            <div class="text-center mb-8">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
-                <p class="text-gray-500 text-base">
-                    @if(session('success'))
-                        {{ session('success') }}
-                    @else
-                        Operation completed successfully.
-                    @endif
-                </p>
-            </div>
-            
-            <!-- Action Button -->
-            <div class="flex">
-                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
-                    Continue
-                </button>
-            </div>
-
         </div>
-    </div>
 
+        {{-- 2. MISSION SECTION --}}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-800 text-left">Mission</h3>
+            </div>
+            <div class="p-6">
+                {{-- Display Box --}}
+                <div class="w-full border border-gray-200 p-4 text-sm rounded-lg min-h-[80px] text-gray-800 leading-relaxed !text-left whitespace-pre-wrap break-words mb-6 bg-gray-50/30">@if(!empty($data->mission)){!! nl2br(e($data->mission)) !!}@else<span class="text-gray-400 italic">No mission statement set.</span>@endif</div>
+
+                {{-- Edit Form --}}
+                <form action="{{ route('admin.vision_mission.update') }}" method="POST">
+                    @csrf
+                    <label class="block text-gray-700 text-xs font-bold mb-2 uppercase tracking-wide">Edit Mission</label>
+                    <textarea class="w-full border border-gray-300 p-4 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none !text-left mb-4" 
+                              name="mission" rows="4">{{ old('mission', $data->mission ?? '') }}</textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors text-xs uppercase">Save Mission</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- 3. CORE VALUES SECTION --}}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-800 text-left">Core Values</h3>
+            </div>
+            <div class="p-6">
+                {{-- Display Box --}}
+                <div class="w-full border border-gray-200 p-4 text-sm rounded-lg min-h-[80px] text-gray-800 leading-relaxed !text-left whitespace-pre-wrap break-words mb-6 bg-gray-50/30">@if(!empty($data->core_values)){!! nl2br(e($data->core_values)) !!}@else<span class="text-gray-400 italic">No core values set.</span>@endif</div>
+
+                {{-- Edit Form --}}
+                <form action="{{ route('admin.vision_mission.update') }}" method="POST">
+                    @csrf
+                    <label class="block text-gray-700 text-xs font-bold mb-2 uppercase tracking-wide">Edit Core Values</label>
+                    <textarea class="w-full border border-gray-300 p-4 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none !text-left mb-4" 
+                              name="core_values" rows="4">{{ old('core_values', $data->core_values ?? '') }}</textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors text-xs uppercase">Save Core Values</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- 4. MANDATE SECTION --}}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden w-full">
+            <div class="bg-gray-50 border-b border-gray-200 px-6 py-4">
+                <h3 class="text-lg font-bold text-gray-800 text-left">Mandate</h3>
+            </div>
+            <div class="p-6">
+                {{-- Display Box --}}
+                <div class="w-full border border-gray-200 p-4 text-sm rounded-lg min-h-[80px] text-gray-800 leading-relaxed !text-left whitespace-pre-wrap break-words mb-6 bg-gray-50/30">@if(!empty($data->mandate)){!! nl2br(e($data->mandate)) !!}@else<span class="text-gray-400 italic">No mandate statement set.</span>@endif</div>
+
+                {{-- Edit Form --}}
+                <form action="{{ route('admin.vision_mission.update') }}" method="POST">
+                    @csrf
+                    <label class="block text-gray-700 text-xs font-bold mb-2 uppercase tracking-wide">Edit Mandate</label>
+                    <textarea class="w-full border border-gray-300 p-4 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none !text-left mb-4" 
+                              name="mandate" rows="4">{{ old('mandate', $data->mandate ?? '') }}</textarea>
+                    <div class="flex justify-end">
+                        <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2 px-6 rounded-lg shadow-sm transition-colors text-xs uppercase">Save Mandate</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
 </div>
 @endsection
