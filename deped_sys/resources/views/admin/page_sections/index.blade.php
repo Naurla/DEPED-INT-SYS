@@ -123,10 +123,12 @@
                             @endif
                         </td>
                         <td class="px-6 py-4 text-center font-bold text-gray-900 align-middle">{{ $sec->sort_order }}</td>
-                        <td class="px-6 py-4 text-right space-x-3 align-middle">
-                            <button type="button" @click="openEdit({{ $sec->toJson() }})" class="text-blue-600 font-bold uppercase text-xs hover:underline transition-all">Edit</button>
-                            {{-- FIX: Safely passing the route to the Alpine confirmDelete function --}}
-                            <button type="button" @click="confirmDelete('{{ route('admin.page-sections.destroy', $sec->id) }}', '{{ addslashes($sec->title ?? 'Content Block') }}')" class="text-red-600 font-bold uppercase text-xs hover:underline transition-all">Del</button>
+                        <td class="px-6 py-4 text-right align-middle">
+                            {{-- FIX: Flex container ensures horizontal alignment, gap-3 provides spacing --}}
+                            <div class="flex items-center justify-end gap-3">
+                                <button type="button" @click="openEdit({{ $sec->toJson() }})" class="text-blue-600 font-bold uppercase text-xs hover:underline transition-all">Edit</button>
+                                <button type="button" @click="confirmDelete('{{ route('admin.page-sections.destroy', $sec->id) }}', '{{ addslashes($sec->title ?? 'Content Block') }}')" class="text-red-600 font-bold uppercase text-xs hover:underline transition-all">Delete</button>
+                            </div>
                         </td>
                     </tr>
                     @empty

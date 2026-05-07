@@ -1,10 +1,9 @@
 @extends('layouts.app')
 
 @section('content')
-    {{-- BANNER SECTION --}}
-    {{-- Added 'hidden md:flex' here. It hides on mobile, and shows as flex on tablets/desktops. --}}
+
+    {{-- 🌟 1. YOUR ORIGINAL CAROUSEL (Kept exactly as it was) 🌟 --}}
     <div class="hidden md:flex container mx-auto mt-6 px-4 justify-center">
-        {{-- w-full on mobile, w-[90%] (90%) on large screens. Fixed heights keep the box constant. --}}
         <div class="relative w-full lg:w-[90%] h-[300px] md:h-[450px] lg:h-[600px] overflow-hidden rounded-xl bg-gray-100 shadow-sm"
              x-data="{ activeSlide: 1, slides: {{ $banners->toJson() ?? '[]' }} }" 
              x-init="if(slides.length > 1) { setInterval(() => { activeSlide = activeSlide === slides.length ? 1 : activeSlide + 1 }, 5000) }">
@@ -20,7 +19,6 @@
                      x-transition:leave-end="opacity-0"
                      class="absolute inset-0 flex items-center justify-center bg-gray-100">
                      
-                    {{-- object-contain ensures small/large images fit inside the box without stretching or cropping --}}
                     <img :src="slide" alt="Hero Banner" class="w-full h-full object-contain object-center drop-shadow-sm">
                 </div>
             </template>
@@ -34,11 +32,18 @@
         </div>
     </div>
 
-    {{-- INTERACTIVE MAP SECTION (Shows everywhere) --}}
-    <section class="container mx-auto mt-16 px-4 mb-24 flex justify-center">
+    {{-- 🌟 2. NEW DYNAMIC CONTENT BUILDER WIDGETS 🌟 --}}
+    {{-- Any text, FAQs, or widgets you add to "Home Page" in the Admin Panel will appear here! --}}
+    <div class="container mx-auto px-4 mt-12 flex justify-center">
+        <div class="w-full lg:w-[90%]">
+            <x-page-sections location="home" />
+        </div>
+    </div>
+
+    {{-- 🌟 3. INTERACTIVE MAP SECTION (Shows everywhere) 🌟 --}}
+    <section class="container mx-auto mt-12 px-4 mb-24 flex justify-center">
         <div class="w-full lg:w-[90%]">
             
-            {{-- Map iFrame Container --}}
             <div class="w-full h-[75vh] min-h-[600px] border border-gray-300 rounded-xl overflow-hidden bg-gray-50 shadow-md">
                 <iframe 
                     src="http://10.10.11.33:8000/?embed=true" 

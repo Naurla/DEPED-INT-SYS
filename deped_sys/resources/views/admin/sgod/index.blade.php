@@ -62,22 +62,22 @@
     {{-- DATA LIST --}}
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse table-fixed"> {{-- ADDED table-fixed --}}
                 <thead>
                     <tr class="bg-gray-50 text-gray-600 uppercase text-xs font-bold border-b border-gray-200">
                         <th class="px-6 py-4 w-1/4">Title / Role</th>
-                        <th class="px-6 py-4">Description</th>
-                        <th class="px-6 py-4 text-right w-32">Actions</th>
+                        <th class="px-6 py-4 w-1/2">Description</th> {{-- ADDED w-1/2 to constrain description width --}}
+                        <th class="px-6 py-4 text-right w-1/4">Actions</th> {{-- Adjusted width --}}
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
                     @forelse($sgods as $sgod)
                         <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="px-6 py-4 align-top">
+                            <td class="px-6 py-4 align-top break-words"> {{-- ADDED break-words --}}
                                 <span class="font-bold text-gray-900 text-sm block">{{ $sgod->title }}</span>
                             </td>
-                            <td class="px-6 py-4 align-top">
-                                <p class="text-sm text-gray-600 leading-relaxed max-w-3xl whitespace-pre-line">{{ $sgod->description }}</p>
+                            <td class="px-6 py-4 align-top break-words"> {{-- ADDED break-words to force wrapping --}}
+                                <p class="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">{{ $sgod->description }}</p> {{-- Changed to whitespace-pre-wrap --}}
                             </td>
                             <td class="px-6 py-4 align-top text-right space-x-3">
                                 <button @click="openEdit({{ Js::from($sgod) }})" class="text-blue-600 font-bold text-xs uppercase hover:underline">Edit</button>
