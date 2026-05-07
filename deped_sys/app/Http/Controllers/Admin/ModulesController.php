@@ -16,21 +16,22 @@ class ModulesController extends Controller {
 
     public function store(Request $request) {
         $request->validate([
-            'title' => 'required|string|max:255',
+            // Added unique validation to prevent duplicate module titles
+            'title' => 'required|string|max:255|unique:modules,title',
             'description' => 'required|string',
-            // UPDATED: Added csv, xls, xlsx to mimes
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
 
         $file = $request->file('file');
-        $fileName = $file->getClientOriginalName();
+        // Appended time() to prevent file overwrites
+        $fileName = time() . '_' . $file->getClientOriginalName();
         $filePath = $file->storeAs('modules/files', $fileName, 'public');
         
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imageFile = $request->file('image');
-            $imageName = $imageFile->getClientOriginalName();
+            $imageName = time() . '_' . $imageFile->getClientOriginalName();
             $imagePath = $imageFile->storeAs('modules/images', $imageName, 'public');
         }
 
@@ -49,18 +50,35 @@ class ModulesController extends Controller {
         $module = Modules::findOrFail($id);
         
         $data = $request->validate([
-            'title' => 'required|string|max:255',
+            // Ignore the current record's ID to allow updating the same module
+            'title' => 'required|string|max:255|unique:modules,title,' . $id,
             'description' => 'required|string',
-            // UPDATED: Added validation for the file during update as well
             'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
         ]);
+
+        // Handle explicitly removing the file
+        if ($request->remove_file == '1') {
+            if ($module->file_path) {
+                Storage::disk('public')->delete($module->file_path);
+            }
+            $data['file_path'] = null;
+            $data['file_type'] = null;
+        }
+
+        // Handle explicitly removing the image
+        if ($request->remove_image == '1') {
+            if ($module->image_path) {
+                Storage::disk('public')->delete($module->image_path);
+            }
+            $data['image_path'] = null;
+        }
         
         if ($request->hasFile('file')) {
             if($module->file_path) Storage::disk('public')->delete($module->file_path);
             
             $file = $request->file('file');
-            $fileName = $file->getClientOriginalName();
+            $fileName = time() . '_' . $file->getClientOriginalName();
             $data['file_path'] = $file->storeAs('modules/files', $fileName, 'public');
             $data['file_type'] = $file->getClientOriginalExtension();
         }
@@ -69,13 +87,13 @@ class ModulesController extends Controller {
             if($module->image_path) Storage::disk('public')->delete($module->image_path);
             
             $imageFile = $request->file('image');
-            $imageName = $imageFile->getClientOriginalName();
+            $imageName = time() . '_' . $imageFile->getClientOriginalName();
             $data['image_path'] = $imageFile->storeAs('modules/images', $imageName, 'public');
         }
 
         $module->update($data);
         
-        return back()->with('success', 'Module updated!');
+        return back()->with('success', 'Module updated successfully!');
     }
 
     public function destroy($id) {
@@ -88,7 +106,6 @@ class ModulesController extends Controller {
         
         $module->delete();
         
-        return redirect()->route('admin.modules.index')
-                         ->with('success', 'Module deleted successfully!');
+        return back()->with('success', 'Module deleted successfully!');
     }
 }

@@ -15,36 +15,38 @@ class LearningMaterialsController extends Controller
         return view('admin.learning_materials.index', compact('materials'));
     }
 
-   public function store(Request $request) {
-    $request->validate([
-        'title' => 'required|string|max:255',
-        'description' => 'required|string',
-        // Support all major classroom formats
-        'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
-    ]);
+    public function store(Request $request) 
+    {
+        $request->validate([
+            // Added unique validation to prevent duplicate materials
+            'title' => 'required|string|max:255|unique:learning_materials,title',
+            'description' => 'required|string',
+            // Support all major classroom formats
+            'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
+        ]);
 
-    $file = $request->file('file');
-    $fileName = $file->getClientOriginalName();
-    $filePath = $file->storeAs('learning_materials/files', $fileName, 'public');
+        $file = $request->file('file');
+        $fileName = time() . '_' . $file->getClientOriginalName(); // Appended time to prevent file overwrite
+        $filePath = $file->storeAs('learning_materials/files', $fileName, 'public');
 
-    \App\Models\LearningMaterials::create([
-        'title' => $request->title,
-        'description' => $request->description,
-        'file_path' => $filePath,
-        'file_type' => $file->getClientOriginalExtension(),
-    ]);
+        LearningMaterials::create([
+            'title' => $request->title,
+            'description' => $request->description,
+            'file_path' => $filePath,
+            'file_type' => $file->getClientOriginalExtension(),
+        ]);
 
-    return back()->with('success', 'Material uploaded successfully!');
-}
+        return back()->with('success', 'Learning material uploaded successfully!');
+    }
 
     public function update(Request $request, string $id)
     {
         $material = LearningMaterials::findOrFail($id);
 
         $request->validate([
-            'title' => 'required|string|max:255',
+            // Ignore the current record's ID to allow updating the same material
+            'title' => 'required|string|max:255|unique:learning_materials,title,' . $id,
             'description' => 'required|string',
-            // UPDATED: Added csv, xls, xlsx
             'file' => 'nullable|file|mimes:pdf,ppt,pptx,doc,docx,csv,xls,xlsx|max:20480',
         ]);
 
@@ -53,14 +55,24 @@ class LearningMaterialsController extends Controller
             'description' => $request->description,
         ];
 
+        // Handle explicitly removing the file
+        if ($request->remove_file == '1') {
+            if ($material->file_path) {
+                Storage::disk('public')->delete($material->file_path);
+            }
+            $dataToUpdate['file_path'] = null;
+            $dataToUpdate['file_type'] = null;
+        }
+
+        // Handle replacing the file
         if ($request->hasFile('file')) {
             if ($material->file_path) {
                 Storage::disk('public')->delete($material->file_path);
             }
 
             $file = $request->file('file');
-            $fileName = $file->getClientOriginalName();
-            $dataToUpdate['file_path'] = $file->storeAs('learning_materials', $fileName, 'public');
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $dataToUpdate['file_path'] = $file->storeAs('learning_materials/files', $fileName, 'public');
             $dataToUpdate['file_type'] = $file->getClientOriginalExtension();
         }
 
@@ -72,10 +84,13 @@ class LearningMaterialsController extends Controller
     public function destroy(string $id)
     {
         $material = LearningMaterials::findOrFail($id);
+        
         if ($material->file_path) {
             Storage::disk('public')->delete($material->file_path);
         }
+        
         $material->delete();
+        
         return back()->with('success', 'Learning material deleted successfully!');
     }
 }
