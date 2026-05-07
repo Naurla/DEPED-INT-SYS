@@ -18,7 +18,7 @@
     }
 </style>
 
-<div x-data="{ 
+<div class="w-full" x-data="{ 
     addModal: {{ (old('name') && !old('id') && ($errors->any() || session('error'))) ? 'true' : 'false' }}, 
     editModal: {{ (old('id') || (isset($logo) && $errors->any())) ? 'true' : 'false' }}, 
     deleteModal: false, 
@@ -54,12 +54,12 @@
         this.deleteModal = true;
     }
 }">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 w-full">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Header & Footer Logos</h2>
             <p class="text-gray-500 text-sm mt-1">Manage the logos displayed on the site.</p>
         </div>
-        <button @click="addModal = true" class="bg-red-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-red-800 shadow transition-colors uppercase tracking-wider flex items-center">
+        <button @click="addModal = true" class="bg-red-700 text-white px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-red-800 shadow transition-colors uppercase tracking-wider flex items-center shrink-0">
             <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -67,22 +67,26 @@
         </button>
     </div>
 
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="overflow-x-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
+        <div class="overflow-x-auto w-full">
             <table class="w-full text-left text-sm whitespace-nowrap border-collapse">
                 <thead class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
                     <tr>
+                        <th class="px-6 py-4 text-center w-16">#</th>
                         <th class="px-6 py-4 text-center w-20">Image</th>
                         <th class="px-6 py-4">Name</th>
                         <th class="px-6 py-4">Position</th>
-                        <th class="px-6 py-4">Order</th>
+                        <th class="px-6 py-4 text-center">Order</th>
                         <th class="px-6 py-4 text-center">Status</th>
                         <th class="px-6 py-4 text-right">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
-                    @forelse($logos as $logo)
+                    @forelse($logos as $index => $logo)
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 text-center text-sm text-gray-600 font-medium align-middle">
+                            {{ $logos->firstItem() + $index }}
+                        </td>
                         <td class="px-6 py-4 align-middle">
                             <div class="w-16 h-16 bg-white rounded-lg flex items-center justify-center p-1 border border-gray-200 shadow-sm">
                                 <img src="{{ asset('storage/' . $logo->image_path) }}" alt="Logo" class="max-h-full max-w-full object-contain">
@@ -113,13 +117,19 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-gray-500 italic font-medium">No logos found. Click "+ Add New Logo" to begin.</td>
+                        <td colspan="7" class="px-6 py-8 text-center text-gray-500 italic font-medium">No logos found. Click "+ Add New Logo" to begin.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
+    @if($logos->hasPages())
+        <div class="mt-4 mb-6 w-full">
+            {{ $logos->links() }}
+        </div>
+    @endif
 
     {{-- ADD MODAL (Larger and Scrollable) --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 py-6 backdrop-blur-sm transition-opacity overflow-y-auto">
@@ -229,7 +239,7 @@
 
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Logo</button>
-                    <button @click="editModal = false" type="button" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="button" @click="showEditRoleModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>
@@ -307,6 +317,7 @@
         </div>
     </div>
 </div>
+
 @endsection
 
 @push('styles')

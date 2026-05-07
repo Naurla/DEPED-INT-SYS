@@ -52,7 +52,7 @@ class AdvisoryController extends Controller
             $query->whereBetween('created_at', [$request->start_date, $request->end_date]);
         }
 
-        $advisories = $query->latest()->paginate(10); // Increased to 10 for admin visibility
+        $advisories = $query->latest()->paginate(10); // Remains 10
 
         return view('admin.advisories.index', compact('advisories'));
     }

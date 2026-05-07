@@ -12,7 +12,8 @@ class SiteLogoController extends Controller
 {
     public function index()
     {
-        $logos = SiteLogo::orderBy('position', 'asc')->orderBy('order', 'asc')->get();
+        // Changed get() to paginate(5)
+        $logos = SiteLogo::orderBy('position', 'asc')->orderBy('order', 'asc')->paginate(10);
         return view('admin.logos.index', compact('logos'));
     }
 
@@ -44,7 +45,10 @@ class SiteLogoController extends Controller
                 ->with('error', 'Section Conflict: A logo already exists in the ' . str_replace('_', ' ', $request->position) . ' with Sort Order ' . $order . '.');
         }
 
-        $path = $request->file('image')->store('logos', 'public');
+        // Appended time() to prevent file overwrites
+        $file = $request->file('image');
+        $filename = time() . '_' . $file->getClientOriginalName();
+        $path = $file->storeAs('logos', $filename, 'public');
 
         SiteLogo::create([
             'name' => $request->name,
@@ -90,7 +94,9 @@ class SiteLogoController extends Controller
             if (Storage::disk('public')->exists($logo->image_path)) {
                 Storage::disk('public')->delete($logo->image_path);
             }
-            $logo->image_path = $request->file('image')->store('logos', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $logo->image_path = $file->storeAs('logos', $filename, 'public');
         }
 
         $logo->name = $request->name;

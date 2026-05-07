@@ -61,6 +61,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                        <th class="px-6 py-4 border-b w-16 text-center">#</th>
                         <th class="px-6 py-4 border-b w-24">Image</th>
                         <th class="px-6 py-4 border-b">Name</th>
                         <th class="px-6 py-4 border-b text-center">Order</th>
@@ -69,7 +70,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100 text-gray-700">
-                    @forelse($banners as $banner)
+                    @forelse($banners as $index => $banner)
                     
                     @php
                         $basename = basename($banner->image_path);
@@ -77,6 +78,9 @@
                     @endphp
 
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="px-6 py-4 align-middle text-center text-sm text-gray-600 font-medium">
+                            {{ $banners->firstItem() + $index }}
+                        </td>
                         <td class="px-6 py-4 align-middle">
                             <div class="w-20 h-12 bg-white rounded border border-gray-200 overflow-hidden shadow-sm">
                                 <img src="{{ asset('storage/' . $banner->image_path) }}" alt="Banner" class="w-full h-full object-cover">
@@ -108,13 +112,19 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-10 text-center text-gray-500 italic">No banners found. Click "Add New Banner" to get started.</td>
+                        <td colspan="6" class="px-6 py-10 text-center text-gray-500 italic">No banners found. Click "Add New Banner" to get started.</td>
                     </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+
+    @if($banners->hasPages())
+        <div class="mt-4 mb-6">
+            {{ $banners->links() }}
+        </div>
+    @endif
 
     {{-- ADD MODAL --}}
     <div x-show="bannerModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
@@ -181,7 +191,6 @@
                         <label class="block text-gray-800 text-lg font-bold mb-2 uppercase text-xs tracking-widest">Replace Image (Optional)</label>
                         <input type="file" name="image" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
                         
-                        <!-- NEWLY ADDED: Current Image Preview Box -->
                         <template x-if="currentImagePath && !removeImage">
                             <div class="mt-4 flex items-center justify-between p-4 bg-red-50 border border-red-100 rounded-xl">
                                 <span class="text-base text-red-900 font-bold truncate max-w-[280px]" x-text="'Current: ' + currentImagePath.split('/').pop()"></span>

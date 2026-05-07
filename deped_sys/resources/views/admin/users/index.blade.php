@@ -176,6 +176,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                        <th class="p-4 border-b whitespace-nowrap w-16 text-center">ID</th>
                         <th class="p-4 border-b whitespace-nowrap">User Details</th>
                         <th class="p-4 border-b whitespace-nowrap">Designation (Role)</th>
                         <th class="p-4 border-b whitespace-nowrap">Created Date</th>
@@ -185,6 +186,9 @@
                 <tbody>
                     @forelse($users as $user)
                         <tr class="hover:bg-gray-50 border-b transition-colors">
+                            <td class="p-4 text-sm text-gray-600 font-medium text-center align-middle">
+                                {{ method_exists($users, 'firstItem') ? $users->firstItem() + $loop->index : $loop->iteration }}
+                            </td>
                             <td class="p-4">
                                 <div class="font-semibold text-gray-800">{{ $user->name }}</div>
                                 <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
@@ -208,12 +212,18 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4" class="p-6 text-center text-gray-500">No users found.</td></tr>
+                        <tr><td colspan="5" class="p-6 text-center text-gray-500">No users found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
     </div>
+    
+    @if(method_exists($users, 'hasPages') && $users->hasPages())
+        <div class="mt-4" x-show="activeTab === 'users'">
+            {{ $users->links() }}
+        </div>
+    @endif
 
     {{-- MODAL: ADD USER --}}
     <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">

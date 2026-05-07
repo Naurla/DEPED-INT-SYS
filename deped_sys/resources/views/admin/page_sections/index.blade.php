@@ -9,7 +9,7 @@
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #fca5a5; border-radius: 10px; }
 </style>
 
-<div x-data="{ 
+<div class="w-full" x-data="{ 
     modalOpen: false, 
     editMode: false,
     sectionId: null,
@@ -60,7 +60,7 @@
     }
 }">
 
-    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 w-full">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Content Builder</h2>
             <p class="text-gray-500 text-sm mt-1">Assign custom text, banners, or dynamic widgets to any page.</p>
@@ -93,11 +93,12 @@
     @endif
 
     {{-- Data Table --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6">
-        <div class="overflow-x-auto">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
+        <div class="overflow-x-auto w-full">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase font-bold border-b border-gray-200">
                     <tr>
+                        <th class="px-6 py-4 w-16 text-center">#</th>
                         <th class="px-6 py-4 w-1/4">Location</th>
                         <th class="px-6 py-4 w-1/6">Type</th>
                         <th class="px-6 py-4">Preview / Title</th>
@@ -106,8 +107,9 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    @forelse($sections as $sec)
+                    @forelse($sections as $index => $sec)
                     <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="px-6 py-4 text-sm text-gray-600 font-medium text-center align-middle">{{ $sections->firstItem() + $index }}</td>
                         <td class="px-6 py-4 font-bold text-red-700 align-middle">{{ strtoupper(str_replace('page:', 'Page: ', $sec->display_location)) }}</td>
                         <td class="px-6 py-4 align-middle">
                             <span class="px-3 py-1 bg-gray-200 text-gray-700 rounded-full text-[10px] font-bold uppercase tracking-wider">{{ str_replace('_', ' ', $sec->type) }}</span>
@@ -124,7 +126,6 @@
                         </td>
                         <td class="px-6 py-4 text-center font-bold text-gray-900 align-middle">{{ $sec->sort_order }}</td>
                         <td class="px-6 py-4 text-right align-middle">
-                            {{-- FIX: Flex container ensures horizontal alignment, gap-3 provides spacing --}}
                             <div class="flex items-center justify-end gap-3">
                                 <button type="button" @click="openEdit({{ $sec->toJson() }})" class="text-blue-600 font-bold uppercase text-xs hover:underline transition-all">Edit</button>
                                 <button type="button" @click="confirmDelete('{{ route('admin.page-sections.destroy', $sec->id) }}', '{{ addslashes($sec->title ?? 'Content Block') }}')" class="text-red-600 font-bold uppercase text-xs hover:underline transition-all">Delete</button>
@@ -133,7 +134,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="5" class="px-6 py-12 text-center">
+                        <td colspan="6" class="px-6 py-12 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             <p class="text-gray-500 font-medium">No content blocks added yet.</p>
                         </td>
@@ -143,6 +144,12 @@
             </table>
         </div>
     </div>
+
+    @if($sections->hasPages())
+        <div class="mt-4 mb-6 w-full">
+            {{ $sections->links() }}
+        </div>
+    @endif
 
     {{-- ADD / EDIT MODAL --}}
     <div x-show="modalOpen" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">

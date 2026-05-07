@@ -11,7 +11,8 @@ class PageController extends Controller
 {
     public function index()
     {
-        $pages = Page::with('parent')->get();
+        // Changed get() to paginate(5)
+        $pages = Page::with('parent')->paginate(10);
         return view('admin.pages.index', compact('pages'));
     }
 

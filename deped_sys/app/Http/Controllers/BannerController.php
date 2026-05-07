@@ -137,7 +137,8 @@ class BannerController extends Controller
     }
 
     public function adminIndex() {
-        $banners = Banner::orderBy('sort_order', 'asc')->get(); 
+        // Changed to paginate by 5
+        $banners = Banner::orderBy('sort_order', 'asc')->paginate(10); 
         return view('admin.banners.index', compact('banners'));
     }
-}   
+}

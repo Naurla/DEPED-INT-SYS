@@ -12,7 +12,8 @@ class PageSectionController extends Controller
 {
     public function index()
     {
-        $sections = PageSection::orderBy('display_location', 'asc')->orderBy('sort_order', 'asc')->get();
+        // Changed get() to paginate(5)
+        $sections = PageSection::orderBy('display_location', 'asc')->orderBy('sort_order', 'asc')->paginate(10);
         $dynamicPages = Page::all();
         
         return view('admin.page_sections.index', compact('sections', 'dynamicPages'));
