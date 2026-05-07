@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="bg-white min-h-screen py-16">
-    <div class="container pl-20 px-6 max-w-10xl">
+    <div class="container pl-20 px-6 max-w-10xl mx-auto">
         
         <div class="mb-10">
             <h1 class="text-[1.4rem] font-extrabold text-black uppercase tracking-wide">
@@ -13,20 +13,20 @@
         <div class="space-y-12">
             @forelse($results as $item)
                 <div class="group transition-all duration-300">
-                    <a href="{{ route('issuances.show', $item->id) }}" class="block">
+                    <a href="{{ $item->url }}" class="block">
                         <h2 class="text-xl md:text-[1.35rem] font-extrabold text-[#333] leading-snug uppercase group-hover:text-blue-800 transition-colors mb-3">
-                            {{ strtoupper($item->created_at->format('F d, Y')) }} - [{{ strtoupper(str_replace('_', ' ', $item->type)) }}] {{ $item->title }} @if($item->description) - {{ $item->description }} @endif
+                            {{ strtoupper(\Carbon\Carbon::parse($item->date)->format('F d, Y')) }} - [{{ strtoupper(str_replace('_', ' ', $item->type)) }}] {{ $item->title }}
                         </h2>
                         
                         @if($item->description)
-                            <p class="text-base md:text-[1.05rem] text-[#333] uppercase leading-relaxed mb-4">
-                                {{ $item->title }} - {{ $item->description }}
+                            <p class="text-base md:text-[1.05rem] text-[#333] leading-relaxed mb-4">
+                                {{ \Illuminate\Support\Str::limit(strip_tags($item->description), 200) }}
                             </p>
                         @endif
                     </a>
                     
                     <div>
-                        <a href="{{ route('issuances.show', $item->id) }}" class="inline-block border border-gray-400 text-gray-500 px-4 py-1.5 text-sm hover:bg-gray-50 hover:text-gray-700 transition-colors uppercase">
+                        <a href="{{ $item->url }}" class="inline-block border border-gray-400 text-gray-500 px-4 py-1.5 text-sm hover:bg-gray-50 hover:text-gray-700 transition-colors uppercase">
                             Read More
                         </a>
                     </div>
@@ -39,7 +39,7 @@
         </div>
 
         <div class="mt-20">
-            {{ $results->links() }}
+            {{ $results->appends(['q' => $query])->links() }}
         </div>
         
     </div>

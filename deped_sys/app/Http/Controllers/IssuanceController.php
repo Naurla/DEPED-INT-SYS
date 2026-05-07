@@ -153,8 +153,6 @@ class IssuanceController extends Controller
             $dataToUpdate['pdf_path'] = $pdfFile->storeAs('issuances/' . $issuance->type, $pdfFilename, 'public');
         }
 
-        // If the user checked "Remove PDF" in the frontend (if you add that logic later) 
-        // or if you need to clear it when they provide a link instead, you can handle that here.
         if ($request->input('remove_pdf') == '1' && $issuance->pdf_path) {
             Storage::disk('public')->delete($issuance->pdf_path);
             $dataToUpdate['pdf_path'] = null;
@@ -182,12 +180,152 @@ class IssuanceController extends Controller
     {
         $query = $request->input('q');
         
-        $results = Issuance::where('title', 'LIKE', "%{$query}%")
+        if (empty($query)) {
+            $results = new \Illuminate\Pagination\LengthAwarePaginator([], 0, 15, 1, ['path' => $request->url()]);
+            return view('frontend.search_results', compact('results', 'query'));
+        }
+
+        // 1. Search Issuances (Advisories, Memoranda, HRMPSB)
+        $issuances = \App\Models\Issuance::where('title', 'LIKE', "%{$query}%")
             ->orWhere('description', 'LIKE', "%{$query}%")
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
-            
-        $results->appends(['q' => $query]);
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null, // Description removed from output
+                    'type' => $item->type ?? 'Issuance',
+                    'date' => $item->created_at,
+                    'url' => route('issuances.show', $item->id),
+                ];
+            });
+
+        // 2. Search Dynamic Pages (WITH INFINITE DEEP ANCESTOR VISIBILITY FIX)
+        $pages = \App\Models\Page::with('parent') // Eager load parent to prevent excessive DB queries
+            ->where(function ($q) use ($query) {
+                $q->where('title', 'LIKE', "%{$query}%")
+                  ->orWhere('content', 'LIKE', "%{$query}%");
+            })
+            ->get()
+            ->filter(function ($page) {
+                // Traverse up the hierarchy tree to ensure the page AND ALL ancestors are visible
+                $current = $page;
+                while ($current) {
+                    if ($current->show_in_nav != 1) {
+                        return false; // If this page OR any parent is disabled, completely hide it
+                    }
+                    $current = $current->parent; // Move up to the next parent
+                }
+                return true; // All ancestors are good!
+            })
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null, // Description removed from output
+                    'type' => $item->title, // Outputs the actual page name
+                    'date' => $item->created_at,
+                    'url' => route('frontend.page', $item->slug),
+                ];
+            });
+
+        // 3. Search Bid Opportunities (Procurement)
+        $bids = \App\Models\BidOpportunity::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null, // Description removed from output
+                    'type' => 'Procurement',
+                    'date' => $item->created_at,
+                    'url' => route('procurement.show', ['category' => $item->category, 'id' => $item->id]),
+                ];
+            });
+
+        // 4. Search Enrollment Statistics
+        $enrollmentStats = \App\Models\EnrollmentStatistic::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('content', 'LIKE', "%{$query}%")
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null,
+                    'type' => 'Enrollment Statistic',
+                    'date' => $item->created_at,
+                    'url' => route('enrollment-statistics.show', $item->id),
+                ];
+            });
+
+        // 5. Search Modules
+        $modules = \App\Models\Modules::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('description', 'LIKE', "%{$query}%")
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null,
+                    'type' => 'Module',
+                    'date' => $item->created_at,
+                    'url' => route('k12.als.modules.show', $item->id),
+                ];
+            });
+
+        // 6. Search ALS Stories
+        $alsStories = \App\Models\AlsStory::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('content', 'LIKE', "%{$query}%")
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null,
+                    'type' => 'ALS Story',
+                    'date' => $item->created_at,
+                    'url' => route('als-stories.show', $item->id),
+                ];
+            });
+
+        // 7. Search ALS Implementers
+        $alsImplementers = \App\Models\AlsImplementer::where('title', 'LIKE', "%{$query}%")
+            ->orWhere('content', 'LIKE', "%{$query}%")
+            ->get()
+            ->map(function ($item) {
+                return (object) [
+                    'id' => $item->id,
+                    'title' => $item->title,
+                    'description' => null,
+                    'type' => 'ALS Implementer',
+                    'date' => $item->created_at,
+                    'url' => route('als-implementers.show', $item->id),
+                ];
+            });
+
+        // Combine all results into a single collection and sort by newest
+        $allResults = $issuances
+            ->concat($pages)
+            ->concat($bids)
+            ->concat($enrollmentStats)
+            ->concat($modules)
+            ->concat($alsStories)
+            ->concat($alsImplementers)
+            ->sortByDesc('date');
+
+        // Manually paginate the combined collection
+        $page = \Illuminate\Pagination\Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 15;
+        $paginatedResults = new \Illuminate\Pagination\LengthAwarePaginator(
+            $allResults->forPage($page, $perPage)->values(),
+            $allResults->count(),
+            $perPage,
+            $page,
+            ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
+
+        $results = $paginatedResults;
 
         return view('frontend.search_results', compact('results', 'query'));
     }

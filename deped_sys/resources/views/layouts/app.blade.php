@@ -153,9 +153,9 @@
                         <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                     <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-64 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
-                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors"> Division Advisories</a>
-                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> Division Memoranda</a>
-                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-blue-50 border-b border-gray-50 text-gray-700 hover:text-blue-800 transition-colors"> HRMPSB</a>
+                        <a href="{{ route('issuances.advisories') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors"> Division Advisories</a>
+                        <a href="{{ route('issuances.memoranda') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors"> Division Memoranda</a>
+                        <a href="{{ route('issuances.hrmpsb') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors"> HRMPSB</a>
                     
                         {{-- RECURSIVE ISSUANCES PAGES --}}
                         @if(isset($categorizedPages['issuances']))
@@ -255,13 +255,13 @@
                         <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                     <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
-                        <a href="{{ route('procurement.index', ['category' => 'bid-opportunities']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Bid Opportunities</a>
-                        <a href="{{ route('procurement.index', ['category' => 'apcpi']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Agency Procurement Compliance and Performance Indicators</a>
-                        <a href="{{ route('procurement.index', ['category' => 'app-cse']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Annual Procurement Plan – Common User Supplies</a>
-                        <a href="{{ route('procurement.index', ['category' => 'app-non-cse']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Annual Procurement Plan – Non CSE</a>
-                        <a href="{{ route('procurement.index', ['category' => 'award-notices']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Award Notices</a>
-                        <a href="{{ route('procurement.index', ['category' => 'pmr']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Procurement Monitoring Report</a>
-                        <a href="{{ route('procurement.index', ['category' => 'pre-bid-minutes']) }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap"> Minutes of Pre-Bid</a>
+                        <a href="{{ route('procurement.index', ['category' => 'bid-opportunities']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Bid Opportunities</a>
+                        <a href="{{ route('procurement.index', ['category' => 'apcpi']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Agency Procurement Compliance and Performance Indicators</a>
+                        <a href="{{ route('procurement.index', ['category' => 'app-cse']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Annual Procurement Plan – Common User Supplies</a>
+                        <a href="{{ route('procurement.index', ['category' => 'app-non-cse']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Annual Procurement Plan – Non CSE</a>
+                        <a href="{{ route('procurement.index', ['category' => 'award-notices']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Award Notices</a>
+                        <a href="{{ route('procurement.index', ['category' => 'pmr']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Procurement Monitoring Report</a>
+                        <a href="{{ route('procurement.index', ['category' => 'pre-bid-minutes']) }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap"> Minutes of Pre-Bid</a>
                         
                         {{-- RECURSIVE PROCUREMENT PAGES --}}
                         @if(isset($categorizedPages['procurement']))
@@ -280,9 +280,8 @@
                         <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                     <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50">
-                        <a href="{{ url('schools/map-directory') }}" class="block px-6 py-3 hover:bg-red-50 border-b border-gray-50 text-gray-700 hover:text-red-700 transition-colors whitespace-nowrap flex items-center justify-between {{ request()->is('schools/map-directory') ? 'text-red-700 font-bold bg-red-50' : '' }}">
-                            <span>Interactive School Map</span>
-                            <svg class="w-4 h-4 ml-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <a href="{{ url('schools/map-directory') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap {{ request()->is('schools/map-directory') ? 'text-[#a52a2a] font-bold bg-gray-100' : '' }}">
+                            Interactive School Map
                         </a>
                     </div>
                 </div>
@@ -297,8 +296,8 @@
                 @endif
 
                 <div class="w-full md:w-auto md:ml-auto px-4 py-2 flex items-center justify-center">
-                    <form action="/search" method="GET" class="relative w-full md:w-64">
-                        <input type="text" name="q" placeholder="Search memos, advisories..." value="{{ request('q') }}" class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 text-sm focus:outline-none focus:border-[#a52a2a] focus:ring-1 focus:ring-[#a52a2a] shadow-inner transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-700">
+                    <form action="{{ route('search.global') }}" method="GET" class="relative w-full md:w-64">
+                        <input type="text" name="q" placeholder="Search site..." value="{{ request('q') }}" class="w-full pl-10 pr-4 py-2 rounded-full border border-gray-300 text-sm focus:outline-none focus:border-[#a52a2a] focus:ring-1 focus:ring-[#a52a2a] shadow-inner transition-all bg-gray-50 hover:bg-white focus:bg-white text-gray-700">
                         <button type="submit" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-[#a52a2a]">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                         </button>

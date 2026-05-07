@@ -1,5 +1,6 @@
 @extends('layouts.admin')
-
+@section('breadcrumb_category', 'K to 12 Basic Education')
+@section('page_title', 'Manage K to 12')
 @section('content')
 <style>
     [x-cloak] { display: none !important; }

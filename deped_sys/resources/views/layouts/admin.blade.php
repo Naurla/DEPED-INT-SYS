@@ -257,7 +257,6 @@
             </a>
             @endif
 
-            {{-- 🟢 ADDED PUBLIC ADVISORIES --}}
             @if(auth()->check() && auth()->user()->hasPermission('advisories'))
             <a href="{{ route('admin.advisory.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.index') || request()->is('admin/advisories*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
@@ -539,12 +538,51 @@
 
     <div class="flex-grow flex flex-col overflow-hidden w-full md:w-auto">
         <header class="bg-white border-b h-16 flex items-center justify-between px-4 sm:px-8 shadow-sm z-10 w-full">
-            <div class="flex items-center text-sm truncate">
+            
+            {{-- AUTO DETECT BREADCRUMB CATEGORY --}}
+            @php
+                $breadcrumbCategory = null;
+                if (request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')) {
+                    $breadcrumbCategory = 'User Management';
+                } elseif (request()->routeIs('admin.banners.*')) {
+                    $breadcrumbCategory = 'Home Banners';
+                } elseif (request()->routeIs('admin.advisory.*')) {
+                    $breadcrumbCategory = 'Public Advisories';
+                } elseif (request()->routeIs('admin.settings.*')) {
+                    $breadcrumbCategory = 'Site Settings';
+                } elseif (request()->routeIs('admin.pages.*')) {
+                    $breadcrumbCategory = 'Manage Pages';
+                } elseif (request()->routeIs('admin.logos.*')) {
+                    $breadcrumbCategory = 'Header & Footer Logos';
+                } elseif (request()->routeIs('admin.org_chart.*') || request()->routeIs('admin.division_structures.*') || request()->routeIs('admin.sgod.*') || request()->routeIs('admin.osds.*') || request()->routeIs('admin.cid.*')) {
+                    $breadcrumbCategory = 'Organizational Structure';
+                } elseif (request()->routeIs('admin.qms.*') || request()->routeIs('admin.vision_mission.*') || request()->routeIs('admin.data_privacy.*') || request()->routeIs('admin.citizen_charter.*') || request()->is('admin/about*')) {
+                    $breadcrumbCategory = 'About';
+                } elseif (request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.als-implementers.*')) {
+                    $breadcrumbCategory = 'Alternative Learning System';
+                } elseif (request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.learning-materials.*')) {
+                    $breadcrumbCategory = 'K to 12 Basic Education';
+                } elseif (request()->routeIs('admin.issuances.*')) {
+                    $breadcrumbCategory = 'Division Issuances';
+                } elseif (request()->is('admin/procurement*') || request()->routeIs('admin.procurement.*')) {
+                    $breadcrumbCategory = 'Procurement';
+                }
+            @endphp
+            
+            <div class="flex items-center text-sm truncate uppercase">
                 <button @click="mobileOpen = true" class="md:hidden mr-3 text-gray-700 hover:text-[#a52a2a] focus:outline-none shrink-0">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                 </button>
                 <span class="text-gray-400 font-medium mr-2 hidden sm:inline">Admin /</span>
-                <span class="font-bold text-gray-800 truncate">@yield('page_title', 'Dashboard')</span>
+                
+                {{-- DISPLAY THE CATEGORY IF FOUND --}}
+                @hasSection('breadcrumb_category')
+                    <span class="text-gray-400 font-medium mr-2 hidden sm:inline">@yield('breadcrumb_category') /</span>
+                @elseif($breadcrumbCategory)
+                    <span class="text-gray-400 font-medium mr-2 hidden sm:inline">{{ $breadcrumbCategory }} /</span>
+                @endif
+                
+                <span class="font-bold text-[#a52a2a] truncate">@yield('page_title', 'Dashboard')</span>
             </div>
             
             <div class="flex items-center space-x-3 sm:space-x-6 shrink-0">
