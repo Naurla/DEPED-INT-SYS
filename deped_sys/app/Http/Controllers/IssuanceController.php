@@ -10,7 +10,8 @@ class IssuanceController extends Controller
 {
     public function advisories()
     {
-        $items = Issuance::where('type', 'advisory')->latest()->paginate(5);
+        // Changed paginate(5) to paginate(10)
+        $items = Issuance::where('type', 'advisory')->latest()->paginate(10);
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
         
@@ -25,7 +26,8 @@ class IssuanceController extends Controller
 
     public function memoranda()
     {
-        $items = Issuance::where('type', 'memorandum')->latest()->paginate(5);
+        // Changed paginate(5) to paginate(10)
+        $items = Issuance::where('type', 'memorandum')->latest()->paginate(10);
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
         
@@ -40,7 +42,8 @@ class IssuanceController extends Controller
 
     public function hrmpsb()
     {
-        $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(5);
+        // Changed paginate(5) to paginate(10)
+        $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(10);
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
         
@@ -101,7 +104,8 @@ class IssuanceController extends Controller
         // Only attempt to store the file if one was actually uploaded
         if ($request->hasFile('pdf_file')) {
             $pdfFile = $request->file('pdf_file');
-            $pdfFilename = $pdfFile->getClientOriginalName();
+            // Adding time() to prevent file overwriting
+            $pdfFilename = time() . '_' . $pdfFile->getClientOriginalName();
             $path = $pdfFile->storeAs('issuances/' . $validated['type'], $pdfFilename, 'public');
         }
         
@@ -149,7 +153,8 @@ class IssuanceController extends Controller
             }
             
             $pdfFile = $request->file('pdf_file');
-            $pdfFilename = $pdfFile->getClientOriginalName();
+            // Adding time() to prevent file overwriting
+            $pdfFilename = time() . '_' . $pdfFile->getClientOriginalName();
             $dataToUpdate['pdf_path'] = $pdfFile->storeAs('issuances/' . $issuance->type, $pdfFilename, 'public');
         }
 

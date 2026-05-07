@@ -91,7 +91,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($statistics as $index => $stat)
                     <tr class="hover:bg-gray-50 transition-colors">
-                        <td class="p-4 text-sm text-gray-600 font-medium align-middle text-center">{{ $loop->iteration }}</td>
+                        <td class="p-4 text-sm text-gray-600 font-medium align-middle text-center">{{ $statistics->firstItem() + $index }}</td>
                         <td class="p-4 font-bold text-gray-900 align-middle">{{ $stat->title }}</td>
                         <td class="p-4 text-gray-600 align-middle text-sm">{{ $stat->school_year ?? 'N/A' }}</td>
                         
@@ -144,18 +144,22 @@
             </table>
         </div>
     </div>
+    
+    @if($statistics->hasPages())
+        <div class="mt-4">
+            {{ $statistics->links() }}
+        </div>
+    @endif
 
     {{-- MODERNIZED MODAL: ADD/EDIT STATISTIC --}}
     <div x-show="uploadModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="uploadModal = false">
             
-            <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl" x-text="editMode ? 'Edit Statistic' : 'Upload New Statistic'"></h3>
                 <button type="button" @click="uploadModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <!-- Flex Form -->
             <form :action="editMode ? '/admin/enrollment-statistics/' + statId : '{{ route('admin.enrollment-statistics.store') }}'" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 <template x-if="editMode"><input type="hidden" name="_method" value="PUT"></template>
@@ -168,7 +172,6 @@
                 <input type="hidden" name="remove_file" :value="removeFile ? '1' : '0'">
                 <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
                 
-                <!-- Scrollable Content Area -->
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -222,7 +225,6 @@
                     </div>
                 </div>
 
-                <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg" x-text="editMode ? 'Update Record' : 'Upload Entry'"></button>
                     <button type="button" @click="uploadModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
@@ -235,7 +237,6 @@
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
             
-            <!-- Soft Double-Ring Icon -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -244,14 +245,12 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Record?</h3>
                 <p class="text-gray-500 text-sm mb-5">
                     This will also delete the attached files.
                 </p>
                 
-                <!-- Target Highlight -->
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>
@@ -261,7 +260,6 @@
                 </p>
             </div>
             
-            <!-- Action Buttons -->
             <div class="flex gap-3">
                 <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all">
                     Cancel
@@ -282,7 +280,6 @@
     <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
             
-            <!-- Soft Double-Ring Icon (Red Checkmark) -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -291,7 +288,6 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center mb-8">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
                 <p class="text-gray-500 text-base">
@@ -303,7 +299,6 @@
                 </p>
             </div>
             
-            <!-- Action Button -->
             <div class="flex">
                 <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-700 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
                     Continue

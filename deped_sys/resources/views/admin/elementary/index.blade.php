@@ -69,6 +69,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                        <th class="p-4 border-b whitespace-nowrap w-16 text-center">#</th>
                         <th class="p-4 border-b">Title</th>
                         <th class="p-4 border-b">Description</th>
                         <th class="p-4 border-b">Document</th>
@@ -78,6 +79,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($contents as $content)
                     <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="p-4 text-sm text-gray-600 font-medium align-middle text-center">{{ $contents->firstItem() + $loop->index }}</td>
                         <td class="p-4 font-bold text-gray-900 align-middle">{{ $content->title }}</td>
                         <td class="p-4 text-sm text-gray-600 max-w-xs align-middle">
                             <div x-data="{ expanded: false }">
@@ -119,7 +121,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="4" class="p-10 text-center text-gray-500 italic">No content available yet.</td>
+                        <td colspan="5" class="p-10 text-center text-gray-500 italic">No content available yet.</td>
                     </tr>
                     @endforelse
                 </tbody>
@@ -127,17 +129,21 @@
         </div>
     </div>
 
+    @if($contents->hasPages())
+        <div class="mt-4 mb-6">
+            {{ $contents->links() }}
+        </div>
+    @endif
+
     {{-- MODERNIZED MODAL: ADD/EDIT CONTENT (Matched to Reference Size: max-w-5xl) --}}
     <div x-show="uploadModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="uploadModal = false">
             
-            <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl" x-text="editMode ? 'Edit List' : 'Upload New List'"></h3>
                 <button type="button" @click="uploadModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <!-- Flex Form -->
             <form :action="editMode ? editUrl : '{{ route('admin.curriculum.elementary.store') }}'" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 <template x-if="editMode"><input type="hidden" name="_method" value="PUT"></template>
@@ -147,7 +153,6 @@
                 <input type="hidden" name="edit_url" :value="editUrl">
                 <input type="hidden" name="existing_csv_path" :value="editItem ? editItem.csv_path : ''">
 
-                <!-- Scrollable Content Area -->
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Title <span class="text-red-500">*</span></label>
@@ -174,7 +179,6 @@
                     </div>
                 </div>
                 
-                <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg" x-text="editMode ? 'Update List' : 'Upload List'"></button>
                     <button type="button" @click="uploadModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
@@ -187,7 +191,6 @@
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
             
-            <!-- Soft Double-Ring Icon -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -196,14 +199,12 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete List?</h3>
                 <p class="text-gray-500 text-sm mb-5">
                     You are about to permanently delete this list:
                 </p>
                 
-                <!-- Target Highlight -->
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>
@@ -213,7 +214,6 @@
                 </p>
             </div>
             
-            <!-- Action Buttons -->
             <div class="flex gap-3">
                 <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all">
                     Cancel
@@ -234,7 +234,6 @@
     <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
             
-            <!-- Soft Double-Ring Icon (Red Checkmark) -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,7 +242,6 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center mb-8">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
                 <p class="text-gray-500 text-base">
@@ -255,7 +253,6 @@
                 </p>
             </div>
             
-            <!-- Action Button -->
             <div class="flex">
                 <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-700 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
                     Continue

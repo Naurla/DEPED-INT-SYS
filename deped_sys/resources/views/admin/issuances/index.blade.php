@@ -79,7 +79,6 @@
                         <tr class="hover:bg-gray-50 transition-colors">
                             <td class="p-4 text-sm text-gray-600 font-medium text-center align-middle">{{ $issuances->firstItem() + $loop->index }}</td>
                             
-                            <!-- FIXED: Added max-w-xs and break-words to prevent the table from stretching -->
                             <td class="p-4 font-bold text-gray-900 align-middle break-words max-w-xs md:max-w-md">
                                 {{ $issuance->title }}
                             </td>
@@ -138,7 +137,6 @@
     @endif
 
     {{-- EXACT MATCH MODAL: ADD ISSUANCE --}}
-    <!-- Added `@click.away="if (!isSubmitting) addModal = false"` to prevent closing during upload -->
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) addModal = false">
             
@@ -147,7 +145,6 @@
                 <button type="button" @click="addModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
             </div>
             
-            <!-- Added `@submit="isSubmitting = true"` -->
             <form action="{{ route('admin.issuances.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
                 @csrf
                 <input type="hidden" name="type" value="{{ $type }}">
@@ -345,7 +342,6 @@
     <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
             
-            <!-- Soft Double-Ring Icon (Red Checkmark) -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -354,7 +350,6 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center mb-8">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
                 <p class="text-gray-500 text-base">
@@ -366,7 +361,6 @@
                 </p>
             </div>
             
-            <!-- Action Button -->
             <div class="flex">
                 <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-700 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
                     Continue

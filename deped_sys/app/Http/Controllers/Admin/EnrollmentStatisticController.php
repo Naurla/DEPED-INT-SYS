@@ -11,7 +11,8 @@ class EnrollmentStatisticController extends Controller
 {
     public function index()
     {
-        $statistics = EnrollmentStatistic::latest()->get();
+        // Changed to paginate by 5
+        $statistics = EnrollmentStatistic::latest()->paginate(10);
         return view('admin.enrollment_statistics.index', compact('statistics'));
     }
 
@@ -37,13 +38,13 @@ class EnrollmentStatisticController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['image_path'] = $file->storeAs('enrollment_statistics/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['file_path'] = $file->storeAs('enrollment_statistics/files', $filename, 'public');
         }
 
@@ -84,7 +85,7 @@ class EnrollmentStatisticController extends Controller
         if ($request->hasFile('image')) {
             if ($enrollmentStatistic->image_path) Storage::disk('public')->delete($enrollmentStatistic->image_path);
             $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['image_path'] = $file->storeAs('enrollment_statistics/images', $filename, 'public');
         }
 
@@ -98,7 +99,7 @@ class EnrollmentStatisticController extends Controller
         if ($request->hasFile('file')) {
             if ($enrollmentStatistic->file_path) Storage::disk('public')->delete($enrollmentStatistic->file_path);
             $file = $request->file('file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['file_path'] = $file->storeAs('enrollment_statistics/files', $filename, 'public');
         }
 

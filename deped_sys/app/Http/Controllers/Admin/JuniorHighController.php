@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 class JuniorHighController extends Controller
 {
     public function index() {
-        $contents = JuniorHighContent::latest()->get();
+        // Changed get() to paginate(5)
+        $contents = JuniorHighContent::latest()->paginate(10);
         return view('admin.junior_high.index', compact('contents'));
     }
 
@@ -29,6 +30,7 @@ class JuniorHighController extends Controller
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
+            // Adding time() to prevent file overwrites
             $filename = time() . '_' . $file->getClientOriginalName();
             $path = $file->storeAs('junior_high/documents', $filename, 'public');
         }
@@ -57,6 +59,14 @@ class JuniorHighController extends Controller
         ]);
 
         $juniorHigh = JuniorHighContent::findOrFail($id);
+
+        // Handle explicitly removing the document file via UI flag
+        if ($request->remove_file == '1') {
+            if ($juniorHigh->csv_path) {
+                Storage::disk('public')->delete($juniorHigh->csv_path);
+            }
+            $juniorHigh->csv_path = null;
+        }
 
         if ($request->hasFile('csv_file')) {
             // Delete old file if it exists

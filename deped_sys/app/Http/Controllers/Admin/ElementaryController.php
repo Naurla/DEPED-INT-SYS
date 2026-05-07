@@ -10,7 +10,8 @@ use Illuminate\Support\Facades\Storage;
 class ElementaryController extends Controller
 {
     public function index() {
-        $contents = ElementaryContent::latest()->get();
+        // Changed get() to paginate(5)
+        $contents = ElementaryContent::latest()->paginate(10);
         return view('admin.elementary.index', compact('contents'));
     }
 
