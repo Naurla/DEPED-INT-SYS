@@ -94,6 +94,12 @@
     {{-- w-full ensures it consumes the page evenly --}}
     <div class="w-full">
         
+        {{-- 🌟 DYNAMIC PAGE SECTIONS (WIDGETS, BANNERS, & TEXT BLOCKS) 🌟 --}}
+        {{-- Renders exactly for this specific dynamic page slug --}}
+        <div class="mb-10 w-full">
+            <x-page-sections :location="'page:' . $page->slug" />
+        </div>
+
         {{-- SMART MULTI-VIDEO RENDERER --}}
         @if(!empty($page->featured_videos) && is_array($page->featured_videos))
             <div class="mb-10 w-full flex flex-col gap-10">

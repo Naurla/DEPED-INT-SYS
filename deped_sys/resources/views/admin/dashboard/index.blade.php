@@ -35,85 +35,86 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    {{-- UPDATED INFO-BOX GRID --}}
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         
-        <a href="{{ route('admin.advisory.index') }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-red-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-red-50 rounded-lg text-red-600 mr-4 group-hover:bg-red-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+        <a href="{{ route('admin.advisory.index') }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-sky-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
             </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Advisories</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['advisories'] ?? 0) }}</p>
-            </div>
-        </a>
-
-        <a href="{{ route('admin.issuances.index', ['type' => 'memorandum']) }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-amber-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-amber-50 rounded-lg text-amber-600 mr-4 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Memos</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['memos'] ?? 0) }}</p>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['advisories'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Advisories</span>
             </div>
         </a>
 
-        <a href="{{ route('admin.users.index') }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-green-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-green-50 rounded-lg text-green-600 mr-4 group-hover:bg-green-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+        <a href="{{ route('admin.issuances.index', ['type' => 'memorandum']) }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-green-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Users</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['users'] ?? 0) }}</p>
-            </div>
-        </a>
-
-        <a href="{{ route('admin.procurement.index', ['category' => 'bidding']) }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-blue-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-blue-50 rounded-lg text-blue-600 mr-4 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path></svg>
-            </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Procurement</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['procurement'] ?? 0) }}</p>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['memos'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Total Memos</span>
             </div>
         </a>
 
-        <a href="{{ route('admin.pages.index') }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-purple-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-purple-50 rounded-lg text-purple-600 mr-4 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
+        <a href="{{ route('admin.users.index') }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-red-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Dynamic Pages</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['pages'] ?? 0) }}</p>
-            </div>
-        </a>
-
-        <a href="{{ route('admin.learning-materials.index') }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-indigo-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-indigo-50 rounded-lg text-indigo-600 mr-4 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
-            </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Learning Mats</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['materials'] ?? 0) }}</p>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['users'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Active Users</span>
             </div>
         </a>
 
-        <a href="{{ route('admin.enrollment-statistics.index') }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-teal-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-teal-50 rounded-lg text-teal-600 mr-4 group-hover:bg-teal-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <a href="{{ route('admin.procurement.index', ['category' => 'bidding']) }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-amber-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"></path></svg>
             </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enrollment Data</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['enrollment'] ?? 0) }}</p>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['procurement'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Procurement</span>
             </div>
         </a>
 
-        <a href="{{ route('admin.banners.index') }}" class="bg-white p-5 rounded-xl shadow-sm border border-gray-100 flex items-center hover:border-gray-500 hover:shadow-md transition-all group">
-            <div class="p-3 bg-gray-100 rounded-lg text-gray-600 mr-4 group-hover:bg-gray-600 group-hover:text-white transition-colors">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+        <a href="{{ route('admin.pages.index') }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-red-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"></path></svg>
             </div>
-            <div>
-                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Home Banners</p>
-                <p class="text-2xl font-bold text-gray-900">{{ number_format($counts['banners'] ?? 0) }}</p>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['pages'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Dynamic Pages</span>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.learning-materials.index') }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-green-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            </div>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['materials'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Learning Mats</span>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.enrollment-statistics.index') }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-amber-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['enrollment'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Enrollment Data</span>
+            </div>
+        </a>
+
+        <a href="{{ route('admin.banners.index') }}" class="bg-white rounded shadow-sm border border-gray-100 flex overflow-hidden hover:shadow-md transition-shadow h-[90px]">
+            <div class="w-20 bg-sky-500 flex items-center justify-center text-white shrink-0">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+            </div>
+            <div class="p-4 flex flex-col justify-center w-full">
+                <span class="text-2xl font-bold text-gray-800 leading-none">{{ number_format($counts['banners'] ?? 0) }}</span>
+                <span class="text-[11px] font-bold text-gray-500 uppercase tracking-wide mt-1.5">Home Banners</span>
             </div>
         </a>
     </div>

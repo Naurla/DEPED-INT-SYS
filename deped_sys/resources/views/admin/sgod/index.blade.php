@@ -1,213 +1,174 @@
 @extends('layouts.admin')
 
-@section('page_title', 'Site Settings')
+@section('page_title', 'SGOD Division')
 
 @section('content')
 <style>
     [x-cloak] { display: none !important; }
+    
+    /* Global fix for whitespace: prevents layout shift when scrollbar is hidden */
+    body.modal-open {
+        overflow: hidden !important;
+        padding-right: 0 !important;
+    }
 
-    .custom-scrollbar::-webkit-scrollbar {
-        width: 4px;
-    }
-    .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent; 
-    }
-    .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #fca5a5; 
-        border-radius: 10px;
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #fca5a5; border-radius: 10px; }
 </style>
 
-<div x-data="{
-    emails: Object.values({{ json_encode(old('contact_email', $settings->contact_email ?? [''])) }}),
-    phones: Object.values({{ json_encode(old('contact_phone', $settings->contact_phone ?? [''])) }}),
-    addresses: Object.values({{ json_encode(old('address', $settings->address ?? [''])) }}),
-    sections: {{ json_encode(old('footer_sections', $settings->footer_sections ?? [])) }} || [],
-    
+<div x-data="{ 
+    addModal: {{ (old('form_type') === 'add' && $errors->any()) ? 'true' : 'false' }}, 
+    editModal: {{ (old('form_type') === 'edit' && $errors->any()) ? 'true' : 'false' }}, 
     deleteModal: false,
     successModal: {{ session('success') ? 'true' : 'false' }},
-    deleteTarget: null,
-    deleteIndex: null,
-    deleteParentIndex: null,
+
+    deleteAction: '',
     deleteTitle: '',
 
-    confirmDelete(target, index, title, parentIndex = null) {
-        this.deleteTarget = target;
-        this.deleteIndex = index;
-        this.deleteTitle = title;
-        this.deleteParentIndex = parentIndex;
-        this.deleteModal = true;
+    editData: {{ (old('form_type') === 'edit') ? Js::from([
+        'id' => old('sgod_id'),
+        'title' => old('title'),
+        'description' => old('description')
+    ]) : Js::from(['id' => null, 'title' => '', 'description' => '']) }},
+
+    openEdit(sgod) {
+        this.editData = {
+            id: sgod.id,
+            title: sgod.title,
+            description: sgod.description
+        };
+        this.editModal = true;
     },
-
-    executeDelete() {
-        if (this.deleteTarget === 'email') this.emails.splice(this.deleteIndex, 1);
-        else if (this.deleteTarget === 'phone') this.phones.splice(this.deleteIndex, 1);
-        else if (this.deleteTarget === 'address') this.addresses.splice(this.deleteIndex, 1);
-        else if (this.deleteTarget === 'section') this.sections.splice(this.deleteIndex, 1);
-        else if (this.deleteTarget === 'link') this.sections[this.deleteParentIndex].links.splice(this.deleteIndex, 1);
-        
-        this.deleteModal = false;
+    confirmDelete(action, title) {
+        this.deleteAction = action;
+        this.deleteTitle = title;
+        this.deleteModal = true;
     }
-}">
+}" @keydown.escape="addModal = false; editModal = false; deleteModal = false; successModal = false">
 
-    <div class="flex justify-between items-center mb-6">
+    {{-- HEADER --}}
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Manage Site Settings</h2>
-            <p class="text-gray-500 text-sm mt-1">Configure the dynamic header, footer, and contact information.</p>
+            <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">School Governance and Operations Division</h2>
+            <p class="text-gray-500 text-sm mt-1">Manage the sections and descriptions displayed on the public SGOD page.</p>
+        </div>
+        <button @click="addModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-colors text-sm uppercase tracking-wider flex items-center justify-center whitespace-nowrap">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Add New Section
+        </button>
+    </div>
+
+    {{-- DATA LIST --}}
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50 text-gray-600 uppercase text-xs font-bold border-b border-gray-200">
+                        <th class="px-6 py-4 w-1/4">Title / Role</th>
+                        <th class="px-6 py-4">Description</th>
+                        <th class="px-6 py-4 text-right w-32">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-gray-700">
+                    @forelse($sgods as $sgod)
+                        <tr class="hover:bg-gray-50/50 transition-colors">
+                            <td class="px-6 py-4 align-top">
+                                <span class="font-bold text-gray-900 text-sm block">{{ $sgod->title }}</span>
+                            </td>
+                            <td class="px-6 py-4 align-top">
+                                <p class="text-sm text-gray-600 leading-relaxed max-w-3xl whitespace-pre-line">{{ $sgod->description }}</p>
+                            </td>
+                            <td class="px-6 py-4 align-top text-right space-x-3">
+                                <button @click="openEdit({{ Js::from($sgod) }})" class="text-blue-600 font-bold text-xs uppercase hover:underline">Edit</button>
+                                <button @click="confirmDelete('{{ route('admin.sgod.destroy', $sgod->id) }}', '{{ addslashes($sgod->title) }}')" class="text-red-600 font-bold text-xs uppercase hover:underline">Delete</button>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="3" class="px-6 py-12 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                                <p class="text-gray-500 font-medium">No SGOD sections added yet.</p>
+                                <p class="text-sm text-gray-400 mt-1">Click "Add New Section" to get started.</p>
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
-    {{-- Error Block --}}
-    @if ($errors->any())
-        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-bold text-red-800 uppercase tracking-wide">Validation Error</h3>
-                    <div class="mt-2 text-sm text-red-700 font-medium">
-                        <ul class="list-disc pl-5 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
+    {{-- ADD MODAL --}}
+    <div x-show="addModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
+            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-lg uppercase tracking-wider">Add New SGOD Section</h3>
+                <button type="button" @click="addModal = false" class="text-3xl font-bold hover:text-gray-200 leading-none">&times;</button>
             </div>
-        </div>
-    @endif
-
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
-        <form action="{{ route('admin.settings.update') }}" method="POST">
-            @csrf
-
-            <div class="p-6 space-y-8">
+            
+            <form action="{{ route('admin.sgod.store') }}" method="POST" class="flex flex-col overflow-hidden min-h-0">
+                @csrf
+                <input type="hidden" name="form_type" value="add">
                 
-                {{-- Header Settings --}}
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">Header Settings</h3>
+                <div class="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1 bg-gray-50/30">
                     <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Header Title / App Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="header_title" value="{{ old('header_title', $settings->header_title) }}" 
-                               class="w-full border @error('header_title') border-red-500 @else border-gray-300 @enderror p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" required>
+                        <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Title / Role <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" value="{{ old('form_type') === 'add' ? old('title') : '' }}" required class="w-full border @if(old('form_type') === 'add' && $errors->has('title')) border-red-500 @else border-gray-300 @endif p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm" placeholder="e.g. Chief Education Supervisor">
+                        @if(old('form_type') === 'add') @error('title') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
-                </div>
-
-                {{-- QR Code Settings --}}
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">QR Code Settings</h3>
-                    <div>
-                        <label class="block text-gray-700 text-sm font-bold mb-1">QR Code Redirection Link</label>
-                        <input type="url" name="qr_link" id="qr_link" 
-                               class="w-full border @error('qr_link') border-red-500 @else border-gray-300 @enderror p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" 
-                               value="{{ old('qr_link', $settings->qr_link ?? '') }}" 
-                               placeholder="https://example.com/some-page">
-                        <p class="text-xs text-gray-500 mt-1 font-normal">Leave blank to hide the QR code on the frontend.</p>
-                    </div>
-                </div>
-
-                {{-- Footer Settings --}}
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-2 mb-4">Footer Settings</h3>
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-1">Republic of the Philippines Text</label>
-                        <textarea name="footer_about" rows="3" class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">{{ old('footer_about', $settings->footer_about) }}</textarea>
-                    </div>
-
-                    {{-- Contact Lists --}}
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
-                        
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Contact Emails</label>
-                            <template x-for="(email, index) in emails" :key="index">
-                                <div class="flex mb-2 items-center gap-2">
-                                    <input type="email" :name="'contact_email['+index+']'" x-model="emails[index]" class="flex-1 border @if($errors->has('contact_email')) border-red-500 @else border-gray-300 @endif p-2 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" placeholder="e.g., email@deped.gov.ph">
-                                    <button type="button" @click="confirmDelete('email', index, emails[index] || 'this email')" class="text-xs font-bold uppercase text-red-600 px-2">Remove</button>
-                                </div>
-                            </template>
-                            <button type="button" @click="emails.push('')" class="text-xs font-bold uppercase text-blue-600 hover:underline mt-1">+ Add Email</button>
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Contact Phones</label>
-                            <template x-for="(phone, index) in phones" :key="index">
-                                <div class="flex mb-2 items-center gap-2">
-                                    <input type="text" :name="'contact_phone['+index+']'" x-model="phones[index]" class="flex-1 border @if($errors->has('contact_phone')) border-red-500 @else border-gray-300 @endif p-2 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                    <button type="button" @click="confirmDelete('phone', index, phones[index] || 'this phone number')" class="text-xs font-bold uppercase text-red-600 px-2">Remove</button>
-                                </div>
-                            </template>
-                            <button type="button" @click="phones.push('')" class="text-xs font-bold uppercase text-blue-600 hover:underline mt-1">+ Add Phone</button>
-                        </div>
-
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Addresses</label>
-                            <template x-for="(address, index) in addresses" :key="index">
-                                <div class="flex mb-2 items-center gap-2">
-                                    <input type="text" :name="'address['+index+']'" x-model="addresses[index]" class="flex-1 border border-gray-300 p-2 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                    <button type="button" @click="confirmDelete('address', index, addresses[index] || 'this address')" class="text-xs font-bold uppercase text-red-600 px-2">Remove</button>
-                                </div>
-                            </template>
-                            <button type="button" @click="addresses.push('')" class="text-xs font-bold uppercase text-blue-600 hover:underline mt-1">+ Add Address</button>
-                        </div>
-
-                    </div>
-                </div>
-
-                {{-- Footer Categories --}}
-                <div>
-                    <h3 class="text-lg font-bold text-gray-800 border-b border-gray-100 pb-2 mb-1">Footer Categories & Links</h3>
                     
-                    <div class="space-y-4 mt-4">
-                        <template x-for="(section, sIndex) in sections" :key="sIndex">
-                            <div class="border border-gray-200 p-6 rounded-lg bg-white relative shadow-sm">
-                                <button type="button" @click="confirmDelete('section', sIndex, section.title || 'this footer category')" class="absolute top-6 right-6 text-xs font-bold uppercase text-red-600 hover:text-red-800">REMOVE CATEGORY</button>
-                                
-                                <div class="mb-4 w-3/4 pr-24">
-                                    <label class="block text-gray-700 text-sm font-bold mb-1">Category Title <span class="text-red-500">*</span></label>
-                                    <input type="text" x-model="section.title" :name="'footer_sections['+sIndex+'][title]'" placeholder="e.g. About GOVPH" class="w-full border @if($errors->has('footer_sections')) border-red-500 @else border-gray-300 @endif p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" required>
-                                </div>
-
-                                <div class="mb-4 w-full">
-                                    <label class="block text-gray-700 text-sm font-bold mb-1">Category Text / Description</label>
-                                    <textarea x-model="section.content" :name="'footer_sections['+sIndex+'][content]'" placeholder="Leave blank if you only want links..." class="w-full border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none" rows="3"></textarea>
-                                </div>
-
-                                <div class="mt-6 border-t border-gray-100 pt-4 bg-gray-50 -mx-6 -mb-6 p-6 rounded-b-lg">
-                                    <label class="block text-gray-700 text-sm font-bold mb-3">Links inside this category</label>
-                                    <template x-for="(link, lIndex) in section.links" :key="lIndex">
-                                        <div class="flex gap-3 mb-2 items-center">
-                                            <input type="text" x-model="link.label" :name="'footer_sections['+sIndex+'][links]['+lIndex+'][label]'" placeholder="Link Title" class="w-1/3 border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                            <input type="text" x-model="link.url" :name="'footer_sections['+sIndex+'][links]['+lIndex+'][url]'" placeholder="URL" class="flex-1 border border-gray-300 p-2.5 text-sm rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
-                                            <button type="button" @click="confirmDelete('link', lIndex, link.label || 'this link', sIndex)" class="text-xs font-bold uppercase text-red-600 px-2">Remove</button>
-                                        </div>
-                                    </template>
-                                    <button type="button" @click="if(!section.links) section.links = []; section.links.push({label: '', url: ''})" class="text-xs font-bold uppercase text-blue-600 hover:underline mt-3 inline-block">+ Add Link</button>
-                                </div>
-                            </div>
-                        </template>
-                        
-                        <div class="pt-2">
-                            <button type="button" @click="sections.push({title: '', content: '', links: []})" class="bg-gray-100 text-gray-700 px-4 py-2.5 rounded-lg text-sm font-bold hover:bg-gray-200 border border-gray-300">
-                                + Add New Footer Category
-                            </button>
-                        </div>
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Description <span class="text-red-500">*</span></label>
+                        <textarea name="description" rows="6" required class="w-full border @if(old('form_type') === 'add' && $errors->has('description')) border-red-500 @else border-gray-300 @endif p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm" placeholder="Enter responsibilities and description here...">{{ old('form_type') === 'add' ? old('description') : '' }}</textarea>
+                        @if(old('form_type') === 'add') @error('description') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
                 </div>
-
-            </div>
-
-            <div class="bg-gray-50 p-6 border-t border-gray-200 flex justify-end">
-                <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">
-                    Save All Settings
-                </button>
-            </div>
-        </form>
+                
+                <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3 border-t border-gray-200 flex-shrink-0">
+                    <button type="button" @click="addModal = false" class="px-5 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition-colors text-sm uppercase tracking-wider">Save Section</button>
+                </div>
+            </form>
+        </div>
     </div>
 
-    {{-- DELETE MODAL --}}
+    {{-- EDIT MODAL --}}
+    <div x-show="editModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+            <div class="bg-red-700 px-6 py-4 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-lg uppercase tracking-wider">Edit SGOD Section</h3>
+                <button type="button" @click="editModal = false" class="text-3xl font-bold hover:text-gray-200 leading-none">&times;</button>
+            </div>
+            
+            <form :action="'/admin/sgod/' + editData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
+                @csrf
+                @method('PUT')
+                <input type="hidden" name="form_type" value="edit">
+                <input type="hidden" name="sgod_id" :value="editData.id">
+                
+                <div class="p-6 space-y-5 overflow-y-auto custom-scrollbar flex-1 bg-gray-50/30">
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Title / Role <span class="text-red-500">*</span></label>
+                        <input type="text" name="title" x-model="editData.title" required class="w-full border @if(old('form_type') === 'edit' && $errors->has('title')) border-red-500 @else border-gray-300 @endif p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm">
+                        @if(old('form_type') === 'edit') @error('title') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Description <span class="text-red-500">*</span></label>
+                        <textarea name="description" x-model="editData.description" rows="6" required class="w-full border @if(old('form_type') === 'edit' && $errors->has('description')) border-red-500 @else border-gray-300 @endif p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm"></textarea>
+                        @if(old('form_type') === 'edit') @error('description') <p class="text-red-500 text-xs mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
+                    </div>
+                </div>
+                
+                <div class="bg-gray-100 px-6 py-4 flex justify-end gap-3 border-t border-gray-200 flex-shrink-0">
+                    <button type="button" @click="editModal = false" class="px-5 py-2.5 text-sm font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-6 rounded-lg shadow-sm transition-colors text-sm uppercase tracking-wider">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- DELETE CONFIRMATION MODAL --}}
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
@@ -216,15 +177,19 @@
                 </div>
             </div>
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Confirm Removal</h3>
-                <p class="text-gray-500 text-sm mb-5 px-4 leading-relaxed">Are you sure you want to remove this item? You will still need to click <strong class="text-gray-700">"Save All Settings"</strong>.</p>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Section?</h3>
+                <p class="text-gray-500 text-sm mb-5 px-4 leading-relaxed">Are you sure you want to permanently delete this SGOD section?</p>
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar text-center">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>
             </div>
             <div class="flex gap-3">
                 <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 transition-all">Cancel</button>
-                <button type="button" @click="executeDelete()" class="flex-1 inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 transition-all">Yes, Remove</button>
+                <form :action="deleteAction" method="POST" class="flex-1 m-0 p-0">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 transition-all">Yes, Delete</button>
+                </form>
             </div>
         </div>
     </div>
@@ -239,7 +204,7 @@
             </div>
             <div class="text-center mb-8">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
-                <p class="text-gray-500 text-base leading-relaxed px-4">{{ session('success') ?? 'Site settings updated successfully.' }}</p>
+                <p class="text-gray-500 text-base leading-relaxed px-4">{{ session('success') ?? 'Operation completed successfully.' }}</p>
             </div>
             <div class="flex">
                 <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 transition-all">Continue</button>

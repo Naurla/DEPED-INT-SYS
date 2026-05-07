@@ -52,6 +52,7 @@ use App\Models\CitizenCharter;
 // --- IMPORTS FOR DYNAMIC PAGES ---
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
+use App\Http\Controllers\Admin\PageSectionController; // <-- ADDED: Page Section Controller
 
 // --- IMPORTS FOR ORGANIZATIONAL CHART & DIVISIONS ---
 use App\Http\Controllers\OrgChartController;
@@ -331,9 +332,12 @@ Route::middleware(['auth'])->group(function () {
             Route::resource('cid', AdminCidController::class)->except(['create', 'show', 'edit']);
         });
 
-        // --- ADMIN ROUTE FOR DYNAMIC PAGES ---
+        // --- ADMIN ROUTE FOR DYNAMIC PAGES & PAGE SECTIONS ---
         Route::middleware(['permission:pages'])->group(function () {
             Route::resource('pages', AdminPageController::class);
+            
+            // <-- ADDED: Page Sections Route -->
+            Route::resource('page-sections', PageSectionController::class)->except(['create', 'show', 'edit']);
         });
 
         // Site Logos

@@ -285,6 +285,15 @@
                 </svg>
                 <span x-show="sidebarOpen">Manage Pages</span>
             </a>
+            
+            {{-- ADDED PAGE SECTIONS / CONTENT BLOCKS BUTTON --}}
+            <a href="{{ route('admin.page-sections.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.page-sections.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
+                </svg>
+                <span x-show="sidebarOpen">Page Sections</span>
+            </a>
             @endif
 
             @if(auth()->check() && auth()->user()->hasPermission('logos'))
@@ -376,11 +385,11 @@
             @endif
             
             @if(auth()->check() && (auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('faq') || auth()->user()->hasPermission('junior_high') || auth()->user()->hasPermission('senior_high') || auth()->user()->hasPermission('enrollment_statistics') || auth()->user()->hasPermission('als_stories') || auth()->user()->hasPermission('modules') || auth()->user()->hasPermission('als_implementers')))
-            <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') ? 'true' : 'false' }} }" class="relative mt-2">
+            <div x-data="{ dropdownOpen: {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.learning_materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') || request()->routeIs('admin.elementary.*') || request()->routeIs('admin.junior_high.*') || request()->routeIs('admin.senior_high.*') || request()->is('admin/elementary*') || request()->is('admin/junior*') || request()->is('admin/senior*') || request()->is('admin/learning*') ? 'true' : 'false' }} }" class="relative mt-2">
                 <button @click="dropdownOpen = !dropdownOpen" 
-                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                    class="w-full flex items-center justify-between px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.learning_materials.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.als-implementers.*') || request()->routeIs('admin.elementary.*') || request()->routeIs('admin.junior_high.*') || request()->routeIs('admin.senior_high.*') || request()->is('admin/elementary*') || request()->is('admin/junior*') || request()->is('admin/senior*') || request()->is('admin/learning*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
                     <div class="flex items-center space-x-3">
-                        <svg class="w-5 h-5 text-red-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+                        <svg class="w-5 h-5 text-red-200 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
                         <span x-show="sidebarOpen">Manage K to 12</span>
                     </div>
                     <svg x-show="sidebarOpen" :class="{'rotate-180': dropdownOpen}" class="w-4 h-4 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -406,7 +415,7 @@
                     @endif
 
                     @if(auth()->user()->hasPermission('materials') || auth()->user()->hasPermission('curriculum'))
-                    <a href="{{ route('admin.learning-materials.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.learning-materials.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Learning Materials</a>
+                    <a href="{{ route('admin.learning-materials.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.learning_materials.*') || request()->is('admin/learning*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Learning Materials</a>
                     @endif
 
                     @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('enrollment_statistics') || auth()->user()->hasPermission('als_stories') || auth()->user()->hasPermission('modules') || auth()->user()->hasPermission('als_implementers'))
@@ -433,14 +442,15 @@
                     @endif
 
                     @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('elementary'))
-                    <a href="{{ route('admin.curriculum.elementary.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.elementary.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Elementary School</a>
+                    <a href="{{ route('admin.curriculum.elementary.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.elementary.*') || request()->routeIs('admin.elementary.*') || request()->is('admin/elementary*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Elementary School</a>
                     @endif
 
                     @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('junior_high'))
-                    <a href="{{ route('admin.curriculum.junior_high.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.junior_high.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Junior High School</a>
+                    <a href="{{ route('admin.curriculum.junior_high.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.junior_high.*') || request()->routeIs('admin.junior_high.*') || request()->is('admin/junior*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Junior High School</a>
                     @endif
+                    
                     @if(auth()->user()->hasPermission('curriculum') || auth()->user()->hasPermission('senior_high'))
-                    <a href="{{ route('admin.curriculum.senior_high.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.senior_high.*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Senior High School</a>
+                    <a href="{{ route('admin.curriculum.senior_high.index') }}" class="block py-1 text-sm transition-all {{ request()->routeIs('admin.curriculum.senior_high.*') || request()->routeIs('admin.senior_high.*') || request()->is('admin/senior*') ? 'text-white font-bold' : 'text-gray-200 hover:text-white hover:font-bold' }}">Senior High School</a>
                     @endif
                 </div>
             </div>
@@ -542,7 +552,12 @@
             {{-- AUTO DETECT BREADCRUMB CATEGORY --}}
             @php
                 $breadcrumbCategory = null;
-                if (request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')) {
+                
+                // FORCE dashboard to have no category
+                if (request()->routeIs('admin.dashboard') || request()->is('admin/dashboard') || request()->is('admin')) {
+                    $breadcrumbCategory = null;
+                }
+                elseif (request()->routeIs('admin.users.*') || request()->routeIs('admin.roles.*')) {
                     $breadcrumbCategory = 'User Management';
                 } elseif (request()->routeIs('admin.banners.*')) {
                     $breadcrumbCategory = 'Home Banners';
@@ -550,7 +565,7 @@
                     $breadcrumbCategory = 'Public Advisories';
                 } elseif (request()->routeIs('admin.settings.*')) {
                     $breadcrumbCategory = 'Site Settings';
-                } elseif (request()->routeIs('admin.pages.*')) {
+                } elseif (request()->routeIs('admin.pages.*') || request()->routeIs('admin.page-sections.*')) {
                     $breadcrumbCategory = 'Manage Pages';
                 } elseif (request()->routeIs('admin.logos.*')) {
                     $breadcrumbCategory = 'Header & Footer Logos';
@@ -560,7 +575,7 @@
                     $breadcrumbCategory = 'About';
                 } elseif (request()->routeIs('admin.enrollment-statistics.*') || request()->routeIs('admin.als-stories.*') || request()->routeIs('admin.modules.*') || request()->routeIs('admin.als-implementers.*')) {
                     $breadcrumbCategory = 'Alternative Learning System';
-                } elseif (request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.learning-materials.*')) {
+                } elseif (request()->routeIs('admin.curriculum.*') || request()->routeIs('admin.faq.*') || request()->routeIs('admin.learning-materials.*') || request()->routeIs('admin.learning_materials.*') || request()->routeIs('admin.elementary.*') || request()->routeIs('admin.junior_high.*') || request()->routeIs('admin.senior_high.*') || request()->is('admin/elementary*') || request()->is('admin/junior*') || request()->is('admin/senior*') || request()->is('admin/learning*')) {
                     $breadcrumbCategory = 'K to 12 Basic Education';
                 } elseif (request()->routeIs('admin.issuances.*')) {
                     $breadcrumbCategory = 'Division Issuances';
@@ -575,11 +590,13 @@
                 </button>
                 <span class="text-gray-400 font-medium mr-2 hidden sm:inline">Admin /</span>
                 
-                {{-- DISPLAY THE CATEGORY IF FOUND --}}
-                @hasSection('breadcrumb_category')
-                    <span class="text-gray-400 font-medium mr-2 hidden sm:inline">@yield('breadcrumb_category') /</span>
-                @elseif($breadcrumbCategory)
-                    <span class="text-gray-400 font-medium mr-2 hidden sm:inline">{{ $breadcrumbCategory }} /</span>
+                {{-- DISPLAY THE CATEGORY IF FOUND (Strictly hidden for Dashboard) --}}
+                @if(!request()->routeIs('admin.dashboard') && !request()->is('admin/dashboard') && !request()->is('admin'))
+                    @hasSection('breadcrumb_category')
+                        <span class="text-gray-400 font-medium mr-2 hidden sm:inline">@yield('breadcrumb_category') /</span>
+                    @elseif($breadcrumbCategory)
+                        <span class="text-gray-400 font-medium mr-2 hidden sm:inline">{{ $breadcrumbCategory }} /</span>
+                    @endif
                 @endif
                 
                 <span class="font-bold text-[#a52a2a] truncate">@yield('page_title', 'Dashboard')</span>
