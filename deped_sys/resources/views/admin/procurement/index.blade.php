@@ -74,6 +74,7 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                        <th class="p-4 border-b whitespace-nowrap w-16 text-center">ID</th>
                         <th class="p-4 border-b">Title</th>
                         <th class="p-4 border-b">Description</th> 
                         <th class="p-4 border-b w-32">Cover Image</th>
@@ -86,6 +87,7 @@
                 <tbody class="divide-y divide-gray-100">
                     @forelse($opportunities as $item)
                         <tr class="hover:bg-gray-50 transition-colors">
+                            <td class="p-4 text-sm text-gray-600 font-medium text-center align-middle">{{ $opportunities->firstItem() + $loop->index }}</td>
                             <td class="p-4 font-semibold text-gray-800 max-w-[200px] break-words whitespace-normal align-middle">{{ $item->title }}</td>
                             <td class="p-4 text-sm text-gray-600 max-w-xs break-words whitespace-normal align-middle">{{ Str::limit($item->description, 100) }}</td>
                             <td class="p-4 align-middle">
@@ -125,7 +127,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="p-10 text-center text-gray-500 italic">No {{ strtolower($categoryTitle) }} uploaded yet.</td>
+                            <td colspan="8" class="p-10 text-center text-gray-500 italic">No {{ strtolower($categoryTitle) }} uploaded yet.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -141,17 +143,14 @@
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
             
-            <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Upload New {{ \Illuminate\Support\Str::singular($categoryTitle) }}</h3>
                 <button type="button" @click="addModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
             </div>
             
-            <!-- Flex Form -->
             <form id="addModalForm" action="{{ route('admin.procurement.store', $category) }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
                 @csrf
                 
-                <!-- Scrollable Content Area -->
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -207,7 +206,6 @@
                     </div>
                 </div>
                 
-                <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Upload Document</button>
                     <button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
@@ -220,7 +218,6 @@
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
             
-            <!-- Fixed Header -->
             <div class="bg-[#a52a2a] px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Edit {{ \Illuminate\Support\Str::singular($categoryTitle) }}</h3>
                 <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
@@ -234,7 +231,6 @@
                 <input type="hidden" name="edit_id" x-model="editItem.id">
                 <input type="hidden" name="edit_url" x-model="editUrl">
 
-                <!-- Scrollable Content Area -->
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
@@ -333,7 +329,6 @@
                     </div>
                 </div>
 
-                <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" form="editForm" class="bg-[#a52a2a] hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Details</button>
                     <button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 bg-white border border-gray-300 hover:bg-gray-50 rounded-lg transition-colors">Cancel</button>
@@ -346,7 +341,6 @@
     <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
             
-            <!-- Soft Double-Ring Icon -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,7 +372,6 @@
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-[110] w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
             
-            <!-- Soft Double-Ring Icon -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
