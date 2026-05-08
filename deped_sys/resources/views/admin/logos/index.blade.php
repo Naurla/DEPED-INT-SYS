@@ -83,25 +83,9 @@
             {{-- Dropdown Filters --}}
             <div class="w-full xl:w-auto flex flex-col md:flex-row gap-3 items-center">
                 
-                {{-- Month Filter --}}
-                <select name="month" class="w-full md:w-36 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
-                    <option value="">All Months</option>
-                    @foreach(range(1, 12) as $m)
-                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('month') == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
-                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
-                        </option>
-                    @endforeach
-                </select>
+                
 
-                {{-- Year Filter --}}
-                <select name="year" class="w-full md:w-32 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
-                    <option value="">All Years</option>
-                    @if(isset($years))
-                        @foreach($years as $year)
-                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
-                        @endforeach
-                    @endif
-                </select>
+               
 
                 {{-- Sort Filter --}}
                 <select name="sort" class="w-full md:w-44 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
