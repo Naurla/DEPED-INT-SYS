@@ -136,9 +136,60 @@ class BannerController extends Controller
         return back()->with('success', 'Banner deleted successfully!');
     }
 
-    public function adminIndex() {
-        // Changed to paginate by 5
-        $banners = Banner::orderBy('sort_order', 'asc')->paginate(10); 
-        return view('admin.banners.index', compact('banners'));
+    public function adminIndex(Request $request) {
+        $query = Banner::query();
+
+        // Search Filter (by filename)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('image_path', 'like', "%{$search}%");
+        }
+
+        // Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'newest':
+                    $query->latest('created_at')->latest('id');
+                    break;
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'active':
+                    $query->orderBy('is_active', 'desc')->orderBy('sort_order', 'asc');
+                    break;
+                case 'inactive':
+                    $query->orderBy('is_active', 'asc')->orderBy('sort_order', 'asc');
+                    break;
+                case 'order':
+                default:
+                    $query->orderBy('sort_order', 'asc');
+                    break;
+            }
+        } else {
+            $query->orderBy('sort_order', 'asc');
+        }
+
+        $banners = $query->paginate(10)->withQueryString();
+
+        // Get unique years for the dropdown filter
+        $years = Banner::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        // Fetch globally occupied orders so the frontend modal validation works regardless of the current page filter
+        $occupiedOrders = Banner::where('is_active', 1)->pluck('sort_order')->toArray();
+
+        return view('admin.banners.index', compact('banners', 'years', 'occupiedOrders'));
     }
 }
