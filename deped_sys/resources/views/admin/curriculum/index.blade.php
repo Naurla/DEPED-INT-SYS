@@ -62,7 +62,7 @@
 }" @keydown.escape="addModal = false; editModal = false; fileModal = false; editGuideModal = false; deleteModal = false; successModal = false">
 
     {{-- MAIN PAGE CONTENT --}}
-    <div class="container mx-auto p-4 space-y-6">
+    <div class="w-full space-y-6">
         <div class="flex justify-between items-center mb-6">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900 tracking-tight capitalize">Manage K-12 Curriculum Content</h2>
@@ -107,12 +107,39 @@
 
         {{-- Section 2: Learning Strands --}}
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-4 gap-4">
                 <h3 class="text-lg font-bold text-gray-800">Learning Strands</h3>
-                <button @click="addModal = true" class="bg-red-700 text-white px-4 py-2.5 rounded-lg shadow-sm hover:bg-red-800 transition-colors font-bold text-sm uppercase tracking-wider">
-                    + Add New Strand
-                </button>
+                
+                {{-- Search & Sort Filter --}}
+                <form method="GET" action="{{ url()->current() }}" class="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-center">
+                    {{-- Hidden inputs preserve the Guide filters if they are active --}}
+                    <input type="hidden" name="guide_search" value="{{ request('guide_search') }}">
+                    <input type="hidden" name="guide_sort" value="{{ request('guide_sort') }}">
+                    
+                    <div class="relative w-full sm:w-56">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="strand_search" value="{{ request('strand_search') }}" placeholder="Search strands..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm">
+                    </div>
+                    
+                    <select name="strand_sort" class="w-full sm:w-36 py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white cursor-pointer" onchange="this.form.submit()">
+                        <option value="">Sort By</option>
+                        <option value="a_z" {{ request('strand_sort') == 'a_z' ? 'selected' : '' }}>Title (A-Z)</option>
+                        <option value="z_a" {{ request('strand_sort') == 'z_a' ? 'selected' : '' }}>Title (Z-A)</option>
+                        <option value="newest" {{ request('strand_sort') == 'newest' ? 'selected' : '' }}>Newest</option>
+                        <option value="oldest" {{ request('strand_sort') == 'oldest' ? 'selected' : '' }}>Oldest</option>
+                    </select>
+
+                    {{-- FIXED: Changed type to "button" so pressing Enter triggers the hidden Search submit button --}}
+                    <button type="button" @click="addModal = true" class="w-full sm:w-auto bg-red-700 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-red-800 transition-colors font-bold text-sm uppercase tracking-wider whitespace-nowrap">
+                        + Add Strand
+                    </button>
+                    
+                    <button type="submit" class="hidden">Search</button>
+                </form>
             </div>
+            
             <div class="space-y-6">
                 @forelse($strands as $strand)
                     <div class="bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row overflow-hidden relative">
@@ -152,7 +179,33 @@
 
         {{-- Section 3: Curriculum Guides --}}
         <div class="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-            <h3 class="text-lg font-bold text-gray-800 mb-6 border-b border-gray-100 pb-4">Curriculum Guides</h3>
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 border-b border-gray-100 pb-4 gap-4">
+                <h3 class="text-lg font-bold text-gray-800">Curriculum Guides</h3>
+                
+                {{-- Search & Sort Filter for Guides --}}
+                <form method="GET" action="{{ url()->current() }}" class="flex flex-col sm:flex-row gap-3 w-full md:w-auto items-center">
+                    {{-- Hidden inputs preserve the Strand filters if they are active --}}
+                    <input type="hidden" name="strand_search" value="{{ request('strand_search') }}">
+                    <input type="hidden" name="strand_sort" value="{{ request('strand_sort') }}">
+                    
+                    <div class="relative w-full sm:w-56">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                        <input type="text" name="guide_search" value="{{ request('guide_search') }}" placeholder="Search guides..." class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm">
+                    </div>
+                    
+                    <select name="guide_sort" class="w-full sm:w-36 py-2 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white cursor-pointer" onchange="this.form.submit()">
+                        <option value="newest" {{ request('guide_sort') == 'newest' ? 'selected' : '' }}>Newest</option>
+                        <option value="oldest" {{ request('guide_sort') == 'oldest' ? 'selected' : '' }}>Oldest</option>
+                        <option value="a_z" {{ request('guide_sort') == 'a_z' ? 'selected' : '' }}>Title (A-Z)</option>
+                        <option value="z_a" {{ request('guide_sort') == 'z_a' ? 'selected' : '' }}>Title (Z-A)</option>
+                    </select>
+                    <button type="submit" class="hidden">Search</button>
+                </form>
+            </div>
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 h-fit">
                     <h4 class="font-bold text-gray-800 text-sm mb-4 border-b border-gray-200 pb-2 uppercase tracking-wide">Add New Guide</h4>
@@ -171,7 +224,7 @@
                     </form>
                 </div>
                 <div class="lg:col-span-2 overflow-x-auto rounded-lg border border-gray-200 shadow-sm">
-                    <table class="w-full text-left text-sm"><thead class="bg-gray-100 text-gray-600 uppercase font-bold text-xs border-b"><tr><th class="px-5 py-4 w-1/2">Title</th><th class="px-5 py-4 w-1/3">Link</th><th class="px-5 py-4 text-right">Actions</th></tr></thead><tbody class="divide-y divide-gray-100 text-gray-700">@foreach($guides as $guide)<tr class="hover:bg-gray-50 transition-colors font-medium"><td class="px-5 py-4 font-bold text-gray-900">{{ $guide->title }}</td><td class="px-5 py-4 text-blue-600 truncate max-w-[200px]"><a href="{{ $guide->link }}" target="_blank" class="hover:underline transition-colors">{{ $guide->link }}</a></td><td class="px-5 py-4 text-right space-x-3"><button @click="openEditGuide({{ Js::from($guide) }})" class="text-blue-600 font-bold text-xs uppercase hover:underline">Edit</button><button @click="confirmDelete('{{ route('admin.curriculum.guides.destroy', $guide->id) }}', '{{ addslashes($guide->title) }}')" class="text-red-600 font-bold text-xs uppercase hover:underline">Delete</button></td></tr>@endforeach</tbody></table>
+                    <table class="w-full text-left text-sm"><thead class="bg-gray-100 text-gray-600 uppercase font-bold text-xs border-b"><tr><th class="px-5 py-4 w-1/2">Title</th><th class="px-5 py-4 w-1/3">Link</th><th class="px-5 py-4 text-right">Actions</th></tr></thead><tbody class="divide-y divide-gray-100 text-gray-700">@forelse($guides as $guide)<tr class="hover:bg-gray-50 transition-colors font-medium"><td class="px-5 py-4 font-bold text-gray-900">{{ $guide->title }}</td><td class="px-5 py-4 text-blue-600 truncate max-w-[200px]"><a href="{{ $guide->link }}" target="_blank" class="hover:underline transition-colors">{{ $guide->link }}</a></td><td class="px-5 py-4 text-right space-x-3"><button @click="openEditGuide({{ Js::from($guide) }})" class="text-blue-600 font-bold text-xs uppercase hover:underline">Edit</button><button @click="confirmDelete('{{ route('admin.curriculum.guides.destroy', $guide->id) }}', '{{ addslashes($guide->title) }}')" class="text-red-600 font-bold text-xs uppercase hover:underline">Delete</button></td></tr>@empty <tr><td colspan="3" class="px-5 py-8 text-center text-gray-500 italic">No curriculum guides found.</td></tr> @endforelse</tbody></table>
                 </div>
             </div>
         </div>
@@ -248,8 +301,8 @@
                 </div>
             </div>
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Delete Strand?</h3>
-                <p class="text-gray-500 text-sm mb-5 leading-relaxed px-4 text-center">You are about to permanently delete this strand. This action cannot be undone.</p>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2 text-center">Delete Record?</h3>
+                <p class="text-gray-500 text-sm mb-5 leading-relaxed px-4 text-center">You are about to permanently delete this record. This action cannot be undone.</p>
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar text-center px-4">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>

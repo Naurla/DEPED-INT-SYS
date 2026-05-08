@@ -12,11 +12,50 @@ use App\Models\CurriculumGuide;
 
 class CurriculumController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $pageData = CurriculumPage::firstOrCreate([]);
-        $strands = LearningStrand::with('materials')->orderBy('sort_order')->get();
-        $guides = CurriculumGuide::all();
+        
+        // --- 1. Learning Strands Query with Filters ---
+        $strandQuery = LearningStrand::with('materials');
+        
+        if ($request->filled('strand_search')) {
+            $search = $request->strand_search;
+            $strandQuery->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('content_title', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('strand_sort')) {
+            if ($request->strand_sort === 'a_z') $strandQuery->orderBy('name', 'asc');
+            elseif ($request->strand_sort === 'z_a') $strandQuery->orderBy('name', 'desc');
+            elseif ($request->strand_sort === 'newest') $strandQuery->latest('created_at');
+            elseif ($request->strand_sort === 'oldest') $strandQuery->oldest('created_at');
+        } else {
+            $strandQuery->orderBy('sort_order'); // Default behavior
+        }
+        
+        $strands = $strandQuery->get();
+
+        // --- 2. Curriculum Guides Query with Filters ---
+        $guideQuery = CurriculumGuide::query();
+        
+        if ($request->filled('guide_search')) {
+            $search = $request->guide_search;
+            $guideQuery->where('title', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('guide_sort')) {
+            if ($request->guide_sort === 'a_z') $guideQuery->orderBy('title', 'asc');
+            elseif ($request->guide_sort === 'z_a') $guideQuery->orderBy('title', 'desc');
+            elseif ($request->guide_sort === 'oldest') $guideQuery->oldest('created_at');
+            elseif ($request->guide_sort === 'newest') $guideQuery->latest('created_at');
+        } else {
+            $guideQuery->latest('created_at'); // Default behavior
+        }
+
+        $guides = $guideQuery->get();
 
         return view('admin.curriculum.index', compact('pageData', 'strands', 'guides'));
     }

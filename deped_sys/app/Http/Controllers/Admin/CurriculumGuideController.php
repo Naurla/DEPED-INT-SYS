@@ -4,17 +4,56 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\CurriculumGuide;
-use App\Models\CurriculumPage; // Added
-use App\Models\LearningStrand; // Added
+use App\Models\CurriculumPage; 
+use App\Models\LearningStrand; 
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 
 class CurriculumGuideController extends Controller
 {
-    public function index() {
-        $pageData = CurriculumPage::first();
-        $strands = LearningStrand::with('materials')->get();
-        $guides = CurriculumGuide::all();
+    public function index(Request $request) {
+        $pageData = CurriculumPage::firstOrCreate([]);
+        
+        // --- 1. Learning Strands Query with Filters ---
+        $strandQuery = LearningStrand::with('materials');
+        
+        if ($request->filled('strand_search')) {
+            $search = $request->strand_search;
+            $strandQuery->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('content_title', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('strand_sort')) {
+            if ($request->strand_sort === 'a_z') $strandQuery->orderBy('name', 'asc');
+            elseif ($request->strand_sort === 'z_a') $strandQuery->orderBy('name', 'desc');
+            elseif ($request->strand_sort === 'newest') $strandQuery->latest('created_at');
+            elseif ($request->strand_sort === 'oldest') $strandQuery->oldest('created_at');
+        } else {
+            $strandQuery->orderBy('sort_order');
+        }
+        
+        $strands = $strandQuery->get();
+
+        // --- 2. Curriculum Guides Query with Filters ---
+        $guideQuery = CurriculumGuide::query();
+        
+        if ($request->filled('guide_search')) {
+            $search = $request->guide_search;
+            $guideQuery->where('title', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('guide_sort')) {
+            if ($request->guide_sort === 'a_z') $guideQuery->orderBy('title', 'asc');
+            elseif ($request->guide_sort === 'z_a') $guideQuery->orderBy('title', 'desc');
+            elseif ($request->guide_sort === 'oldest') $guideQuery->oldest('created_at');
+            elseif ($request->guide_sort === 'newest') $guideQuery->latest('created_at');
+        } else {
+            $guideQuery->latest('created_at');
+        }
+
+        $guides = $guideQuery->get();
 
         return view('admin.curriculum.index', compact('pageData', 'strands', 'guides'));
     }
@@ -44,7 +83,6 @@ class CurriculumGuideController extends Controller
     }
 
     public function storeGuide(Request $request) {
-        // Unique validation added with custom error message
         $request->validate([
             'title' => 'required|string|max:255|unique:curriculum_guides,title',
             'link' => 'required|url'
@@ -57,7 +95,6 @@ class CurriculumGuideController extends Controller
     }
 
     public function updateGuide(Request $request, CurriculumGuide $guide) {
-        // Unique validation ignoring current record
         $request->validate([
             'title' => 'required|string|max:255|unique:curriculum_guides,title,' . $guide->id,
             'link' => 'required|url'

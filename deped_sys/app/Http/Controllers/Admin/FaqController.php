@@ -7,9 +7,49 @@ use Illuminate\Http\Request;
 
 class FaqController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $faqs = Faq::latest()->paginate(10);
+        $query = Faq::query();
+
+        // 1. Search Filter (Question & Answer)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('question', 'like', "%{$search}%")
+                  ->orWhere('answer', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Status Filter (Active / Inactive)
+        if ($request->filled('status')) {
+            $isActive = $request->status === 'active' ? 1 : 0;
+            $query->where('is_active', $isActive);
+        }
+
+        // 3. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('question', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('question', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id'); // Default Sort
+        }
+
+        // withQueryString() ensures filters stay active when paginating
+        $faqs = $query->paginate(10)->withQueryString();
+
         return view('admin.faq.index', compact('faqs'));
     }
 
