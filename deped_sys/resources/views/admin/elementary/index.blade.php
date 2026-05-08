@@ -19,7 +19,7 @@
     }
 </style>
 
-<div class="container mx-auto px-4 py-6" x-data="{ 
+<div x-data="{ 
     uploadModal: {{ $errors->any() ? 'true' : 'false' }}, 
     deleteModal: false,
     successModal: {{ session('success') ? 'true' : 'false' }},

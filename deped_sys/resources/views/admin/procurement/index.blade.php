@@ -20,8 +20,7 @@
 </style>
 
 {{-- We use $dispatch listeners on the main container --}}
-<div class="container mx-auto p-4" 
-    x-data="{ 
+<div x-data="{ 
         addModal: {{ (!old('edit_id') && !session('edit_id') && ($errors->any() || session('error_duplicate'))) ? 'true' : 'false' }}, 
         editModal: {{ (old('edit_id') || session('edit_id') || (old('_method') == 'PUT' && $errors->any())) ? 'true' : 'false' }}, 
         deleteModal: false, 
@@ -69,7 +68,7 @@
         </button>
     </div>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -135,9 +134,11 @@
         </div>
     </div>
 
-    <div class="mt-4">
-        {{ $opportunities->links() }}
-    </div>
+    @if($opportunities->hasPages())
+        <div class="mt-4">
+            {{ $opportunities->links() }}
+        </div>
+    @endif
 
     {{-- Add Modal (Extra Large size, scrollable content) --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
