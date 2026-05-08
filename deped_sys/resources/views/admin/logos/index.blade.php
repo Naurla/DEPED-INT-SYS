@@ -67,6 +67,63 @@
         </button>
     </div>
 
+    {{-- Search & Filter Section --}}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6 w-full">
+        <form method="GET" action="{{ url()->current() }}" class="flex flex-col xl:flex-row gap-4 items-center justify-between">
+            {{-- Search Bar --}}
+            <div class="w-full xl:w-1/3 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search logo name..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-colors">
+            </div>
+
+            {{-- Dropdown Filters --}}
+            <div class="w-full xl:w-auto flex flex-col md:flex-row gap-3 items-center">
+                
+                {{-- Month Filter --}}
+                <select name="month" class="w-full md:w-36 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="">All Months</option>
+                    @foreach(range(1, 12) as $m)
+                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('month') == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+
+                {{-- Year Filter --}}
+                <select name="year" class="w-full md:w-32 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="">All Years</option>
+                    @if(isset($years))
+                        @foreach($years as $year)
+                            <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                        @endforeach
+                    @endif
+                </select>
+
+                {{-- Sort Filter --}}
+                <select name="sort" class="w-full md:w-44 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="position" {{ request('sort') == 'position' ? 'selected' : '' }}>Position & Order</option>
+                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                    <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>Name (A-Z)</option>
+                    <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Name (Z-A)</option>
+                </select>
+
+                {{-- Clear Filters --}}
+                @if(request('search') || request('month') || request('year') || (request('sort') && request('sort') !== 'position'))
+                    <a href="{{ url()->current() }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
+                        Clear Filters
+                    </a>
+                @endif
+                
+                <button type="submit" class="hidden">Search</button>
+            </div>
+        </form>
+    </div>
+
     <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
         <div class="overflow-x-auto w-full">
             <table class="w-full text-left text-sm whitespace-nowrap border-collapse">
@@ -239,7 +296,7 @@
 
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Logo</button>
-                    <button type="button" @click="showEditRoleModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
                 </div>
             </form>
         </div>

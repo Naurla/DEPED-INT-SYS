@@ -10,11 +10,60 @@ use Illuminate\Support\Facades\Cache;
 
 class SiteLogoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Changed get() to paginate(5)
-        $logos = SiteLogo::orderBy('position', 'asc')->orderBy('order', 'asc')->paginate(10);
-        return view('admin.logos.index', compact('logos'));
+        $query = SiteLogo::query();
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }
+
+        // Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'newest':
+                    $query->latest('created_at')->latest('id');
+                    break;
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'position':
+                default:
+                    $query->orderBy('position', 'asc')->orderBy('order', 'asc');
+                    break;
+            }
+        } else {
+            // Default sorting behavior
+            $query->orderBy('position', 'asc')->orderBy('order', 'asc');
+        }
+
+        $logos = $query->paginate(10)->withQueryString();
+
+        // Get unique years for the dropdown filter
+        $years = SiteLogo::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.logos.index', compact('logos', 'years'));
     }
 
     public function store(Request $request)
