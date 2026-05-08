@@ -10,13 +10,59 @@ use Illuminate\Support\Facades\Storage;
 
 class PageSectionController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Changed get() to paginate(5)
-        $sections = PageSection::orderBy('display_location', 'asc')->orderBy('sort_order', 'asc')->paginate(10);
+        $query = PageSection::query();
+
+        // 1. Search Filter (Title & Content)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Location Filter
+        if ($request->filled('location')) {
+            $query->where('display_location', $request->location);
+        }
+
+        // 3. Type Filter
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // 4. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'newest':
+                    $query->latest('created_at');
+                    break;
+                case 'oldest':
+                    $query->oldest('created_at');
+                    break;
+                case 'order_asc':
+                    $query->orderBy('sort_order', 'asc');
+                    break;
+                case 'order_desc':
+                    $query->orderBy('sort_order', 'desc');
+                    break;
+            }
+        } else {
+            // Default sorting groups them by page, then sorts by order
+            $query->orderBy('display_location', 'asc')->orderBy('sort_order', 'asc');
+        }
+
+        // withQueryString() ensures filters stay active when paginating
+        $sections = $query->paginate(10)->withQueryString();
         $dynamicPages = Page::all();
         
-        return view('admin.page_sections.index', compact('sections', 'dynamicPages'));
+        // Fetch unique existing locations and types for the dropdowns
+        $locations = PageSection::select('display_location')->distinct()->pluck('display_location');
+        $types = PageSection::select('type')->distinct()->pluck('type');
+        
+        return view('admin.page_sections.index', compact('sections', 'dynamicPages', 'locations', 'types'));
     }
 
     public function store(Request $request)
@@ -34,7 +80,9 @@ class PageSectionController extends Controller
         $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order', 'is_active']);
 
         if ($request->type === 'banner' && $request->hasFile('image')) {
-            $data['image_path'] = $request->file('image')->store('page_sections', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('page_sections', $filename, 'public');
         }
 
         PageSection::create($data);
@@ -63,7 +111,9 @@ class PageSectionController extends Controller
             if ($section->image_path) {
                 Storage::disk('public')->delete($section->image_path);
             }
-            $data['image_path'] = $request->file('image')->store('page_sections', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['image_path'] = $file->storeAs('page_sections', $filename, 'public');
         }
 
         // If they changed a Banner to Text or a Widget, delete the old image
