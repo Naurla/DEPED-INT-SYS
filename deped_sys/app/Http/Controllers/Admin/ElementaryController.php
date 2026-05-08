@@ -9,9 +9,42 @@ use Illuminate\Support\Facades\Storage;
 
 class ElementaryController extends Controller
 {
-    public function index() {
-        // Changed get() to paginate(5)
-        $contents = ElementaryContent::latest()->paginate(10);
+    public function index(Request $request) {
+        $query = ElementaryContent::query();
+
+        // 1. Search Filter (Title & Content)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id'); // Default Sort
+        }
+
+        // withQueryString() ensures filters stay active when paginating
+        $contents = $query->paginate(10)->withQueryString();
+
         return view('admin.elementary.index', compact('contents'));
     }
 
@@ -59,6 +92,14 @@ class ElementaryController extends Controller
         ]);
 
         $elementary = ElementaryContent::findOrFail($id);
+
+        // Explicitly handling file removal if the user clicks the trash icon
+        if ($request->remove_file == '1') {
+            if ($elementary->csv_path) {
+                Storage::disk('public')->delete($elementary->csv_path);
+            }
+            $elementary->csv_path = null;
+        }
 
         if ($request->hasFile('csv_file')) {
             if ($elementary->csv_path) {
