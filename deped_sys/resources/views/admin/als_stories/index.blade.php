@@ -24,6 +24,7 @@
     editModal: {{ (old('form_type') === 'edit' && $errors->any()) ? 'true' : 'false' }}, 
     deleteModal: false,
     successModal: {{ session('success') ? 'true' : 'false' }},
+    isSubmitting: false,
     
     editItem: {{ (old('form_type') === 'edit' && $errors->any()) ? Js::from([
         'id' => old('id'),
@@ -62,6 +63,43 @@
             </svg>
             New Story
         </button>
+    </div>
+
+    {{-- Clean Search & Sort Filter Section --}}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <form method="GET" action="{{ url()->current() }}" class="flex flex-col md:flex-row gap-4 items-center justify-between">
+            
+            {{-- Search Bar --}}
+            <div class="w-full md:w-1/2 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search title or content..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-colors">
+            </div>
+
+            {{-- Dropdown Filters --}}
+            <div class="w-full md:w-auto flex flex-col md:flex-row gap-3 items-center">
+                
+                {{-- Sort Filter --}}
+                <select name="sort" class="w-full md:w-48 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                    <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>Title (A-Z)</option>
+                    <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Title (Z-A)</option>
+                </select>
+
+                {{-- Clear Filters --}}
+                @if(request('search') || (request('sort') && request('sort') !== 'newest'))
+                    <a href="{{ url()->current() }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
+                        Clear Filters
+                    </a>
+                @endif
+                
+                <button type="submit" class="hidden">Search</button>
+            </div>
+        </form>
     </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
@@ -140,51 +178,53 @@
 
     {{-- Add Modal (Extra Large size, clearer text, scrollable content) --}}
     <div x-show="addModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="addModal = false">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if(!isSubmitting) addModal = false">
             
-            <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Upload New Story</h3>
-                <button type="button" @click="addModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+                <button type="button" @click="addModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
             </div>
 
-            <!-- Flex Form -->
-            <form action="{{ route('admin.als-stories.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
+            <form action="{{ route('admin.als-stories.store') }}" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
                 @csrf
                 <input type="hidden" name="form_type" value="add">
                 
-                <!-- Scrollable Content Area -->
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Story Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" value="{{ old('form_type') === 'add' ? old('title') : '' }}" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                        <input type="text" name="title" value="{{ old('form_type') === 'add' ? old('title') : '' }}" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-shadow" :readonly="isSubmitting">
                         @if(old('form_type') === 'add') @error('title') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
 
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Story Content <span class="text-red-500">*</span></label>
-                        <textarea name="content" rows="6" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none">{{ old('form_type') === 'add' ? old('content') : '' }}</textarea>
+                        <textarea name="content" rows="6" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none transition-shadow" :readonly="isSubmitting">{{ old('form_type') === 'add' ? old('content') : '' }}</textarea>
                         @if(old('form_type') === 'add') @error('content') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Featured Image</label>
-                            <input type="file" name="image" accept="image/*" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                            <input type="file" name="image" accept="image/*" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
                             @if(old('form_type') === 'add') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                         </div>
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Attached Document</label>
-                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
                             @if(old('form_type') === 'add') @error('file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                         </div>
                     </div>
                 </div>
 
-                <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Upload Story</button>
-                    <button type="button" @click="addModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting">Upload Story</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Uploading...
+                        </span>
+                    </button>
+                    <button type="button" @click="addModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
                 </div>
             </form>
         </div>
@@ -192,16 +232,14 @@
 
     {{-- Edit Modal (Extra Large size, clearer text, scrollable content) --}}
     <div x-show="editModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="editModal = false">
+        <div class="bg-white rounded-xl w-full max-w-5xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if(!isSubmitting) editModal = false">
             
-            <!-- Fixed Header -->
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Edit Story</h3>
-                <button type="button" @click="editModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+                <button type="button" @click="editModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
             </div>
             
-            <!-- Flex Form -->
-            <form :action="`/admin/als-stories/${editItem?.id}`" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0">
+            <form :action="`/admin/als-stories/${editItem?.id}`" method="POST" enctype="multipart/form-data" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
                 @csrf @method('PUT')
                 <input type="hidden" name="form_type" value="edit">
                 <input type="hidden" name="id" :value="editItem?.id">
@@ -210,51 +248,61 @@
                 <input type="hidden" name="remove_image" :value="removeImage ? '1' : '0'">
                 <input type="hidden" name="remove_file" :value="removeFile ? '1' : '0'">
 
-                <!-- Scrollable Content Area -->
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Story Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="title" x-model="editItem.title" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none">
+                        <input type="text" name="title" x-model="editItem.title" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-shadow" :readonly="isSubmitting">
                         @if(old('form_type') === 'edit') @error('title') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
 
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Story Content <span class="text-red-500">*</span></label>
-                        <textarea name="content" x-model="editItem.content" required rows="6" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none"></textarea>
+                        <textarea name="content" x-model="editItem.content" required rows="6" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none resize-none transition-shadow" :readonly="isSubmitting"></textarea>
                         @if(old('form_type') === 'edit') @error('content') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace Photo</label>
-                            <input type="file" name="image" accept="image/*" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                            <input type="file" name="image" accept="image/*" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
                             @if(old('form_type') === 'edit') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                             <template x-if="editItem && editItem.image_path && !removeImage">
                                 <div class="mt-3 flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                     <span class="text-base text-blue-800 font-bold truncate max-w-[200px]" x-text="'Current: ' + editItem.image_path.split('/').pop()"></span>
-                                    <button type="button" @click="removeImage = true" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                    <button type="button" @click="removeImage = true" :disabled="isSubmitting" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg disabled:opacity-50"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                 </div>
+                            </template>
+                            <template x-if="removeImage">
+                                <span class="text-base text-red-500 mt-2 block font-medium italic">Image will be removed upon saving.</span>
                             </template>
                         </div>
 
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace Document</label>
-                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
+                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
                             @if(old('form_type') === 'edit') @error('file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                             <template x-if="editItem && editItem.file_path && !removeFile">
                                 <div class="mt-3 flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <span class="text-base text-red-800 font-bold truncate max-w-[200px]" x-text="'Current: ' + editItem.file_path.split('/').pop()"></span>
-                                    <button type="button" @click="removeFile = true" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+                                    <button type="button" @click="removeFile = true" :disabled="isSubmitting" class="text-red-500 hover:bg-red-100 p-1.5 rounded-lg disabled:opacity-50"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
                                 </div>
+                            </template>
+                            <template x-if="removeFile">
+                                <span class="text-base text-red-500 mt-2 block font-medium italic">Document will be removed upon saving.</span>
                             </template>
                         </div>
                     </div>
                 </div>
 
-                <!-- Fixed Footer -->
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Save Changes</button>
-                    <button type="button" @click="editModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting">Save Changes</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Saving...
+                        </span>
+                    </button>
+                    <button type="button" @click="editModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
                 </div>
             </form>
         </div>
@@ -262,9 +310,8 @@
 
     {{-- MODERNIZED GLOBAL MODAL: Delete Confirmation --}}
     <div x-show="deleteModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="deleteModal = false">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="if(!isSubmitting) deleteModal = false">
             
-            <!-- Soft Double-Ring Icon -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,14 +320,12 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Als Story?</h3>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Story?</h3>
                 <p class="text-gray-500 text-sm mb-5">
-                    You are about to permanently delete this Als Story:
+                    You are about to permanently delete this story:
                 </p>
                 
-                <!-- Target Highlight (Scrollable, no background, bold dark text) -->
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
                 </div>
@@ -290,17 +335,20 @@
                 </p>
             </div>
             
-            <!-- Action Buttons (Perfectly Centered & Balanced) -->
             <div class="flex gap-3">
-                <button type="button" @click="deleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all">
+                <button type="button" @click="deleteModal = false" :disabled="isSubmitting" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all disabled:opacity-50">
                     Cancel
                 </button>
                 
-                <form :action="`/admin/als-stories/${deleteId}`" method="POST" class="flex-1 m-0 p-0">
+                <form :action="`/admin/als-stories/${deleteId}`" method="POST" class="flex-1 m-0 p-0 flex" @submit="isSubmitting = true">
                     @csrf 
                     @method('DELETE')
-                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
-                        Yes, Delete it
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-700': !isSubmitting}" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                        <span x-show="!isSubmitting">Yes, Delete it</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Deleting...
+                        </span>
                     </button>
                 </form>
             </div>
@@ -312,7 +360,6 @@
     <div x-show="successModal" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="successModal = false">
             
-            <!-- Soft Double-Ring Icon -->
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
                     <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -321,7 +368,6 @@
                 </div>
             </div>
             
-            <!-- Text Content -->
             <div class="text-center mb-8">
                 <h3 class="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
                 <p class="text-gray-500 text-base">
@@ -333,9 +379,8 @@
                 </p>
             </div>
             
-            <!-- Action Button -->
             <div class="flex">
-                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-700 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
                     Continue
                 </button>
             </div>

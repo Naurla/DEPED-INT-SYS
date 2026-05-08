@@ -9,8 +9,42 @@ use Illuminate\Support\Facades\Storage;
 
 class ModulesController extends Controller {
     
-    public function index() {
-        $modules = Modules::latest()->paginate(10);
+    public function index(Request $request) {
+        $query = Modules::query();
+
+        // 1. Search Filter (Title & Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id'); // Default Sort
+        }
+
+        // withQueryString() ensures filters stay active when paginating
+        $modules = $query->paginate(10)->withQueryString();
+
         return view('admin.modules.index', compact('modules'));
     }
 
