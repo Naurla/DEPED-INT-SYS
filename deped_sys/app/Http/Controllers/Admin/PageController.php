@@ -9,11 +9,59 @@ use Illuminate\Support\Facades\Storage;
 
 class PageController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Changed get() to paginate(5)
-        $pages = Page::with('parent')->paginate(10);
-        return view('admin.pages.index', compact('pages'));
+        $query = Page::with('parent');
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('slug', 'like', "%{$search}%");
+            });
+        }
+
+        // Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id');
+        }
+
+        $pages = $query->paginate(10)->withQueryString();
+
+        // Get unique years for the dropdown filter
+        $years = Page::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.pages.index', compact('pages', 'years'));
     }
 
     public function create()
