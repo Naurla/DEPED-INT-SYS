@@ -9,15 +9,48 @@ use Illuminate\Support\Facades\Storage;
 
 class AlsStoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $stories = AlsStory::latest()->paginate(10);
+        $query = AlsStory::query();
+
+        // 1. Search Filter (Title & Content)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id'); // Default Sort
+        }
+
+        // withQueryString() keeps filters active during pagination
+        $stories = $query->paginate(10)->withQueryString();
+
         return view('admin.als_stories.index', compact('stories'));
     }
 
     public function store(Request $request)
     {
-        // Added unique validation rule and custom error messages
         $request->validate([
             'title' => 'required|string|max:255|unique:als_stories,title',
             'content' => 'required|string',
@@ -31,13 +64,13 @@ class AlsStoryController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['image_path'] = $file->storeAs('als_stories/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['file_path'] = $file->storeAs('als_stories/files', $filename, 'public');
         }
 
@@ -50,7 +83,6 @@ class AlsStoryController extends Controller
     {
         $alsStory = AlsStory::findOrFail($id);
 
-        // Added unique validation rule that ignores the current record
         $request->validate([
             'title' => 'required|string|max:255|unique:als_stories,title,' . $id,
             'content' => 'required|string',
@@ -62,17 +94,29 @@ class AlsStoryController extends Controller
 
         $data = $request->only(['title', 'content']);
 
+        // Explicitly remove existing files if the user clicked the trash icon
+        if ($request->remove_image == '1') {
+            if ($alsStory->image_path) Storage::disk('public')->delete($alsStory->image_path);
+            $data['image_path'] = null;
+        }
+
+        if ($request->remove_file == '1') {
+            if ($alsStory->file_path) Storage::disk('public')->delete($alsStory->file_path);
+            $data['file_path'] = null;
+        }
+
+        // Process new file uploads
         if ($request->hasFile('image')) {
             if ($alsStory->image_path) Storage::disk('public')->delete($alsStory->image_path);
             $file = $request->file('image');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['image_path'] = $file->storeAs('als_stories/images', $filename, 'public');
         }
 
         if ($request->hasFile('file')) {
             if ($alsStory->file_path) Storage::disk('public')->delete($alsStory->file_path);
             $file = $request->file('file');
-            $filename = $file->getClientOriginalName();
+            $filename = time() . '_' . $file->getClientOriginalName();
             $data['file_path'] = $file->storeAs('als_stories/files', $filename, 'public');
         }
 
