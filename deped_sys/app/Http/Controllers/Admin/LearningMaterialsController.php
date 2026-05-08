@@ -9,24 +9,71 @@ use Illuminate\Support\Facades\Storage;
 
 class LearningMaterialsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $materials = LearningMaterials::latest()->paginate(10);
-        return view('admin.learning_materials.index', compact('materials'));
+        $query = LearningMaterials::query();
+
+        // Search Filter
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id');
+        }
+
+        $materials = $query->paginate(10)->withQueryString();
+
+        // Get unique years for the dropdown
+        $years = LearningMaterials::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.learning_materials.index', compact('materials', 'years'));
     }
 
     public function store(Request $request) 
     {
         $request->validate([
-            // Added unique validation to prevent duplicate materials
             'title' => 'required|string|max:255|unique:learning_materials,title',
             'description' => 'required|string',
-            // Support all major classroom formats
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
         ]);
 
         $file = $request->file('file');
-        $fileName = time() . '_' . $file->getClientOriginalName(); // Appended time to prevent file overwrite
+        $fileName = time() . '_' . $file->getClientOriginalName();
         $filePath = $file->storeAs('learning_materials/files', $fileName, 'public');
 
         LearningMaterials::create([
@@ -44,7 +91,6 @@ class LearningMaterialsController extends Controller
         $material = LearningMaterials::findOrFail($id);
 
         $request->validate([
-            // Ignore the current record's ID to allow updating the same material
             'title' => 'required|string|max:255|unique:learning_materials,title,' . $id,
             'description' => 'required|string',
             'file' => 'nullable|file|mimes:pdf,ppt,pptx,doc,docx,csv,xls,xlsx|max:20480',
@@ -55,7 +101,6 @@ class LearningMaterialsController extends Controller
             'description' => $request->description,
         ];
 
-        // Handle explicitly removing the file
         if ($request->remove_file == '1') {
             if ($material->file_path) {
                 Storage::disk('public')->delete($material->file_path);
@@ -64,7 +109,6 @@ class LearningMaterialsController extends Controller
             $dataToUpdate['file_type'] = null;
         }
 
-        // Handle replacing the file
         if ($request->hasFile('file')) {
             if ($material->file_path) {
                 Storage::disk('public')->delete($material->file_path);
