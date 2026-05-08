@@ -32,14 +32,55 @@ class ProcurementController extends Controller
         }
 
         $categoryTitle = $this->getCategoryTitle($category);
-        $query = BidOpportunity::where('category', $category)->latest();
-        
-        if ($request->has('search')) {
-            $query->where('title', 'like', '%' . $request->search . '%');
+        $query = BidOpportunity::where('category', $category);
+
+        // 1. Search Filter (Title & Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
         }
 
-        $opportunities = $query->paginate(10);
-        return view('admin.procurement.index', compact('opportunities', 'category', 'categoryTitle'));
+        // 2. Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        // 3. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('date')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('date')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('date')->latest('id'); // Default Sort
+        }
+
+        // withQueryString() ensures filters stay active when paginating
+        $opportunities = $query->paginate(10)->withQueryString();
+
+        // Get dynamic available years for the dropdown filter
+        $years = BidOpportunity::where('category', $category)
+            ->whereNotNull('date')
+            ->selectRaw('YEAR(date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.procurement.index', compact('opportunities', 'category', 'categoryTitle', 'years'));
     }
 
     public function store(Request $request, $category)

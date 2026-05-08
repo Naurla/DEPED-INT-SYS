@@ -10,7 +10,6 @@ class IssuanceController extends Controller
 {
     public function advisories()
     {
-        // Changed paginate(5) to paginate(10)
         $items = Issuance::where('type', 'advisory')->latest()->paginate(10);
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
@@ -26,7 +25,6 @@ class IssuanceController extends Controller
 
     public function memoranda()
     {
-        // Changed paginate(5) to paginate(10)
         $items = Issuance::where('type', 'memorandum')->latest()->paginate(10);
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
@@ -42,7 +40,6 @@ class IssuanceController extends Controller
 
     public function hrmpsb()
     {
-        // Changed paginate(5) to paginate(10)
         $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(10);
         $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
@@ -78,8 +75,55 @@ class IssuanceController extends Controller
     public function adminIndex(Request $request)
     {
         $type = $request->query('type', 'advisory'); 
-        $issuances = Issuance::where('type', $type)->latest()->paginate(10);
-        return view('admin.issuances.index', compact('issuances', 'type'));
+        $query = Issuance::where('type', $type);
+
+        // 1. Search Filter (Title & Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // 2. Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        // 3. Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('date')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('date')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('date')->latest('id'); // Default Sort
+        }
+
+        // withQueryString() ensures filters stay active when paginating
+        $issuances = $query->paginate(10)->withQueryString();
+
+        // Get dynamic available years for the dropdown filter
+        $years = Issuance::where('type', $type)
+            ->whereNotNull('date')
+            ->selectRaw('YEAR(date) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.issuances.index', compact('issuances', 'type', 'years'));
     }
 
     public function store(Request $request)

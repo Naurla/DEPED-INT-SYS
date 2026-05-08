@@ -68,6 +68,52 @@
         </button>
     </div>
 
+    {{-- Search & Filter Section --}}
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+        <form method="GET" action="{{ route('admin.procurement.index', $category) }}" class="flex flex-col md:flex-row gap-4 items-center justify-between">
+            
+            {{-- Search Bar --}}
+            <div class="w-full md:w-1/3 relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Search title or description..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-colors">
+            </div>
+
+            {{-- Dropdown Filters --}}
+            <div class="w-full md:w-auto flex flex-col md:flex-row gap-3 items-center">
+                
+                {{-- Year Filter --}}
+                <select name="year" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="">All Years</option>
+                    @foreach($years as $year)
+                        <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                    @endforeach
+                </select>
+
+                {{-- Sort Filter --}}
+                <select name="sort" class="w-full md:w-44 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                    <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                    <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>Title (A-Z)</option>
+                    <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Title (Z-A)</option>
+                </select>
+
+                {{-- Clear Filters (Only shows if a filter is active) --}}
+                @if(request('search') || request('year') || (request('sort') && request('sort') !== 'newest'))
+                    <a href="{{ route('admin.procurement.index', $category) }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
+                        Clear Filters
+                    </a>
+                @endif
+                
+                {{-- Hidden submit for pressing enter in the text input --}}
+                <button type="submit" class="hidden">Search</button>
+            </div>
+        </form>
+    </div>
+
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -116,7 +162,7 @@
                                     <span class="text-[10px] font-semibold text-gray-400 bg-gray-100 px-2 py-1 rounded italic">No File</span>
                                 @endif
                             </td>
-                            <td class="p-4 text-sm text-gray-500 whitespace-nowrap align-middle">{{ $item->created_at->format('M d, Y') }}</td>
+                            <td class="p-4 text-sm text-gray-500 whitespace-nowrap align-middle">{{ $item->date ? \Carbon\Carbon::parse($item->date)->format('M d, Y') : $item->created_at->format('M d, Y') }}</td>
                             <td class="p-4 align-middle">
                                 <div class="flex justify-end gap-3 items-center" x-data="{ rowItem: {{ \Illuminate\Support\Js::from($item) }} }">
                                     <button type="button" @click="$dispatch('open-edit-modal', { item: rowItem, url: '{{ route('admin.procurement.update', ['category' => $category, 'id' => $item->id]) }}' })" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
@@ -126,7 +172,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="p-10 text-center text-gray-500 italic">No {{ strtolower($categoryTitle) }} uploaded yet.</td>
+                            <td colspan="8" class="p-10 text-center text-gray-500 italic">No {{ strtolower($categoryTitle) }} found.</td>
                         </tr>
                     @endforelse
                 </tbody>
