@@ -56,7 +56,6 @@ class IssuanceController extends Controller
     public function show($id)
     {
         $issuance = Issuance::findOrFail($id);
-
         $recentAdvisories = Issuance::where('type', 'advisory')
                                     ->where('id', '!=', $issuance->id)
                                     ->latest()
@@ -77,7 +76,6 @@ class IssuanceController extends Controller
         $type = $request->query('type', 'advisory'); 
         $query = Issuance::where('type', $type);
 
-        // 1. Search Filter (Title & Description)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -86,12 +84,15 @@ class IssuanceController extends Controller
             });
         }
 
-        // 2. Year Filter
         if ($request->filled('year')) {
             $query->whereYear('date', $request->year);
         }
 
-        // 3. Sort Filter
+        // NEW: Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
         if ($request->filled('sort')) {
             switch ($request->sort) {
                 case 'oldest':
@@ -109,13 +110,11 @@ class IssuanceController extends Controller
                     break;
             }
         } else {
-            $query->latest('date')->latest('id'); // Default Sort
+            $query->latest('date')->latest('id');
         }
 
-        // withQueryString() ensures filters stay active when paginating
         $issuances = $query->paginate(10)->withQueryString();
 
-        // Get dynamic available years for the dropdown filter
         $years = Issuance::where('type', $type)
             ->whereNotNull('date')
             ->selectRaw('YEAR(date) as year')
@@ -135,20 +134,11 @@ class IssuanceController extends Controller
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
             'link' => 'nullable|url|max:2000',
             'date' => 'nullable|date',
-        ], [
-            'title.required' => 'Please provide a document title.',
-            'title.unique' => 'This title already exists. Please provide a unique entry.',
-            'pdf_file.mimes' => 'The document must be a valid PDF file.',
-            'pdf_file.max' => 'The PDF document must not exceed 10MB in size.',
-            'link.url' => 'Please provide a valid URL for the external link.',
         ]);
 
         $path = null;
-        
-        // Only attempt to store the file if one was actually uploaded
         if ($request->hasFile('pdf_file')) {
             $pdfFile = $request->file('pdf_file');
-            // Adding time() to prevent file overwriting
             $pdfFilename = time() . '_' . $pdfFile->getClientOriginalName();
             $path = $pdfFile->storeAs('issuances/' . $validated['type'], $pdfFilename, 'public');
         }
@@ -158,8 +148,8 @@ class IssuanceController extends Controller
             'description' => $validated['description'] ?? null,
             'type' => $validated['type'],
             'pdf_path' => $path,
-            'link' => $validated['link'] ?? null, // Save the link
-            'date' => $validated['date'] ?: now()->toDateString(), // Fallback to current date
+            'link' => $validated['link'] ?? null,
+            'date' => $validated['date'] ?: now()->toDateString(),
         ]);
 
         return back()->with('success', ucfirst($validated['type']) . ' uploaded successfully!');
@@ -175,29 +165,20 @@ class IssuanceController extends Controller
             'pdf_file' => 'nullable|mimes:pdf|max:10240',
             'link' => 'nullable|url|max:2000', 
             'date' => 'nullable|date',
-        ], [
-            'title.required' => 'Please provide a document title.',
-            'title.unique' => 'This title already exists. Please provide a unique entry.',
-            'pdf_file.mimes' => 'The document must be a valid PDF file.',
-            'pdf_file.max' => 'The PDF document must not exceed 10MB in size.',
-            'link.url' => 'Please provide a valid URL for the external link.',
         ]);
 
         $dataToUpdate = [
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
-            'link' => $validated['link'] ?? null, // Update the link
-            'date' => $validated['date'] ?: now()->toDateString(), // Fallback to current date
+            'link' => $validated['link'] ?? null,
+            'date' => $validated['date'] ?: now()->toDateString(),
         ];
 
         if ($request->hasFile('pdf_file')) {
-            // Delete old PDF if it exists
             if ($issuance->pdf_path) {
                 Storage::disk('public')->delete($issuance->pdf_path);
             }
-            
             $pdfFile = $request->file('pdf_file');
-            // Adding time() to prevent file overwriting
             $pdfFilename = time() . '_' . $pdfFile->getClientOriginalName();
             $dataToUpdate['pdf_path'] = $pdfFile->storeAs('issuances/' . $issuance->type, $pdfFilename, 'public');
         }
@@ -215,13 +196,10 @@ class IssuanceController extends Controller
     public function destroy($id)
     {
         $issuance = Issuance::findOrFail($id);
-
         if ($issuance->pdf_path) {
             Storage::disk('public')->delete($issuance->pdf_path);
         }
-        
         $issuance->delete();
-
         return back()->with('success', 'Issuance deleted successfully!');
     }
 
@@ -372,7 +350,7 @@ class IssuanceController extends Controller
             $perPage,
             $page,
             ['path' => \Illuminate\Pagination\Paginator::resolveCurrentPath(), 'query' => $request->query()]
-        );
+        );  
 
         $results = $paginatedResults;
 

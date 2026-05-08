@@ -26,7 +26,6 @@ class ProcurementController extends Controller
 
     public function index(Request $request, $category)
     {
-        // Clear old edit_id if there are no errors to prevent modal from sticking open
         if (!session()->has('errors') && !session()->has('error_duplicate')) {
             session()->forget(['edit_id', 'edit_url']);
         }
@@ -34,7 +33,6 @@ class ProcurementController extends Controller
         $categoryTitle = $this->getCategoryTitle($category);
         $query = BidOpportunity::where('category', $category);
 
-        // 1. Search Filter (Title & Description)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -43,12 +41,15 @@ class ProcurementController extends Controller
             });
         }
 
-        // 2. Year Filter
         if ($request->filled('year')) {
             $query->whereYear('date', $request->year);
         }
 
-        // 3. Sort Filter
+        // NEW: Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
         if ($request->filled('sort')) {
             switch ($request->sort) {
                 case 'oldest':
@@ -66,13 +67,11 @@ class ProcurementController extends Controller
                     break;
             }
         } else {
-            $query->latest('date')->latest('id'); // Default Sort
+            $query->latest('date')->latest('id');
         }
 
-        // withQueryString() ensures filters stay active when paginating
         $opportunities = $query->paginate(10)->withQueryString();
 
-        // Get dynamic available years for the dropdown filter
         $years = BidOpportunity::where('category', $category)
             ->whereNotNull('date')
             ->selectRaw('YEAR(date) as year')
@@ -85,7 +84,6 @@ class ProcurementController extends Controller
 
     public function store(Request $request, $category)
     {
-        // 1. Manual Duplicate Check for Inline Error Design
         $existing = BidOpportunity::where('category', $category)->where('title', $request->title)->first();
         if ($existing) {
             return back()
@@ -93,7 +91,6 @@ class ProcurementController extends Controller
                 ->with('error_duplicate', 'This Title already exists. Please provide a unique entry.');
         }
 
-        // 2. Standard Validation
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
@@ -148,7 +145,6 @@ class ProcurementController extends Controller
     {
         $opportunity = BidOpportunity::where('category', $category)->findOrFail($id);
 
-        // 1. Manual Duplicate Check for Inline Error Design (Ignoring self)
         $existing = BidOpportunity::where('category', $category)
             ->where('title', $request->title)
             ->where('id', '!=', $id)
@@ -158,11 +154,10 @@ class ProcurementController extends Controller
             return back()
                 ->withInput()
                 ->with('error_duplicate', 'This Title already exists. Please provide a unique entry.')
-                ->with('edit_id', $id) // Keep edit modal open
+                ->with('edit_id', $id)
                 ->with('edit_url', route('admin.procurement.update', ['category' => $category, 'id' => $id]));
         }
 
-        // 2. Standard Validation
         $request->validate([
             'title' => 'required|string|max:255',
             'description' => 'nullable|string', 
@@ -180,7 +175,6 @@ class ProcurementController extends Controller
             'date' => $request->date ?: now()->toDateString(), 
         ];
 
-        // Check removals
         if ($request->input('remove_image') == '1') {
             if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
             $dataToUpdate['jpeg_path'] = null;
@@ -196,10 +190,8 @@ class ProcurementController extends Controller
             $dataToUpdate['excel_path'] = null;
         }
 
-        // Check new uploads
         if ($request->hasFile('jpeg_file')) {
             if ($opportunity->jpeg_path) Storage::disk('public')->delete($opportunity->jpeg_path);
-            
             $imgFile = $request->file('jpeg_file');
             $imgFilename = $imgFile->getClientOriginalName();
             $dataToUpdate['jpeg_path'] = $imgFile->storeAs($folderPath, $imgFilename, 'public');
@@ -207,7 +199,6 @@ class ProcurementController extends Controller
 
         if ($request->hasFile('pdf_file')) {
             if ($opportunity->pdf_path) Storage::disk('public')->delete($opportunity->pdf_path);
-            
             $pdfFile = $request->file('pdf_file');
             $pdfFilename = $pdfFile->getClientOriginalName();
             $dataToUpdate['pdf_path'] = $pdfFile->storeAs($folderPath, $pdfFilename, 'public');
@@ -215,7 +206,6 @@ class ProcurementController extends Controller
 
         if ($request->hasFile('excel_file')) {
             if ($opportunity->excel_path) Storage::disk('public')->delete($opportunity->excel_path);
-            
             $excelFile = $request->file('excel_file');
             $excelFilename = $excelFile->getClientOriginalName();
             $dataToUpdate['excel_path'] = $excelFile->storeAs($folderPath, $excelFilename, 'public');

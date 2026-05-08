@@ -9,10 +9,54 @@ use Illuminate\Support\Facades\Storage;
 
 class SeniorHighController extends Controller
 {
-    public function index() {
-        // Changed to paginate by 5
-        $contents = SeniorHighContent::latest()->paginate(10);
-        return view('admin.senior_high.index', compact('contents'));
+    public function index(Request $request) {
+        $query = SeniorHighContent::query();
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // NEW: Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('title', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('title', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id');
+        }
+
+        $contents = $query->paginate(10)->withQueryString();
+
+        $years = SeniorHighContent::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.senior_high.index', compact('contents', 'years'));
     }
 
     public function store(Request $request) {
@@ -31,7 +75,6 @@ class SeniorHighController extends Controller
         $path = null;
         if ($request->hasFile('csv_file')) {
             $file = $request->file('csv_file');
-            // Adding time() to prevent file overwrites
             $filename = time() . '_' . $file->getClientOriginalName(); 
             $path = $file->storeAs('senior_high/documents', $filename, 'public');
         }
@@ -54,7 +97,6 @@ class SeniorHighController extends Controller
         ];
 
         $request->validate([
-            // Ignore current record's ID to allow updating without changing the title
             'title' => 'required|string|max:255|unique:senior_high_contents,title,' . $id,
             'content' => 'nullable|string',
             'csv_file' => 'nullable|file|mimes:csv,txt,pdf,doc,docx,xls,xlsx|max:10240',
@@ -62,7 +104,6 @@ class SeniorHighController extends Controller
 
         $seniorHigh = SeniorHighContent::findOrFail($id);
 
-        // Handle explicitly removing the document file via UI flag
         if ($request->remove_file == '1') {
             if ($seniorHigh->csv_path) {
                 Storage::disk('public')->delete($seniorHigh->csv_path);
@@ -89,11 +130,9 @@ class SeniorHighController extends Controller
 
     public function destroy($id) {
         $seniorHigh = SeniorHighContent::findOrFail($id);
-        
         if ($seniorHigh->csv_path) {
             Storage::disk('public')->delete($seniorHigh->csv_path);
         }
-        
         $seniorHigh->delete();
         return back()->with('success', 'Senior High entry deleted successfully.');
     }

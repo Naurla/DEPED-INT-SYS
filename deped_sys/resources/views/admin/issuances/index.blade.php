@@ -63,11 +63,13 @@
 
     {{-- Search & Filter Section --}}
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
-        <form method="GET" action="{{ url()->current() }}" class="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <input type="hidden" name="type" value="{{ $type }}">
+        <form method="GET" action="{{ url()->current() }}" class="flex flex-col xl:flex-row gap-4 items-center justify-between">
+            @if(isset($type))
+                <input type="hidden" name="type" value="{{ $type }}">
+            @endif
             
             {{-- Search Bar --}}
-            <div class="w-full md:w-1/3 relative">
+            <div class="w-full xl:w-1/3 relative">
                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                     <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
@@ -77,10 +79,20 @@
             </div>
 
             {{-- Dropdown Filters --}}
-            <div class="w-full md:w-auto flex flex-col md:flex-row gap-3 items-center">
+            <div class="w-full xl:w-auto flex flex-col md:flex-row gap-3 items-center">
                 
+                {{-- Month Filter --}}
+                <select name="month" class="w-full md:w-36 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                    <option value="">All Months</option>
+                    @foreach(range(1, 12) as $m)
+                        <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('month') == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                            {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                        </option>
+                    @endforeach
+                </select>
+
                 {{-- Year Filter --}}
-                <select name="year" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                <select name="year" class="w-full md:w-32 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
                     <option value="">All Years</option>
                     @foreach($years as $year)
                         <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
@@ -88,7 +100,7 @@
                 </select>
 
                 {{-- Sort Filter --}}
-                <select name="sort" class="w-full md:w-44 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                <select name="sort" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
                     <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
                     <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
                     <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>Title (A-Z)</option>
@@ -96,8 +108,8 @@
                 </select>
 
                 {{-- Clear Filters --}}
-                @if(request('search') || request('year') || (request('sort') && request('sort') !== 'newest'))
-                    <a href="{{ url()->current() }}?type={{ $type }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
+                @if(request('search') || request('month') || request('year') || (request('sort') && request('sort') !== 'newest'))
+                    <a href="{{ isset($type) ? url()->current() . '?type=' . $type : url()->current() }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
                         Clear Filters
                     </a>
                 @endif
