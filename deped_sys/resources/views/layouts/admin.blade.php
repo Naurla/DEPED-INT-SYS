@@ -257,14 +257,15 @@
             </a>
             @endif
 
-            @if(auth()->check() && auth()->user()->hasPermission('advisories'))
+          {{--  @if(auth()->check() && auth()->user()->hasPermission('advisories'))
             <a href="{{ route('admin.advisory.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.index') || request()->is('admin/advisories*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
                 <span x-show="sidebarOpen">Public Advisories</span>
             </a>
             @endif
-
+            --}}
+            
             @if(auth()->check() && auth()->user()->hasPermission('settings'))
             <a href="{{ route('admin.settings.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.settings.*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">

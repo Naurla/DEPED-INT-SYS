@@ -171,137 +171,126 @@
     {{-- ========================================== --}}
     {{-- TAB 1: USER MANAGEMENT --}}
     {{-- ========================================== --}}
-    <div x-show="activeTab === 'users'" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-opacity">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
-                        <th class="p-4 border-b whitespace-nowrap w-16 text-center">ID</th>
-                        <th class="p-4 border-b whitespace-nowrap">User Details</th>
-                        <th class="p-4 border-b whitespace-nowrap">Designation (Role)</th>
-                        <th class="p-4 border-b whitespace-nowrap">Created Date</th>
-                        <th class="p-4 border-b text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($users as $user)
-                        <tr class="hover:bg-gray-50 border-b transition-colors">
-                            <td class="p-4 text-sm text-gray-600 font-medium text-center align-middle">
-                                {{ method_exists($users, 'firstItem') ? $users->firstItem() + $loop->index : $loop->iteration }}
-                            </td>
-                            <td class="p-4">
-                                <div class="font-semibold text-gray-800">{{ $user->name }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
-                            </td>
-                            <td class="p-4 text-sm text-gray-600">
-                                <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full border 
-                                    {{ $user->role && $user->role->slug == 'super-admin' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
-                                    {{ $user->role ? $user->role->name : 'No Role' }}
-                                </span>
-                            </td>
-                            <td class="p-4 text-sm text-gray-500 whitespace-nowrap">
-                                {{ $user->created_at->format('M d, Y') }}
-                            </td>
-                            <td class="p-4 flex justify-end gap-3 items-center">
-                                @if(auth()->user()->id !== $user->id)
-                                    <button @click="openEditUser({{ $user->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
-                                    <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.users.destroy', $user) }}', title: '{{ addslashes($user->name) }} ({{ addslashes($user->email) }})' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
-                                @else
-                                    <span class="text-[10px] text-gray-500 font-bold bg-gray-100 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-wider">Current User</span>
-                                @endif
-                            </td>
+    <div x-show="activeTab === 'users'">
+        
+        {{-- Search & Filter Section --}}
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+            <form method="GET" action="{{ url()->current() }}" class="flex flex-col xl:flex-row gap-4 items-center justify-between">
+                {{-- Search Bar --}}
+                <div class="w-full xl:w-1/4 relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name or email..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-colors">
+                </div>
+
+                {{-- Dropdown Filters --}}
+                <div class="w-full xl:w-auto flex flex-col md:flex-row gap-3 items-center">
+                    
+                    {{-- Role Filter --}}
+                    <select name="role" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                        <option value="">All Roles</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role->id }}" {{ request('role') == $role->id ? 'selected' : '' }}>{{ $role->name }}</option>
+                        @endforeach
+                    </select>
+
+                    {{-- Month Filter --}}
+                    <select name="month" class="w-full md:w-36 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                        <option value="">All Months</option>
+                        @foreach(range(1, 12) as $m)
+                            <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('month') == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
+                                {{ date('F', mktime(0, 0, 0, $m, 1)) }}
+                            </option>
+                        @endforeach
+                    </select>
+
+                    {{-- Year Filter --}}
+                    <select name="year" class="w-full md:w-32 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                        <option value="">All Years</option>
+                        @if(isset($years))
+                            @foreach($years as $year)
+                                <option value="{{ $year }}" {{ request('year') == $year ? 'selected' : '' }}>{{ $year }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+
+                    {{-- Sort Filter --}}
+                    <select name="sort" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
+                        <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
+                        <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
+                        <option value="a_z" {{ request('sort') == 'a_z' ? 'selected' : '' }}>Name (A-Z)</option>
+                        <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Name (Z-A)</option>
+                    </select>
+
+                    {{-- Clear Filters --}}
+                    @if(request('search') || request('role') || request('month') || request('year') || (request('sort') && request('sort') !== 'newest'))
+                        <a href="{{ url()->current() }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
+                            Clear Filters
+                        </a>
+                    @endif
+                    
+                    <button type="submit" class="hidden">Search</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-opacity">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-100 text-gray-600 uppercase text-xs font-bold">
+                            <th class="p-4 border-b whitespace-nowrap w-16 text-center">ID</th>
+                            <th class="p-4 border-b whitespace-nowrap">User Details</th>
+                            <th class="p-4 border-b whitespace-nowrap">Designation (Role)</th>
+                            <th class="p-4 border-b whitespace-nowrap">Created Date</th>
+                            <th class="p-4 border-b text-right">Action</th>
                         </tr>
-                    @empty
-                        <tr><td colspan="5" class="p-6 text-center text-gray-500">No users found.</td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-    
-    @if(method_exists($users, 'hasPages') && $users->hasPages())
-        <div class="mt-4" x-show="activeTab === 'users'">
-            {{ $users->links() }}
-        </div>
-    @endif
-
-    {{-- MODAL: ADD USER --}}
-    <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddUserModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-2xl">Create New User</h3>
-                <button type="button" @click="showAddUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+                    </thead>
+                    <tbody>
+                        @forelse($users as $user)
+                            <tr class="hover:bg-gray-50 border-b transition-colors">
+                                <td class="p-4 text-sm text-gray-600 font-medium text-center align-middle">
+                                    {{ method_exists($users, 'firstItem') ? $users->firstItem() + $loop->index : $loop->iteration }}
+                                </td>
+                                <td class="p-4">
+                                    <div class="font-semibold text-gray-800">{{ $user->name }}</div>
+                                    <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
+                                </td>
+                                <td class="p-4 text-sm text-gray-600">
+                                    <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full border 
+                                        {{ $user->role && $user->role->slug == 'super-admin' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
+                                        {{ $user->role ? $user->role->name : 'No Role' }}
+                                    </span>
+                                </td>
+                                <td class="p-4 text-sm text-gray-500 whitespace-nowrap">
+                                    {{ $user->created_at->format('M d, Y') }}
+                                </td>
+                                <td class="p-4 flex justify-end gap-3 items-center">
+                                    @if(auth()->user()->id !== $user->id)
+                                        <button @click="openEditUser({{ $user->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                        <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.users.destroy', $user) }}', title: '{{ addslashes($user->name) }} ({{ addslashes($user->email) }})' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
+                                    @else
+                                        <span class="text-[10px] text-gray-500 font-bold bg-gray-100 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-wider">Current User</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="5" class="p-6 text-center text-gray-500">No users found.</td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
-            
-            <form action="{{ route('admin.users.store') }}" method="POST" class="flex flex-col overflow-hidden min-h-0">
-                @csrf
-                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
-                    <div>
-                        <label class="block text-gray-800 text-lg font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all" placeholder="e.g. Juan Dela Cruz">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-lg font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
-                        <input type="email" name="email" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all" placeholder="user@deped.gov.ph">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-lg font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
-                        <select name="role_id" x-model="selectedRole" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white transition-all">
-                            <option value="" disabled selected>Select a role...</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                            @endforeach
-                        </select>
-                        <p class="text-sm text-gray-500 mt-2 italic">This user will inherit all permissions assigned to this role.</p>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Generate Account</button>
-                    <button type="button" @click="showAddUserModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
-                </div>
-            </form>
         </div>
-    </div>
-
-    {{-- MODAL: EDIT USER --}}
-    <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditUserModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-2xl">Edit User Details</h3>
-                <button type="button" @click="showEditUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+        
+        @if(method_exists($users, 'hasPages') && $users->hasPages())
+            <div class="mt-4">
+                {{ $users->links() }}
             </div>
-            
-            <form :action="'/admin/users/' + editUserData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
-                @csrf
-                @method('PUT')
-                <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
-                    <div>
-                        <label class="block text-gray-800 text-lg font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" x-model="editUserData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-lg font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
-                        <input type="email" name="email" x-model="editUserData.email" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-lg font-bold mb-2">Update Role <span class="text-red-500">*</span></label>
-                        <select name="role_id" x-model="editUserData.role_id" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none bg-white transition-all">
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Save Changes</button>
-                    <button type="button" @click="showEditUserModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
-                </div>
-            </form>
-        </div>
+        @endif
     </div>
-
 
     {{-- ========================================== --}}
     {{-- TAB 2: ROLE MANAGEMENT --}}

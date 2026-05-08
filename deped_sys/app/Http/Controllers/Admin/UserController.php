@@ -13,11 +13,65 @@ use App\Mail\UserCreatedMail;
 
 class UserController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::with('role')->paginate(10);
+        $query = User::with('role');
+
+        // Search Filter (by name or email)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Role Filter
+        if ($request->filled('role')) {
+            $query->where('role_id', $request->role);
+        }
+
+        // Year Filter
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Month Filter
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Sort Filter
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'oldest':
+                    $query->oldest('created_at')->oldest('id');
+                    break;
+                case 'a_z':
+                    $query->orderBy('name', 'asc');
+                    break;
+                case 'z_a':
+                    $query->orderBy('name', 'desc');
+                    break;
+                case 'newest':
+                default:
+                    $query->latest('created_at')->latest('id');
+                    break;
+            }
+        } else {
+            $query->latest('created_at')->latest('id');
+        }
+
+        $users = $query->paginate(10)->withQueryString();
         $roles = Role::all();
-        return view('admin.users.index', compact('users', 'roles'));
+        
+        // Get unique years for the dropdown filter
+        $years = User::selectRaw('YEAR(created_at) as year')
+            ->distinct()
+            ->orderBy('year', 'desc')
+            ->pluck('year');
+
+        return view('admin.users.index', compact('users', 'roles', 'years'));
     }
 
     public function store(Request $request)
