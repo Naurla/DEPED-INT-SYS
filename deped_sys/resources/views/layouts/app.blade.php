@@ -98,7 +98,7 @@
                     <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-80 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50 font-normal">
                         {{-- Profile Submenu --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer {{ request()->routeIs('qms.*') || request()->routeIs('vision_mission.*') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 w-full gap-4 cursor-pointer transition-colors {{ request()->routeIs('qms.*') || request()->routeIs('vision_mission.*') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">Profile</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
@@ -110,7 +110,7 @@
 
                         {{-- Organizational Structure Submenu --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer {{ request()->routeIs('division_offices.*') || request()->routeIs('org.chart') || request()->routeIs('sgod.*') || request()->routeIs('osds.*') || request()->routeIs('cid.*') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 w-full gap-4 cursor-pointer transition-colors {{ request()->routeIs('division_offices.*') || request()->routeIs('org.chart') || request()->routeIs('sgod.*') || request()->routeIs('osds.*') || request()->routeIs('cid.*') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">Organizational Structure</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
@@ -164,61 +164,66 @@
                         <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                     </div>
                     <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-72 bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50 font-normal">
+                        
+                        {{-- K to 12 About --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer {{ request()->is('k12/about*') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 w-full gap-4 cursor-pointer transition-colors {{ request()->is('k12/about*') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">About</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
-                                <a href="{{ route('k12.about.curriculum') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('k12.about.curriculum') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100' }}">K to 12 Basic Education Curriculum</a>
-                                <a href="{{ route('k12.about.faq') }}" class="block pl-10 md:px-6 pr-6 py-3 transition-colors {{ request()->routeIs('k12.about.faq') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100' }}">FAQ</a>
+                                <a href="{{ route('k12.about.curriculum') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('k12.about.curriculum') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">K to 12 Basic Education Curriculum</a>
+                                <a href="{{ route('k12.about.faq') }}" class="block pl-10 md:px-6 pr-6 py-3 transition-colors {{ request()->routeIs('k12.about.faq') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">FAQ</a>
                             </div>
                         </div>
 
                         <a href="{{ route('learning_materials.index') }}" class="block px-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('learning_materials.*') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">Learning Materials</a>
 
+                        {{-- ALS --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 w-full gap-4 cursor-pointer {{ request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') || request()->routeIs('als-implementers.*') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 w-full gap-4 cursor-pointer transition-colors {{ request()->routeIs('enrollment-statistics.*') || request()->routeIs('als-stories.*') || request()->routeIs('als-implementers.*') || request()->routeIs('k12.als.modules') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">Alternative Learning System (ALS)</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-80 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
-                                <a href="https://www.deped.gov.ph/about-als/" target="_blank" rel="noopener noreferrer" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 hover:bg-gray-100">About ALS</a>
+                                <a href="https://www.deped.gov.ph/about-als/" target="_blank" rel="noopener noreferrer" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 hover:bg-gray-100 text-gray-700 transition-colors">About ALS</a>
                                 <a href="{{ route('enrollment-statistics.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('enrollment-statistics.*') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">Enrollment Statistics</a>
                                 <a href="{{ route('als-stories.index') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('als-stories.*') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">ALS Stories</a>
-                                <a href="{{ route('k12.als.modules') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 hover:bg-gray-100 text-gray-700 transition-colors {{ request()->routeIs('k12.als.modules') ? 'text-[#a52a2a] font-bold bg-gray-100' : '' }}">Modules</a>
+                                <a href="{{ route('k12.als.modules') }}" class="block pl-10 md:px-6 pr-6 py-3 border-b border-gray-50 transition-colors {{ request()->routeIs('k12.als.modules') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">Modules</a>
                                 <a href="{{ route('als-implementers.index') }}" class="block pl-10 md:px-6 pr-6 py-3 transition-colors {{ request()->routeIs('als-implementers.*') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">Featured ALS Implementer of the Month</a>
                             </div>
                         </div>
 
+                        {{-- 🟢 ELEMENTARY SCHOOL --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.elementary') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.elementary') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">Elementary School</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
-                                <a href="{{ route('k12.elementary') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.elementary') ? 'text-[#a52a2a] font-bold bg-gray-100' : '' }}">List of Elementary Schools</a>
+                                <a href="{{ route('k12.elementary') }}" class="block pl-10 md:px-6 pr-6 py-3 transition-colors {{ request()->routeIs('k12.elementary') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">List of Elementary Schools</a>
                             </div>
                         </div>
 
-                        {{-- 🟢 NEW: JUNIOR HIGH SCHOOL --}}
+                        {{-- 🟢 JUNIOR HIGH SCHOOL --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 border-b border-gray-50 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.junior-high') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.junior-high') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">Junior High School</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
-                                <a href="{{ route('k12.junior-high') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.junior-high') ? 'text-[#a52a2a] font-bold bg-gray-100' : '' }}">List of Junior High Schools</a>
+                                <a href="{{ route('k12.junior-high') }}" class="block pl-10 md:px-6 pr-6 py-3 transition-colors {{ request()->routeIs('k12.junior-high') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">List of Junior High Schools</a>
                             </div>
                         </div>
 
+                        {{-- 🟢 SENIOR HIGH SCHOOL --}}
                         <div x-data="{ subOpen: false }" @click.outside="subOpen = false" @mouseenter="if(window.innerWidth >= 768) subOpen = true" @mouseleave="if(window.innerWidth >= 768) subOpen = false" class="relative">
-                            <div @click="subOpen = !subOpen" class="px-6 py-3 hover:bg-gray-100 flex justify-between items-center text-gray-700 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.senior-high') ? 'text-[#a52a2a] font-bold bg-gray-50' : '' }}">
+                            <div @click="subOpen = !subOpen" class="px-6 py-3 flex justify-between items-center border-b border-gray-50 transition-colors w-full gap-4 cursor-pointer {{ request()->routeIs('k12.senior-high') ? 'text-[#a52a2a] font-bold bg-gray-50' : 'text-gray-700 hover:bg-gray-100' }}">
                                 <span class="text-left leading-tight">Senior High School</span>
                                 <svg :class="subOpen ? 'rotate-180 md:-rotate-90' : 'rotate-0 md:-rotate-90'" class="w-3 h-3 text-gray-400 transition-transform flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
                             </div>
                             <div x-show="subOpen" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-full md:top-0 w-full md:w-72 bg-gray-50 md:bg-white md:shadow-xl border-y md:border border-gray-200 py-2">
-                                <a href="{{ route('k12.senior-high') }}" class="block pl-10 md:px-6 pr-6 py-3 hover:bg-gray-100 text-gray-700 {{ request()->routeIs('k12.senior-high') ? 'text-[#a52a2a] font-bold bg-gray-100' : '' }}">List of Senior High Schools</a>
+                                <a href="{{ route('k12.senior-high') }}" class="block pl-10 md:px-6 pr-6 py-3 transition-colors {{ request()->routeIs('k12.senior-high') ? 'text-[#a52a2a] font-bold bg-gray-100' : 'hover:bg-gray-100 text-gray-700' }}">List of Senior High Schools</a>
                             </div>
                         </div>
 
