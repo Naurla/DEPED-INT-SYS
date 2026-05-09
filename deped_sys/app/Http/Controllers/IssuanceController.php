@@ -8,11 +8,33 @@ use Illuminate\Support\Facades\Storage;
 
 class IssuanceController extends Controller
 {
-    public function advisories()
+    public function advisories(Request $request)
     {
-        $items = Issuance::where('type', 'advisory')->latest()->paginate(10);
-        $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
-        $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
+        $query = Issuance::where('type', 'advisory');
+
+        // Filter by Year
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        // Filter by Month
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
+        // Filter by Keyword
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $items = $query->latest('date')->paginate(10)->withQueryString();
+        
+        $recentAdvisories = Issuance::where('type', 'advisory')->latest('date')->take(5)->get();
+        $recentMemoranda = Issuance::where('type', 'memorandum')->latest('date')->take(5)->get();
         
         return view('issuances.category', [
             'items' => $items,
@@ -23,11 +45,30 @@ class IssuanceController extends Controller
         ]);
     }
 
-    public function memoranda()
+    public function memoranda(Request $request)
     {
-        $items = Issuance::where('type', 'memorandum')->latest()->paginate(10);
-        $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
-        $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
+        $query = Issuance::where('type', 'memorandum');
+
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $items = $query->latest('date')->paginate(10)->withQueryString();
+        
+        $recentAdvisories = Issuance::where('type', 'advisory')->latest('date')->take(5)->get();
+        $recentMemoranda = Issuance::where('type', 'memorandum')->latest('date')->take(5)->get();
         
         return view('issuances.category', [
             'items' => $items,
@@ -38,11 +79,30 @@ class IssuanceController extends Controller
         ]);
     }
 
-    public function hrmpsb()
+    public function hrmpsb(Request $request)
     {
-        $items = Issuance::where('type', 'hrmpsb')->latest()->paginate(10);
-        $recentAdvisories = Issuance::where('type', 'advisory')->latest()->take(5)->get();
-        $recentMemoranda = Issuance::where('type', 'memorandum')->latest()->take(5)->get();
+        $query = Issuance::where('type', 'hrmpsb');
+
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        $items = $query->latest('date')->paginate(10)->withQueryString();
+        
+        $recentAdvisories = Issuance::where('type', 'advisory')->latest('date')->take(5)->get();
+        $recentMemoranda = Issuance::where('type', 'memorandum')->latest('date')->take(5)->get();
         
         return view('issuances.category', [
             'items' => $items,
@@ -123,6 +183,40 @@ class IssuanceController extends Controller
             ->pluck('year');
 
         return view('admin.issuances.index', compact('issuances', 'type', 'years'));
+    }
+
+    public function index(Request $request)
+    {
+        $query = Issuance::query();
+
+        // 1. Filter by Type (Advisory, Memo, HRMPSB)
+        if ($request->filled('type')) {
+            $query->where('type', $request->type);
+        }
+
+        // 2. Filter by Year
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        // 3. Filter by Month
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
+        // 4. Filter by Keyword (Title or Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate and retain filter URLs for the page buttons
+        $items = $query->latest('date')->latest('id')->paginate(10)->withQueryString();
+
+        return view('issuances.index', compact('items'));
     }
 
     public function store(Request $request)
@@ -356,4 +450,6 @@ class IssuanceController extends Controller
 
         return view('frontend.search_results', compact('results', 'query'));
     }
+
+
 }

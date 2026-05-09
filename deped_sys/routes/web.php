@@ -121,7 +121,7 @@ Route::get('/', function () {
     }
 
     return view('/home/index', compact('latestAdvisory', 'banners'));
-}); // <--- REMOVED ->name('login') from here
+}); 
 
 
 // ==========================================
@@ -135,7 +135,7 @@ Route::get('/admin/login', function () {
     return view('auth.login'); 
 })->name('login');
 
-// 2. Handle the login POST request (Fixed typo: removed slash before 'login')
+// 2. Handle the login POST request
 Route::post('/admin/login', [AdminController::class, 'login'])->name('admin.login');
 
 // 3. Admin Password Reset Routes
@@ -187,6 +187,7 @@ Route::get('/about/organizational-structure/osds', [FrontendOsdsController::clas
 Route::get('/about/organizational-structure/cid', [FrontendCidController::class, 'index'])->name('cid.index');
 
 // Public Issuances
+Route::get('/issuances', [IssuanceController::class, 'index'])->name('issuances.public'); // <-- ADDED THIS LINE
 Route::get('/issuances/advisories', [IssuanceController::class, 'advisories'])->name('issuances.advisories');
 Route::get('/issuances/memoranda', [IssuanceController::class, 'memoranda'])->name('issuances.memoranda');
 Route::get('/issuances/hrmpsb', [IssuanceController::class, 'hrmpsb'])->name('issuances.hrmpsb');
@@ -469,4 +470,4 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
         });
     }); 
-});
+}); 
