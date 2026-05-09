@@ -53,11 +53,41 @@
     @endif
 
     {{-- Optional Styled Page Title Block (kept from original, centered) --}}
-    <div class="flex justify-center mb-12 w-full break-words">
+    <div class="flex justify-center mb-10 w-full break-words">
         <h2 class="px-8 py-4 bg-[#003366] text-white rounded-xl shadow-lg font-cinzel text-xl md:text-2xl font-bold uppercase tracking-wide border border-[#004080] text-center">
             K-to-12 Basic Education Curriculum
         </h2>
     </div>
+
+    {{-- 🟢 NEW: Unified Search Bar --}}
+    <div class="mb-12 w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
+        <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+            
+            <div class="w-full md:flex-[3]">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search Curriculum</label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all" 
+                    placeholder="Search learning strands or curriculum guides..." 
+                    value="{{ request('search') }}"
+                >
+            </div>
+
+            <div class="w-full md:w-auto flex gap-2">
+                <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                    Search
+                </button>
+
+                @if(request()->filled('search'))
+                    <a href="{{ url()->current() }}" class="flex items-center justify-center w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                        Clear
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+    {{-- 🔴 END Filter Bar --}}
 
     {{-- Element 2: Learning Strands Cards --}}
     <div class="mb-16 w-full break-words">
@@ -146,7 +176,13 @@
                 </div>
             @empty
                 <div class="col-span-1 md:col-span-2 text-center py-12 bg-white rounded-xl border border-dashed border-gray-300">
-                    <p class="text-gray-500 font-sans text-lg">No learning strands currently configured.</p>
+                    <p class="text-gray-500 font-sans text-[15px]">
+                        @if(request()->filled('search'))
+                            No learning materials found matching "{{ request('search') }}".
+                        @else
+                            No learning strands currently configured.
+                        @endif
+                    </p>
                 </div>
             @endforelse
         </div>
@@ -165,8 +201,12 @@
                     {{ $guide->title }}
                 </a>
             @empty
-                <div class="col-span-full text-center py-8 text-gray-400 font-sans italic">
-                    No curriculum guides currently available.
+                <div class="col-span-full text-center py-8 text-gray-500 font-sans text-[15px] bg-white border border-dashed border-gray-300 rounded-xl">
+                    @if(request()->filled('search'))
+                        No curriculum guides found matching "{{ request('search') }}".
+                    @else
+                        No curriculum guides currently available.
+                    @endif
                 </div>
             @endforelse
         </div>
