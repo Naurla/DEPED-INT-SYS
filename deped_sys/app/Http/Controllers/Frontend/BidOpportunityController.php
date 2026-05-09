@@ -24,18 +24,38 @@ class BidOpportunityController extends Controller
     }
 
     // Public page listing opportunities by dynamic category
-    public function index($category)
+    public function index(Request $request, $category)
     {
-        // FILTER: Only get items for THIS specific category!
-        $opportunities = BidOpportunity::where('category', $category)
-                                       ->latest()
-                                       ->paginate(5);
+        $query = BidOpportunity::where('category', $category);
+
+        // Filter by Year
+        if ($request->filled('year')) {
+            $query->whereYear('date', $request->year);
+        }
+
+        // Filter by Month
+        if ($request->filled('month')) {
+            $query->whereMonth('date', $request->month);
+        }
+
+        // Filter by Keyword (Title or Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate and retain search filters in the URL 
+        // Note: I increased pagination to 10 (from 5) to match issuances, but you can change it back if you prefer!
+        $opportunities = $query->latest('date')->latest('id')->paginate(10)->withQueryString();
         
         return view('/procurement/list', [
             'type_name' => $this->getCategoryTitle($category),
             'type_path' => 'procurement/' . $category, 
             'items' => $opportunities,
-            'category' => $category // passing this just in case your view needs it
+            'category' => $category 
         ]);
     }
 

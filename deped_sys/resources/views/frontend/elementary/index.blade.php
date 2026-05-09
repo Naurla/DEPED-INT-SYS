@@ -8,13 +8,14 @@
         <span class="mx-2">></span>
         <span>K to 12</span>
         <span class="mx-2">></span>
-        <span class="text-gray-900 font-bold">{{ $page_title ?? 'Elementary Curriculum' }}</span>
+        <span class="text-gray-900 font-bold">Elementary Schools</span>
     </div>
 </div>
 
-<div class="container mx-auto px-4 md:px-20 max-w-10xl py-12 w-full min-h-screen">
-    <div class="mb-8 text-left w-full break-words">
-        <h1 class="text-3xl font-bold text-gray-900 tracking-tight uppercase">
+<div class="container mx-auto px-4 md:px-20 max-w-10xl py-8 md:py-12 w-full min-h-screen">
+    
+    <div class="mb-6 md:mb-8 text-left w-full break-words border-b border-gray-100 pb-6">
+        <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">
             Elementary School Curriculum
         </h1>
     </div>
@@ -22,54 +23,64 @@
     {{-- Filter Form --}}
     <form id="filterForm" method="GET" action="{{ url()->current() }}" class="mb-8">
         <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
-        {{-- Hidden input to remember which document is open --}}
         <input type="hidden" name="expand" id="expandInput" value="{{ request('expand') }}">
         
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between border-b border-gray-200 gap-4 pb-2">
-            
-            {{-- Tabs --}}
-            <div class="flex overflow-x-auto hide-scroll">
-                <button type="button" onclick="setTab('public')"
-                        class="{{ $tab === 'public' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
-                    Public Schools
-                </button>
-                <button type="button" onclick="setTab('private')"
-                        class="{{ $tab === 'private' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
-                    Private Schools
-                </button>
-            </div>
+        {{-- Tabs --}}
+        <div class="flex overflow-x-auto hide-scroll mb-6 border-b border-gray-200">
+            <button type="button" onclick="setTab('public')"
+                    class="{{ $tab === 'public' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
+                Public Schools
+            </button>
+            <button type="button" onclick="setTab('private')"
+                    class="{{ $tab === 'private' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
+                Private Schools
+            </button>
+        </div>
 
-            {{-- Controls Group (Search & District) --}}
-            <div class="flex flex-col md:flex-row gap-4 pb-2 md:pb-0 w-full lg:w-auto">
+        {{-- 🟢 NEW: Sleek Filter Bar --}}
+        <div class="w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
+            <div class="flex flex-col md:flex-row gap-4 items-end">
                 
-                {{-- Search Bar --}}
-                <div class="relative w-full md:w-64">
+                <div class="w-full md:flex-[2]">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search Keyword</label>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search title or content..." 
-                           class="block w-full border-gray-300 rounded-md text-sm shadow-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-50 pr-10"
+                           class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all"
                            onkeydown="if(event.key === 'Enter'){ event.preventDefault(); document.getElementById('filterForm').submit(); }">
-                    <button type="submit" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-[#003366]">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </button>
                 </div>
 
-                {{-- Dynamic District Dropdown --}}
                 @if(!empty($districts))
-                <select name="district" onchange="document.getElementById('filterForm').submit()" 
-                        class="block w-full md:w-48 border-gray-300 rounded-md text-sm shadow-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-50">
-                    <option value="">All Districts</option>
-                    @foreach($districts as $districtOption)
-                        <option value="{{ $districtOption }}" {{ $districtFilter === $districtOption ? 'selected' : '' }}>
-                            {{ $districtOption }}
-                        </option>
-                    @endforeach
-                </select>
+                <div class="w-full md:flex-1">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Filter District</label>
+                    <select name="district" onchange="document.getElementById('filterForm').submit()" 
+                            class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer">
+                        <option value="">All Districts</option>
+                        @foreach($districts as $districtOption)
+                            <option value="{{ $districtOption }}" {{ $districtFilter === $districtOption ? 'selected' : '' }}>
+                                {{ $districtOption }}
+                            </option>
+                        @endforeach
+                    </select>
+                </div>
                 @endif
+
+                <div class="w-full md:w-auto flex gap-2">
+                    <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                        Search
+                    </button>
+
+                    @if(request()->filled('search') || request()->filled('district'))
+                        <a href="{{ url()->current() }}?tab={{ $tab }}" class="flex items-center justify-center w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                            Clear
+                        </a>
+                    @endif
+                </div>
             </div>
         </div>
+        {{-- 🔴 END Filter Bar --}}
     </form>
 
-    {{-- Content Loop (Handles both Public and Private dynamically) --}}
-    <div class="space-y-12">
+    {{-- Content Loop --}}
+    <div class="space-y-12 w-full">
         @forelse($contents as $item)
             @php
                 $extension = strtolower(pathinfo($item->csv_path, PATHINFO_EXTENSION));
@@ -84,7 +95,7 @@
             @endphp
 
             <div id="item-{{ $item->id }}" x-data="{ expanded: {{ $isExpanded }} }" class="border-b border-gray-100 pb-10 last:border-0">
-                <h2 class="text-xl font-bold text-gray-900 uppercase tracking-tight mb-2">
+                <h2 class="text-xl md:text-[1.35rem] font-extrabold text-gray-900 uppercase tracking-tight mb-2">
                     {{ $item->created_at->format('F d, Y') }} - {{ $item->title }}
                 </h2>
                 
@@ -94,7 +105,6 @@
 
                 <div class="flex items-center gap-4 mt-4">
                     @if($canPreview)
-                        {{-- UPDATED: Records the item ID into the hidden input when opened --}}
                         <button @click="expanded = !expanded; document.getElementById('expandInput').value = expanded ? '{{ $item->id }}' : ''" 
                                 class="border border-[#003366] px-6 py-2 text-xs font-bold uppercase tracking-widest text-[#003366] hover:bg-blue-50 transition shadow-sm flex items-center gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +154,6 @@
                             </table>
                         </div>
                         <div class="p-4 border-t border-gray-100 bg-gray-50">
-                            {{-- Keeps URL parameters active during pagination --}}
                             {{ $item->tableData->appends(array_merge(request()->query(), ['expand' => $item->id]))->fragment('item-' . $item->id)->links() }}
                         </div>
                     @elseif($isPdf)
@@ -155,7 +164,7 @@
                 </div>
             </div>
         @empty
-            <div class="text-gray-500 text-center py-20 bg-gray-50 rounded-xl border border-dashed border-gray-300">
+            <div class="text-gray-500 font-sans text-[15px] bg-gray-50 p-6 rounded-lg border border-dashed border-gray-200">
                 No curriculum data available for the selected filters.
             </div>
         @endforelse
@@ -165,7 +174,6 @@
 <script>
     function setTab(tabName) {
         document.getElementById('tabInput').value = tabName;
-        // Clear the expand state when switching tabs so it doesn't try to open an irrelevant item
         document.getElementById('expandInput').value = ''; 
         document.getElementById('filterForm').submit();
     }
