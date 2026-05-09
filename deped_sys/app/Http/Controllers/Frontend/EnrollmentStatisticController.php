@@ -8,10 +8,31 @@ use Illuminate\Http\Request;
 
 class EnrollmentStatisticController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Paginate the statistics (10 per page)
-        $items = EnrollmentStatistic::latest()->paginate(5);
+        $query = EnrollmentStatistic::query();
+
+        // Filter by Year
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Filter by Month
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Filter by Keyword Search (Title or Content)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate and retain search filters in the URL (Set to 10)
+        $items = $query->latest()->paginate(10)->withQueryString();
         $type_name = 'Enrollment Statistics';
         
         return view('frontend.enrollment_statistics.index', compact('items', 'type_name'));

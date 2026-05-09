@@ -8,9 +8,31 @@ use Illuminate\Http\Request;
 
 class AlsImplementerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $items = AlsImplementer::latest()->paginate(5);
+        $query = AlsImplementer::query();
+
+        // Filter by Year
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Filter by Month
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Filter by Keyword Search (Title or Content)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('content', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate and retain search filters in the URL (Set to 10 for consistency)
+        $items = $query->latest()->paginate(10)->withQueryString();
         $type_name = 'Featured ALS Implementers';
         
         return view('frontend.als_implementers.index', compact('items', 'type_name'));
