@@ -53,7 +53,8 @@ use App\Models\CitizenCharter;
 // --- IMPORTS FOR DYNAMIC PAGES ---
 use App\Http\Controllers\Admin\PageController as AdminPageController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
-use App\Http\Controllers\Admin\PageSectionController; // <-- ADDED: Page Section Controller
+use App\Http\Controllers\Admin\PageSectionController;
+use App\Http\Controllers\Frontend\PageSearchController; // <-- ADDED: Page Search Controller
 
 // --- IMPORTS FOR ORGANIZATIONAL CHART & DIVISIONS ---
 use App\Http\Controllers\OrgChartController;
@@ -251,6 +252,11 @@ Route::prefix('procurement/{category}')->name('procurement.')->group(function ()
     Route::get('/', [BidOpportunityController::class, 'index'])->name('index');
     Route::get('/{id}', [BidOpportunityController::class, 'show'])->name('show');
 });
+
+
+// 🟢 NEW GLOBAL PAGE SEARCH ROUTE
+// This must stay ABOVE the /{slug} route below!
+Route::get('/page-search', [PageSearchController::class, 'search'])->name('pages.search');
 
 // NEW PUBLIC ROUTE FOR DYNAMIC PAGES
 Route::get('/page/{slug}', [FrontendPageController::class, 'show'])->name('frontend.page');
@@ -468,4 +474,4 @@ Route::middleware(['auth'])->group(function () {
             Route::delete('/{id}', [ProcurementController::class, 'destroy'])->name('destroy');
         });
     }); 
-}); 
+});
