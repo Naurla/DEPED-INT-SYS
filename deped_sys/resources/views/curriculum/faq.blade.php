@@ -24,6 +24,36 @@
         <p class="mt-2 text-gray-600 text-[15px]">Find answers to common questions about the K to 12 Curriculum.</p>
     </div>
 
+    {{-- 🟢 NEW: Auto-Submitting Search Bar --}}
+    <div class="mb-8 w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
+        <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+            
+            <div class="w-full md:flex-[3]">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search FAQs</label>
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all" 
+                    placeholder="Search for a question or keyword..." 
+                    value="{{ request('search') }}"
+                >
+            </div>
+
+            <div class="w-full md:w-auto flex gap-2">
+                <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                    Search
+                </button>
+
+                @if(request()->filled('search'))
+                    <a href="{{ url()->current() }}" class="flex items-center justify-center w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                        Clear
+                    </a>
+                @endif
+            </div>
+        </form>
+    </div>
+    {{-- 🔴 END Filter Bar --}}
+
     {{-- FAQ Accordion Section (Now spanning full width) --}}
     <div class="w-full">
         <div class="space-y-4">
@@ -53,7 +83,11 @@
                 </div>
             @empty
                 <div class="text-center text-gray-500 py-8 bg-white border border-gray-200 rounded-lg shadow-sm font-sans text-[15px]">
-                    Check back later. We are currently updating our FAQs.
+                    @if(request()->filled('search'))
+                        No FAQs found matching your search.
+                    @else
+                        Check back later. We are currently updating our FAQs.
+                    @endif
                 </div>
             @endforelse
         </div>

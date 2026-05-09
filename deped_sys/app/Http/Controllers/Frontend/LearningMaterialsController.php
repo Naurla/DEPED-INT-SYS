@@ -6,12 +6,34 @@ use App\Http\Controllers\Controller;
 use App\Models\LearningMaterials;
 use Illuminate\Http\Request;
 
-class LearningMaterialsController extends Controller // <-- CHANGED THIS TO PLURAL
+class LearningMaterialsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Changed from get() to paginate(10)
-        $materials = LearningMaterials::latest()->paginate(5);
+        $query = LearningMaterials::query();
+
+        // Filter by Year
+        if ($request->filled('year')) {
+            $query->whereYear('created_at', $request->year);
+        }
+
+        // Filter by Month
+        if ($request->filled('month')) {
+            $query->whereMonth('created_at', $request->month);
+        }
+
+        // Filter by Keyword Search (Title or Description)
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                  ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Paginate and retain search filters in the URL (Set to 10)
+        $materials = $query->latest()->paginate(10)->withQueryString();
+        
         return view('learning_materials.index', compact('materials'));
     }
 

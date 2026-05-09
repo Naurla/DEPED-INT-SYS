@@ -11,6 +11,7 @@ use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\ProcurementController;
 use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
+use App\Http\Controllers\Frontend\FaqController as FrontendFaqController;
 use App\Models\Banner;
 use App\Models\Advisory; 
 use App\Models\Faq; 
@@ -218,10 +219,7 @@ Route::prefix('k-to-12')->name('k12.')->group(function () {
     // About under K to 12
     Route::prefix('about')->name('about.')->group(function () {
         Route::get('/curriculum', [FrontendCurriculumController::class, 'index'])->name('curriculum');
-        Route::get('/faq', function () {
-            $faqs = Faq::where('is_active', true)->get();
-            return view('curriculum.faq', compact('faqs'));
-        })->name('faq');
+        Route::get('/faq', [FrontendFaqController::class, 'index'])->name('faq');
     });
 
     // Alternative Learning System (ALS)
