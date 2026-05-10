@@ -101,6 +101,7 @@
                   ]
               },
               {
+              {{--
                   category: 'Custom Dynamic Pages',
                   pages: [
                       @if(isset($navPages) && count($navPages) > 0)
@@ -109,6 +110,7 @@
                           @endforeach
                       @endif
                   ]
+                  --}}
               }
           ],
           
