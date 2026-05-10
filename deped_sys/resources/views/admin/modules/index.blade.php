@@ -214,12 +214,12 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Cover Image</label>
-                            <input type="file" name="image" accept="image/*" :disabled="isSubmitting" class="w-full border @if(old('form_type') === 'add' && $errors->has('image')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="image" accept="image/*" class="w-full border @if(old('form_type') === 'add' && $errors->has('image')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
                             @if(old('form_type') === 'add') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                         </div>
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Document File <span class="text-red-500">*</span></label>
-                            <input type="file" name="file" required accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv" :disabled="isSubmitting" class="w-full border @if(old('form_type') === 'add' && $errors->has('file')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="file" required accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv" class="w-full border @if(old('form_type') === 'add' && $errors->has('file')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
                             @if(old('form_type') === 'add') @error('file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                         </div>
                     </div>
@@ -273,7 +273,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace Cover Image</label>
-                            <input type="file" name="image" accept="image/*" :disabled="isSubmitting" class="w-full border @if(old('form_type') === 'edit' && $errors->has('image')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="image" accept="image/*" class="w-full border @if(old('form_type') === 'edit' && $errors->has('image')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
                             @if(old('form_type') === 'edit') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                             
                             <template x-if="editModule && editModule.image_path && !removeImage">
@@ -291,7 +291,7 @@
 
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace Document File</label>
-                            <input type="file" name="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv" :disabled="isSubmitting" class="w-full border @if(old('form_type') === 'edit' && $errors->has('file')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="file" accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.csv" class="w-full border @if(old('form_type') === 'edit' && $errors->has('file')) border-red-500 @else border-gray-300 @endif p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white">
                             @if(old('form_type') === 'edit') @error('file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                             
                             <template x-if="editModule && editModule.file_path && !removeFile">

@@ -51,7 +51,7 @@ class ModulesController extends Controller {
     public function store(Request $request) {
         $request->validate([
             // Added unique validation to prevent duplicate module titles
-            'title' => 'required|string|max:255|unique:modules,title',
+            'title' => 'required|string|max:255|unique:k12_modules,title',
             'description' => 'required|string',
             'file' => 'required|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
@@ -85,7 +85,7 @@ class ModulesController extends Controller {
         
         $data = $request->validate([
             // Ignore the current record's ID to allow updating the same module
-            'title' => 'required|string|max:255|unique:modules,title,' . $id,
+            'title' => 'required|string|max:255|unique:k12_modules,title,' . $id,
             'description' => 'required|string',
             'file' => 'nullable|file|mimes:pdf,doc,docx,ppt,pptx,csv,xls,xlsx|max:20480',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
