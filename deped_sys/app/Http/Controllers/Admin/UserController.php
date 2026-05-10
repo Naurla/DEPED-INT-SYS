@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Page; // Imported Page model
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
@@ -71,7 +72,10 @@ class UserController extends Controller
             ->orderBy('year', 'desc')
             ->pluck('year');
 
-        return view('admin.users.index', compact('users', 'roles', 'years'));
+        // Fetch hierarchical dynamic pages 
+        $dynamicPages = Page::with('children')->whereNull('parent_id')->get();
+
+        return view('admin.users.index', compact('users', 'roles', 'years', 'dynamicPages'));
     }
 
     public function store(Request $request)
