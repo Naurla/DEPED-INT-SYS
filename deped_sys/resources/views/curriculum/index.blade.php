@@ -38,10 +38,52 @@
 {{-- Main Container (using the exact same md:px-20 layout padding) --}}
 <div class="container mx-auto px-4 md:px-20 max-w-10xl py-8 md:py-12 w-full overflow-hidden min-h-screen">
     
-    {{-- Main Page Title (Matched to standard layout h1) --}}
-    <div class="mb-6 md:mb-10 text-left w-full break-words">
-        <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">K-to-12 Basic Education Curriculum</h1>
-    </div>
+    {{-- Wrap the header and search in a single form --}}
+    <form action="{{ url()->current() }}" method="GET">
+        
+        {{-- Header Section: Title on Left, Search on Right --}}
+        <div class="mb-10 w-full border-b border-gray-100 pb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+            
+            <div class="shrink-0">
+                <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">
+                    K-to-12 Basic Education Curriculum
+                </h1>
+            </div>
+
+            {{-- Unified Filter & Search Bar moved to Top Right --}}
+            <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto lg:justify-end">
+
+                {{-- Search Bar with Icon --}}
+                <div class="w-full sm:w-72 relative">
+                    <label class="sr-only">Search Curriculum</label>
+                    
+                    {{-- Magnifying Glass SVG Icon --}}
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="w-full border-gray-400 rounded-full shadow-sm pl-10 pr-5 py-2.5 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all bg-white" 
+                        placeholder="Search learning strands..." 
+                        value="{{ request('search') }}"
+                        onkeydown="if(event.key === 'Enter'){ event.preventDefault(); this.form.submit(); }"
+                    >
+                </div>
+
+                {{-- Clear Button --}}
+                @if(request()->filled('search'))
+                    <a href="{{ url()->current() }}" title="Clear Search" class="flex items-center justify-center w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-full uppercase text-xs tracking-wider transition-colors shadow-sm">
+                        Clear
+                    </a>
+                @endif
+
+            </div>
+        </div>
+    </form>
 
     {{-- Element 1: Dynamic Image --}}
     @if($pageData && $pageData->banner_image_path)
@@ -58,36 +100,6 @@
             K-to-12 Basic Education Curriculum
         </h2>
     </div>
-
-    {{-- 🟢 NEW: Unified Search Bar --}}
-    <div class="mb-12 w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
-        <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
-            
-            <div class="w-full md:flex-[3]">
-                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search Curriculum</label>
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all" 
-                    placeholder="Search learning strands or curriculum guides..." 
-                    value="{{ request('search') }}"
-                >
-            </div>
-
-            <div class="w-full md:w-auto flex gap-2">
-                <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
-                    Search
-                </button>
-
-                @if(request()->filled('search'))
-                    <a href="{{ url()->current() }}" class="flex items-center justify-center w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
-                        Clear
-                    </a>
-                @endif
-            </div>
-        </form>
-    </div>
-    {{-- 🔴 END Filter Bar --}}
 
     {{-- Element 2: Learning Strands Cards --}}
     <div class="mb-16 w-full break-words">
