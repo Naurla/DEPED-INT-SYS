@@ -19,12 +19,13 @@ class SgodController extends Controller
     {
         $messages = [
             'title.unique' => 'This Title already exists. Please provide a unique entry.',
+            'image.required' => 'An image is required for this section.',
         ];
 
         $request->validate([
             'title' => 'required|string|max:255|unique:sgods,title',
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'description' => 'required|string',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Image is now strictly required
         ], $messages);
 
         $data = $request->only(['title', 'description']);
@@ -35,7 +36,7 @@ class SgodController extends Controller
 
         Sgod::create($data);
 
-        return back()->with('success', 'SGOD Chart uploaded successfully.');
+        return back()->with('success', 'SGOD section added successfully.');
     }
 
     public function update(Request $request, Sgod $sgod)
@@ -45,29 +46,32 @@ class SgodController extends Controller
         ];
 
         $request->validate([
-            // Ignore the current record's ID to allow updating without triggering the unique error on itself
             'title' => 'required|string|max:255|unique:sgods,title,' . $sgod->id,
-            'description' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'description' => 'required|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // Optional on edit so they don't have to re-upload
         ], $messages);
 
         $data = $request->only(['title', 'description']);
 
         if ($request->hasFile('image')) {
-            if ($sgod->image_path) Storage::disk('public')->delete($sgod->image_path);
+            if ($sgod->image_path) {
+                Storage::disk('public')->delete($sgod->image_path);
+            }
             $data['image_path'] = $request->file('image')->store('sgod/images', 'public');
         }
 
         $sgod->update($data);
 
-        return back()->with('success', 'SGOD Chart updated successfully.');
+        return back()->with('success', 'SGOD section updated successfully.');
     }
 
     public function destroy(Sgod $sgod)
     {
-        if ($sgod->image_path) Storage::disk('public')->delete($sgod->image_path);
+        if ($sgod->image_path) {
+            Storage::disk('public')->delete($sgod->image_path);
+        }
         $sgod->delete();
 
-        return back()->with('success', 'SGOD Chart deleted successfully.');
+        return back()->with('success', 'SGOD section deleted successfully.');
     }
 }

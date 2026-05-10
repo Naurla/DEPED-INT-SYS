@@ -72,7 +72,8 @@ class FaqController extends Controller
         Faq::create([
             'question' => $request->question,
             'answer' => $formattedAnswer,
-            'is_active' => $request->has('is_active') ? 1 : 0,
+            // $request->boolean() accurately translates "1", "0", "true", "false", or missing to a strict boolean
+            'is_active' => $request->boolean('is_active') ? 1 : 0,
         ]);
 
         return redirect()->route('admin.faq.index')->with('success', 'FAQ added successfully.');
@@ -97,7 +98,8 @@ class FaqController extends Controller
         $faq->update([
             'question' => $request->question,
             'answer' => $formattedAnswer,
-            'is_active' => $request->has('is_active') ? 1 : 0,
+            // Uses robust boolean checking instead of just check for presence
+            'is_active' => $request->boolean('is_active') ? 1 : 0,
         ]);
 
         return redirect()->route('admin.faq.index')->with('success', 'FAQ updated successfully.');

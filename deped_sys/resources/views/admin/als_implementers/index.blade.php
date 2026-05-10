@@ -166,7 +166,7 @@
 
                             <td class="p-4 align-middle">
                                 <div class="flex justify-end gap-3 items-center">
-                                    <button @click="openEdit({{ $implementer->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                    <button @click="openEdit({{ collect($implementer)->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
                                     <button @click="confirmDelete({{ $implementer->id }}, '{{ addslashes($implementer->title) }}')" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                                 </div>
                             </td>
@@ -212,14 +212,15 @@
                     </div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        {{-- FIX: Swapped :disabled for :class opacity/pointer events so files actually submit --}}
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Photo</label>
-                            <input type="file" name="image" accept="image/*" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="image" accept="image/*" :class="isSubmitting ? 'opacity-50 pointer-events-none' : ''" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white transition-opacity">
                             @if(old('form_type') === 'add') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                         </div>
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Document File</label>
-                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" :class="isSubmitting ? 'opacity-50 pointer-events-none' : ''" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white transition-opacity">
                             @if(old('form_type') === 'add') @error('file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
                         </div>
                     </div>
@@ -271,11 +272,11 @@
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-6 rounded-lg border border-gray-200">
+                        {{-- FIX: Swapped :disabled for :class opacity/pointer events so files actually submit --}}
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace Photo</label>
-                            <input type="file" name="image" accept="image/*" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="image" accept="image/*" :class="isSubmitting ? 'opacity-50 pointer-events-none' : ''" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white transition-opacity">
                             @if(old('form_type') === 'edit') @error('image') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
-                            
                             <template x-if="editImplementer && editImplementer.image_path && !removeImage">
                                 <div class="mt-3 flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                     <span class="text-base text-blue-800 font-bold truncate max-w-[200px]" x-text="'Current: ' + editImplementer.image_path.split('/').pop()"></span>
@@ -289,9 +290,8 @@
 
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace Document</label>
-                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            <input type="file" name="file" accept=".pdf,.xlsx,.xls,.csv,.doc,.docx" :class="isSubmitting ? 'opacity-50 pointer-events-none' : ''" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white transition-opacity">
                             @if(old('form_type') === 'edit') @error('file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror @endif
-                            
                             <template x-if="editImplementer && editImplementer.file_path && !removeFile">
                                 <div class="mt-3 flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg">
                                     <span class="text-base text-red-800 font-bold truncate max-w-[200px]" x-text="'Current: ' + editImplementer.file_path.split('/').pop()"></span>
@@ -304,7 +304,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
                     <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
                         <span x-show="!isSubmitting">Update Record</span>
@@ -391,7 +391,7 @@
             </div>
             
             <div class="flex">
-                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                <button type="button" @click="successModal = false" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-700 px-6 py-3 text-base font-bold text-white shadow-sm hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
                     Continue
                 </button>
             </div>

@@ -232,7 +232,8 @@
                     <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 space-y-6">
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Upload PDF Document <span class="font-normal text-gray-500 text-base">(Optional if link is provided)</span></label>
-                            <input type="file" name="pdf_file" accept=".pdf" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            {{-- FIX: Removed :disabled="isSubmitting", added class binding --}}
+                            <input type="file" name="pdf_file" accept=".pdf" :class="isSubmitting ? 'opacity-50 pointer-events-none' : ''" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white transition-opacity">
                             @error('pdf_file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror
                         </div>
                         
@@ -303,7 +304,8 @@
                     <div class="bg-gray-50 p-6 rounded-lg border border-gray-200 space-y-6">
                         <div>
                             <label class="block text-gray-800 text-lg font-bold mb-2">Replace PDF Document <span class="font-normal text-gray-500 text-base">(Leave blank to keep current)</span></label>
-                            <input type="file" name="pdf_file" accept=".pdf" :disabled="isSubmitting" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white disabled:opacity-50">
+                            {{-- FIX: Removed :disabled="isSubmitting", added class binding --}}
+                            <input type="file" name="pdf_file" accept=".pdf" :class="isSubmitting ? 'opacity-50 pointer-events-none' : ''" class="w-full border border-gray-300 p-3.5 rounded-lg text-lg text-gray-600 file:mr-5 file:py-3 file:px-6 file:rounded-md file:border-0 file:text-base file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer bg-white transition-opacity">
                             @error('pdf_file') <p class="text-red-500 text-base mt-1.5 font-medium">{{ $message }}</p> @enderror
                             
                             <template x-if="editIssuance && editIssuance.pdf_path && !removePdf">
@@ -428,4 +430,4 @@
         </div>
     </div>
 </div>
-@endsection
+@endsection 

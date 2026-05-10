@@ -25,7 +25,8 @@
     <div class="w-full max-w-md px-4 mt-12 md:mt-0">
         <div class="bg-white rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.08)] border border-gray-100 overflow-hidden" 
              x-data="{ 
-                view: '{{ session('status') ? 'verify' : (old('code') ? 'new_password' : (session('reset_success') ? 'login' : (old('email') && !$errors->has('password') ? 'forgot' : 'login'))) }}',
+                // FIXED logic to reliably return to the correct view based on the form submitted
+                view: '{{ session('status') ? 'verify' : (session('reset_success') ? 'login' : (old('form_type') === 'reset' ? 'new_password' : (old('form_type') === 'forgot' ? 'forgot' : 'login'))) }}',
                 email: '{{ old('email') }}',
                 resetCode: '{{ old('code') }}'
              }">
@@ -61,6 +62,8 @@
                 {{-- 1. LOGIN FORM --}}
                 <form action="{{ route('admin.login') }}" method="POST" x-show="view === 'login'" x-transition>
                     @csrf
+                    <input type="hidden" name="form_type" value="login"> {{-- Added hidden flag --}}
+                    
                     <div class="mb-5">
                         <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Email Address</label>
                         <input type="email" name="email" x-model="email" required class="w-full bg-gray-50 border border-gray-300 px-4 py-3 rounded-lg focus:ring-2 focus:ring-[#a52a2a] focus:bg-white outline-none transition-colors text-sm">
@@ -80,6 +83,8 @@
                 {{-- 2. FORGOT PASSWORD (EMAIL SUBMISSION) --}}
                 <form action="/admin/password/email" method="POST" x-show="view === 'forgot'" x-cloak x-transition>
                     @csrf
+                    <input type="hidden" name="form_type" value="forgot"> {{-- Added hidden flag --}}
+                    
                     <p class="text-sm text-gray-600 mb-6 leading-relaxed">Enter your registered email address to receive a 6-digit verification code.</p>
                     <div class="mb-8">
                         <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Email Address</label>
@@ -117,10 +122,10 @@
                     </div>
                 </div>
 
-                {{-- 4. NEW PASSWORD FORM (Code is now hidden) --}}
+                {{-- 4. NEW PASSWORD FORM --}}
                 <form action="/admin/password/reset" method="POST" x-show="view === 'new_password'" x-cloak x-transition>
                     @csrf
-                    {{-- Hidden Fields --}}
+                    <input type="hidden" name="form_type" value="reset"> {{-- Added hidden flag --}}
                     <input type="hidden" name="email" :value="email">
                     <input type="hidden" name="code" :value="resetCode">
                     
