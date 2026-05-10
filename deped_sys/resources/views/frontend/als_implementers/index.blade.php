@@ -14,41 +14,52 @@
 {{-- Main Container --}}
 <div class="container mx-auto px-4 md:px-20 max-w-10xl py-12 w-full min-h-screen">
     
-    <div class="mb-8 md:mb-12 text-left w-full break-words border-b border-gray-100 pb-6">
-        <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">
-            {{ $type_name ?? 'FEATURED ALS IMPLEMENTERS' }}
-        </h1>
-    </div>
-
-    {{-- 🟢 NEW: Auto-Submitting Filter Bar --}}
-    <div class="mb-10 w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
-        <form action="{{ url()->current() }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
+    {{-- Wrap the header and filters in a single form --}}
+    <form action="{{ url()->current() }}" method="GET">
+        
+        {{-- Header Section: Title on Left, Controls on Right --}}
+        <div class="mb-10 w-full border-b border-gray-100 pb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
             
-            <div class="w-full md:flex-[2]">
-                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search Keyword</label>
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all" 
-                    placeholder="Search title or content..." 
-                    value="{{ request('search') }}"
-                >
+            <div class="shrink-0">
+                <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">
+                    {{ $type_name ?? 'FEATURED ALS IMPLEMENTERS' }}
+                </h1>
             </div>
 
-            <div class="w-full md:flex-1">
-                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Filter Year</label>
-                <select name="year" onchange="this.form.submit()" class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer">
+            {{-- Unified Filter & Search Bar moved to Top Right --}}
+            <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto lg:justify-end">
+
+                {{-- Search Bar with Icon --}}
+                <div class="w-full sm:w-64 relative">
+                    <label class="sr-only">Search Keyword</label>
+                    
+                    {{-- Magnifying Glass SVG Icon --}}
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="w-full border-gray-400 rounded-full shadow-sm pl-10 pr-5 py-2.5 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all bg-white" 
+                        placeholder="Search & hit Enter..." 
+                        value="{{ request('search') }}"
+                    >
+                </div>
+
+                {{-- Filter Year --}}
+                <select name="year" onchange="this.form.submit()" class="w-full sm:w-auto border-gray-400 rounded-full shadow-sm px-5 py-2.5 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer bg-white">
                     <option value="">All Years</option>
                     @php $currentYear = date('Y'); @endphp
                     @for($i = $currentYear; $i >= $currentYear - 5; $i--)
                         <option value="{{ $i }}" {{ request('year') == $i ? 'selected' : '' }}>{{ $i }}</option>
                     @endfor
                 </select>
-            </div>
 
-            <div class="w-full md:flex-1">
-                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Filter Month</label>
-                <select name="month" onchange="this.form.submit()" class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer">
+                {{-- Filter Month --}}
+                <select name="month" onchange="this.form.submit()" class="w-full sm:w-auto border-gray-400 rounded-full shadow-sm px-5 py-2.5 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer bg-white">
                     <option value="">All Months</option>
                     @foreach(range(1, 12) as $m)
                         <option value="{{ str_pad($m, 2, '0', STR_PAD_LEFT) }}" {{ request('month') == str_pad($m, 2, '0', STR_PAD_LEFT) ? 'selected' : '' }}>
@@ -56,22 +67,17 @@
                         </option>
                     @endforeach
                 </select>
-            </div>
 
-            <div class="w-full md:w-auto flex gap-2">
-                <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
-                    Search
-                </button>
-
+                {{-- Clear Button --}}
                 @if(request()->filled('search') || request()->filled('year') || request()->filled('month'))
-                    <a href="{{ url()->current() }}" class="flex items-center justify-center w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
+                    <a href="{{ url()->current() }}" title="Clear Filters" class="flex items-center justify-center w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-full uppercase text-xs tracking-wider transition-colors shadow-sm">
                         Clear
                     </a>
                 @endif
+
             </div>
-        </form>
-    </div>
-    {{-- 🔴 END Filter Bar --}}
+        </div>
+    </form>
 
     {{-- w-full applied to consume the whole page --}}
     <div class="w-full space-y-12">

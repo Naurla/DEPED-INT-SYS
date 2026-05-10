@@ -14,20 +14,68 @@
 
 <div class="container mx-auto px-4 md:px-20 max-w-10xl py-12 w-full min-h-screen">
     
-    <div class="mb-6 md:mb-8 text-left w-full break-words border-b border-gray-100 pb-6">
-        <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">
-            Senior High School Curriculum
-        </h1>
-    </div>
-
-    {{-- Filter Form --}}
-    <form id="filterForm" method="GET" action="{{ url()->current() }}" class="mb-8">
+    <form id="filterForm" method="GET" action="{{ url()->current() }}">
         <input type="hidden" name="tab" id="tabInput" value="{{ $tab }}">
         {{-- Hidden input to remember which document is open --}}
         <input type="hidden" name="expand" id="expandInput" value="{{ request('expand') }}">
         
+        {{-- Header Section: Title on Left, Controls on Right --}}
+        <div class="w-full flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-6">
+            
+            <div class="shrink-0">
+                <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase">
+                    Senior High School Curriculum
+                </h1>
+            </div>
+
+            {{-- Unified Filter & Search Bar moved to Top Right --}}
+            <div class="flex flex-col sm:flex-row flex-wrap items-center gap-3 w-full lg:w-auto lg:justify-end">
+
+                {{-- Search Bar with Icon --}}
+                <div class="w-full sm:w-64 relative">
+                    <label class="sr-only">Search Keyword</label>
+                    
+                    {{-- Magnifying Glass SVG Icon --}}
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <svg class="h-4 w-4 text-gray-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="w-full border-gray-400 rounded-full shadow-sm pl-10 pr-5 py-2.5 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all bg-white" 
+                        placeholder="Search & hit Enter..." 
+                        value="{{ request('search') }}"
+                        onkeydown="if(event.key === 'Enter'){ event.preventDefault(); document.getElementById('filterForm').submit(); }"
+                    >
+                </div>
+
+                {{-- Filter District --}}
+                @if(!empty($districts))
+                    <select name="district" onchange="document.getElementById('filterForm').submit()" class="w-full sm:w-auto border-gray-400 rounded-full shadow-sm px-5 py-2.5 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer bg-white">
+                        <option value="">All Districts</option>
+                        @foreach($districts as $districtOption)
+                            <option value="{{ $districtOption }}" {{ $districtFilter === $districtOption ? 'selected' : '' }}>
+                                {{ $districtOption }}
+                            </option>
+                        @endforeach
+                    </select>
+                @endif
+
+                {{-- Clear Button --}}
+                @if(request()->filled('search') || request()->filled('district'))
+                    <a href="{{ url()->current() }}?tab={{ $tab }}" title="Clear Filters" class="flex items-center justify-center w-full sm:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2.5 px-6 rounded-full uppercase text-xs tracking-wider transition-colors shadow-sm">
+                        Clear
+                    </a>
+                @endif
+
+            </div>
+        </div>
+
         {{-- Tabs --}}
-        <div class="flex overflow-x-auto hide-scroll mb-6 border-b border-gray-200">
+        <div class="flex overflow-x-auto hide-scroll mb-10 border-b border-gray-200">
             <button type="button" onclick="setTab('public')"
                     class="{{ $tab === 'public' ? 'border-[#003366] text-[#003366]' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} py-4 px-6 font-bold text-sm border-b-2 uppercase tracking-wider whitespace-nowrap transition-colors">
                 Public Schools
@@ -37,47 +85,6 @@
                 Private Schools
             </button>
         </div>
-
-        {{-- 🟢 NEW: Sleek Filter Bar --}}
-        <div class="w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
-            <div class="flex flex-col md:flex-row gap-4 items-end">
-                
-                <div class="w-full md:flex-[2]">
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search Keyword</label>
-                    <input type="text" name="search" value="{{ request('search') }}" placeholder="Search title or content..." 
-                           class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all"
-                           onkeydown="if(event.key === 'Enter'){ event.preventDefault(); document.getElementById('filterForm').submit(); }">
-                </div>
-
-                @if(!empty($districts))
-                <div class="w-full md:flex-1">
-                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Filter District</label>
-                    <select name="district" onchange="document.getElementById('filterForm').submit()" 
-                            class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all cursor-pointer">
-                        <option value="">All Districts</option>
-                        @foreach($districts as $districtOption)
-                            <option value="{{ $districtOption }}" {{ $districtFilter === $districtOption ? 'selected' : '' }}>
-                                {{ $districtOption }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-                @endif
-
-                <div class="w-full md:w-auto flex gap-2">
-                    <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
-                        Search
-                    </button>
-
-                    @if(request()->filled('search') || request()->filled('district'))
-                        <a href="{{ url()->current() }}?tab={{ $tab }}" class="flex items-center justify-center w-full md:w-auto bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-6 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
-                            Clear
-                        </a>
-                    @endif
-                </div>
-            </div>
-        </div>
-        {{-- 🔴 END Filter Bar --}}
     </form>
 
     {{-- Content Loop (Handles both Public and Private dynamically) --}}
