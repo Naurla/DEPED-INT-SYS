@@ -9,6 +9,44 @@
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #fca5a5; border-radius: 10px; }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #ef4444; }
+
+    /* Custom Checkbox Styling for the Red Theme */
+    input[type="checkbox"].theme-checkbox {
+        appearance: none; /* Removes the default browser styling (black square) */
+        -webkit-appearance: none;
+        background-color: #fff;
+        border: 1px solid #d1d5db; /* Gray-300 border */
+        border-radius: 0.25rem;
+        cursor: pointer;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease-in-out;
+    }
+
+    input[type="checkbox"].theme-checkbox:checked {
+        background-color: #dc2626 !important; /* Tailwind Red-600 */
+        border-color: #dc2626 !important;
+    }
+
+    /* Injects the white checkmark SVG when checked */
+    input[type="checkbox"].theme-checkbox:checked::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+        background-size: 90% 90%;
+        background-position: center;
+        background-repeat: no-repeat;
+    }
+
+    /* Custom Focus Ring */
+    input[type="checkbox"].theme-checkbox:focus {
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3) !important;
+    }
 </style>
 
 <div x-data="{ 
@@ -65,23 +103,26 @@
             category: 'Core System',
             permissions: [
                 { value: 'dashboard', label: 'Dashboard' },
-                { value: 'settings', label: 'Site Settings' },
-                { value: 'users', label: 'User Management' },
-                { value: 'logos', label: 'Site Logos' },
+                { value: 'settings', label: 'System Settings' },
+                { value: 'users', label: 'User & Role Management' }
+            ]
+        },
+        {
+            category: 'Website Content',
+            permissions: [
+                { value: 'pages', label: 'Custom Pages' },
                 { value: 'banners', label: 'Banners' },
-                { value: 'faq', label: 'FAQ Management' },
-                { value: 'pages', label: 'Manage Custom Pages' }
+                { value: 'logos', label: 'Site Logos' }
             ]
         },
         {
             category: 'About & Organization',
             permissions: [
-                { value: 'about', label: 'Manage About (Full Access)' },
-                { value: 'qms', label: 'QMS' },
+                { value: 'qms', label: 'Quality Management System (QMS)' },
                 { value: 'vision_mission', label: 'Vision & Mission' },
                 { value: 'data_privacy', label: 'Data Privacy' },
                 { value: 'citizen_charter', label: 'Citizen\'s Charter' },
-                { value: 'org_chart', label: 'Org Chart' },
+                { value: 'org_chart', label: 'Organizational Chart' },
                 { value: 'division_structures', label: 'Division Structures' },
                 { value: 'sgod', label: 'SGOD' },
                 { value: 'osds', label: 'OSDS' },
@@ -91,7 +132,6 @@
         {
             category: 'Division Issuances',
             permissions: [
-                { value: 'issuances', label: 'Issuances (Full Access)' },
                 { value: 'advisories', label: 'Advisories' },
                 { value: 'memoranda', label: 'Memoranda' },
                 { value: 'hrmpsb', label: 'HRMPSB' }
@@ -100,10 +140,12 @@
         {
             category: 'K-12 & Curriculum',
             permissions: [
-                { value: 'curriculum', label: 'Curriculum (Full Access)' },
-                { value: 'materials', label: 'Learning Materials' },
+                { value: 'curriculum', label: 'K to 12 Basic Education' },
+                { value: 'elementary', label: 'Elementary' },
                 { value: 'junior_high', label: 'Junior High School' },
-                { value: 'senior_high', label: 'Senior High School' }
+                { value: 'senior_high', label: 'Senior High School' },
+                { value: 'materials', label: 'Learning Materials' },
+                { value: 'faq', label: 'FAQ Management' }
             ]
         },
         {
@@ -118,7 +160,6 @@
         {
             category: 'Procurement',
             permissions: [
-                { value: 'procurement', label: 'Procurement (Full Access)' },
                 { value: 'procurement_bid_opportunities', label: 'Bid Opportunities' },
                 { value: 'procurement_apcpi', label: 'APCPI' },
                 { value: 'procurement_app_cse', label: 'APP CSE' },
@@ -339,7 +380,115 @@
         </div>
     </div>
 
+    {{-- ========================================== --}}
+    {{-- MODAL: ADD USER --}}
+    {{-- ========================================== --}}
+    <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddUserModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Create New User</h3>
+                <button type="button" @click="showAddUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+            </div>
+            
+            <form action="/admin/users" method="POST" class="flex flex-col overflow-hidden min-h-0">
+                @csrf
+                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-sm font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="Juan Dela Cruz">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-sm font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="juan@deped.gov.ph">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-sm font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
+                        <select name="role_id" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white">
+                            <option value="">Select a role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-gray-800 text-sm font-bold mb-2">Password <span class="text-red-500">*</span></label>
+                            <input type="password" name="password" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
+                        </div>
+                        <div>
+                            <label class="block text-gray-800 text-sm font-bold mb-2">Confirm Password <span class="text-red-500">*</span></label>
+                            <input type="password" name="password_confirmation" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors">Create User</button>
+                    <button type="button" @click="showAddUserModal = false" class="px-6 py-3 font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {{-- ========================================== --}}
+    {{-- MODAL: EDIT USER --}}
+    {{-- ========================================== --}}
+    <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditUserModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Edit User</h3>
+                <button type="button" @click="showEditUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+            </div>
+            
+            <form :action="'/admin/users/' + editUserData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
+                @csrf
+                @method('PUT')
+                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-sm font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="editUserData.name" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-sm font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" x-model="editUserData.email" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-sm font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
+                        <select name="role_id" x-model="editUserData.role_id" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white">
+                            <option value="">Select a role</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    
+                    <div class="pt-4 border-t border-gray-200 mt-6">
+                        <p class="text-sm text-gray-500 italic mb-4">Leave passwords blank if you do not want to change them.</p>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                            <div>
+                                <label class="block text-gray-800 text-sm font-bold mb-2">New Password</label>
+                                <input type="password" name="password" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
+                            </div>
+                            <div>
+                                <label class="block text-gray-800 text-sm font-bold mb-2">Confirm New Password</label>
+                                <input type="password" name="password_confirmation" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors">Update User</button>
+                    <button type="button" @click="showEditUserModal = false" class="px-6 py-3 font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    {{-- ========================================== --}}
     {{-- MODAL: ADD ROLE --}}
+    {{-- ========================================== --}}
     <div x-show="showAddRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddRoleModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
@@ -352,7 +501,7 @@
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Role Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all" placeholder="e.g. Content Editor">
+                        <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="e.g. Content Editor">
                     </div>
                     
                     {{-- CHECKLIST: PERMISSIONS --}}
@@ -365,7 +514,7 @@
                                     <div class="bg-gray-100 p-4 border-b border-gray-200">
                                         <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
                                             <input type="checkbox" 
-                                                   class="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                                                   class="theme-checkbox w-5 h-5 text-red-700 bg-gray-100 border-gray-300 rounded focus:ring-red-700 focus:ring-2 cursor-pointer transition-all"
                                                    :checked="group.permissions.every(p => editRoleData.permissions.includes(p.value))"
                                                    @change="
                                                        let allChecked = group.permissions.every(p => editRoleData.permissions.includes(p.value));
@@ -382,7 +531,7 @@
                                     <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
                                         <template x-for="perm in group.permissions" :key="perm.value">
                                             <label class="flex items-center space-x-3 text-base text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
-                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="w-5 h-5 text-red-600 rounded focus:ring-red-500 border-gray-300">
+                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="theme-checkbox w-5 h-5 text-red-700 bg-gray-100 border-gray-300 rounded focus:ring-red-700 focus:ring-2 cursor-pointer transition-all">
                                                 <span x-text="perm.label"></span>
                                             </label>
                                         </template>
@@ -401,7 +550,9 @@
         </div>
     </div>
 
+    {{-- ========================================== --}}
     {{-- MODAL: EDIT ROLE --}}
+    {{-- ========================================== --}}
     <div x-show="showEditRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditRoleModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
@@ -415,7 +566,7 @@
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Role Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" x-model="editRoleData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all">
+                        <input type="text" name="name" x-model="editRoleData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
                     </div>
                     
                     {{-- CHECKLIST: PERMISSIONS --}}
@@ -428,7 +579,7 @@
                                     <div class="bg-gray-100 p-4 border-b border-gray-200">
                                         <label class="flex items-center space-x-2 font-bold text-gray-800 cursor-pointer">
                                             <input type="checkbox" 
-                                                   class="w-5 h-5 text-red-600 rounded focus:ring-red-500"
+                                                   class="theme-checkbox w-5 h-5 text-red-700 bg-gray-100 border-gray-300 rounded focus:ring-red-700 focus:ring-2 cursor-pointer transition-all"
                                                    :checked="group.permissions.every(p => editRoleData.permissions.includes(p.value))"
                                                    @change="
                                                        let allChecked = group.permissions.every(p => editRoleData.permissions.includes(p.value));
@@ -445,7 +596,7 @@
                                     <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
                                         <template x-for="perm in group.permissions" :key="perm.value">
                                             <label class="flex items-center space-x-3 text-base text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
-                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="w-5 h-5 text-red-600 rounded focus:ring-red-500 border-gray-300">
+                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="theme-checkbox w-5 h-5 text-red-700 bg-gray-100 border-gray-300 rounded focus:ring-red-700 focus:ring-2 cursor-pointer transition-all">
                                                 <span x-text="perm.label"></span>
                                             </label>
                                         </template>
