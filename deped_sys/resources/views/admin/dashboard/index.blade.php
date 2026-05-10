@@ -23,7 +23,7 @@
              title="Click to manage site status">
             
             <div class="flex flex-col mr-4 text-right">
-                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Network Status</span>
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">System Status</span>
                 <span class="text-sm font-bold transition-colors duration-300" 
                       :class="siteDisabled ? 'text-rose-600' : (disabledPages.length > 0 ? 'text-amber-500' : 'text-emerald-500')" 
                       x-text="siteDisabled ? 'Globally Disabled' : (disabledPages.length > 0 ? disabledPages.length + ' Pages Disabled' : 'All Systems Active')">
