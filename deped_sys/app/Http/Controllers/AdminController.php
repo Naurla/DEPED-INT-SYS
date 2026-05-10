@@ -10,11 +10,12 @@ use App\Models\User;
 use App\Models\Page;     
 use App\Models\LearningMaterial; 
 use App\Models\BidOpportunity;
+use App\Models\Modules; // <-- Added Modules Model
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Mail; 
 use Illuminate\Support\Str;
-use Carbon\Carbon; // <-- ADDED THIS FOR DATE CALCULATIONS
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -29,6 +30,7 @@ class AdminController extends Controller
             'procurement' => \App\Models\BidOpportunity::count(),
             'enrollment'  => \App\Models\EnrollmentStatistic::count(),
             'banners'     => \App\Models\Banner::count(),
+            'modules'     => \App\Models\Modules::count(), // <-- ADDED THIS SO THE DASHBOARD CAN SEE IT
         ];
 
         // 2. Fetch Recent Activity 

@@ -63,6 +63,7 @@
     showAddUserModal: false, 
     showEditUserModal: false,
     selectedRole: null,
+    isSubmitting: false,
     
     editUserData: {
         id: '',
@@ -76,7 +77,7 @@
             id: user.id,
             name: user.name,
             email: user.email,
-            role_id: user.role_id
+            role_id: user.role_id || ''
         };
         this.showEditUserModal = true;
     },
@@ -91,7 +92,7 @@
         permissions: []
     },
 
-    expandedFolders: [], // Tracks which parent pages are expanded
+    expandedFolders: [],
 
     toggleFolder(slug) {
         if (this.expandedFolders.includes(slug)) {
@@ -101,18 +102,15 @@
         }
     },
 
-    // NEW: Function to handle parent checkbox toggles and auto-select children
     handlePermissionToggle(perm, isChecked) {
         if (perm.descendants && perm.descendants.length > 0) {
             if (isChecked) {
-                // If checking the parent, check all of its descendants
                 perm.descendants.forEach(slug => {
                     if (!this.editRoleData.permissions.includes(slug)) {
                         this.editRoleData.permissions.push(slug);
                     }
                 });
             } else {
-                // If unchecking the parent, uncheck all of its descendants
                 this.editRoleData.permissions = this.editRoleData.permissions.filter(p => !perm.descendants.includes(p));
             }
         }
@@ -127,7 +125,6 @@
             permissions: perms
         };
         
-        // Smart UX: Auto-expand folders that contain currently checked child permissions
         let foldersToExpand = new Set();
         this.permissionCategories.forEach(group => {
             if (group.permissions) {
@@ -147,7 +144,6 @@
     permissionCategories: [],
 
     init() {
-        // Base categories setup with `layout` configuration to handle grids properly
         let baseCategories = [
             {
                 category: 'Core System', layout: 'grid',
@@ -180,7 +176,7 @@
                 ]
             },
             {
-                category: 'Division Issuances', layout: 'list', // List view for hierarchical pages
+                category: 'Division Issuances', layout: 'list',
                 permissions: [
                     { value: 'advisories', label: 'Advisories' },
                     { value: 'memoranda', label: 'Memoranda' },
@@ -221,16 +217,14 @@
             }
         ];
 
-        // Custom Pages Category
         let dynamicPagesCategory = {
             category: 'Custom Nested Pages',
-            layout: 'list', // Force list view so hierarchy fits properly
+            layout: 'list',
             permissions: []
         };
 
         let issuancesCategory = baseCategories.find(c => c.category === 'Division Issuances');
 
-        // NEW: Helper to recursively gather all descendant slugs of a folder
         let getDescendantSlugs = (page) => {
             let slugs = [];
             if (page.children && page.children.length > 0) {
@@ -242,7 +236,6 @@
             return slugs;
         };
 
-        // Recursive function to flatten pages, track depths, and map descendants
         let flattenPages = (pages, currentDepth = 0, inheritedLocation = null, currentAncestors = []) => {
             let result = [];
             pages.forEach(page => {
@@ -256,10 +249,9 @@
                     menu_location: location,
                     hasChildren: hasChildren,
                     ancestors: currentAncestors,
-                    descendants: getDescendantSlugs(page) // Store all child slugs for auto-select
+                    descendants: getDescendantSlugs(page) 
                 });
                 
-                // Recurse for children
                 if (hasChildren) {
                     let nextAncestors = [...currentAncestors, page.slug];
                     result = result.concat(flattenPages(page.children, currentDepth + 1, location, nextAncestors));
@@ -280,7 +272,6 @@
             });
         }
 
-        // Only add Custom Pages block if it has items
         if (dynamicPagesCategory.permissions.length > 0) {
             baseCategories.push(dynamicPagesCategory);
         }
@@ -295,7 +286,6 @@
             <p class="text-gray-500 text-sm mt-1">Manage user accounts, roles, and module permissions.</p>
         </div>
         
-        {{-- Dynamic Action Buttons based on Active Tab --}}
         <div>
             <button x-show="activeTab === 'users'" @click="showAddUserModal = true; selectedRole = null" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors flex items-center text-sm uppercase tracking-wider">
                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -480,28 +470,129 @@
         </div>
     </div>
 
+
+    {{-- ========================================== --}}
+    {{-- MODAL: ADD USER --}}
+    {{-- ========================================== --}}
+    <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showAddUserModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Add New User</h3>
+                <button type="button" @click="showAddUserModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
+            </div>
+            
+            <form action="{{ route('admin.users.store') }}" method="POST" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
+                @csrf
+                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                    
+                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-lg flex items-start gap-3">
+                        <svg class="w-6 h-6 text-blue-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-blue-800 text-sm font-medium leading-snug">A temporary password will be automatically generated and emailed to the user. They will be prompted to create a permanent password upon first login.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" required :readonly="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="Enter full name">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" required :readonly="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="Enter email address">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
+                        <select name="role_id" required :disabled="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white cursor-pointer disabled:opacity-50">
+                            <option value="">Select a Role...</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting">Create User</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Creating...
+                        </span>
+                    </button>
+                    <button type="button" @click="showAddUserModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    {{-- ========================================== --}}
+    {{-- MODAL: EDIT USER --}}
+    {{-- ========================================== --}}
+    <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showEditUserModal = false">
+            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
+                <h3 class="font-bold text-2xl">Edit User</h3>
+                <button type="button" @click="showEditUserModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
+            </div>
+            
+            <form :action="'/admin/users/' + editUserData.id" method="POST" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
+                @csrf
+                @method('PUT')
+                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
+                        <input type="text" name="name" x-model="editUserData.name" required :readonly="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
+                        <input type="email" name="email" x-model="editUserData.email" required :readonly="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-800 text-lg font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
+                        <select name="role_id" x-model="editUserData.role_id" required :disabled="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white cursor-pointer disabled:opacity-50">
+                            <option value="">Select a Role...</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}">{{ $role->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting">Update User</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Updating...
+                        </span>
+                    </button>
+                    <button type="button" @click="showEditUserModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
     {{-- ========================================== --}}
     {{-- MODAL: ADD ROLE --}}
     {{-- ========================================== --}}
     <div x-show="showAddRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddRoleModal = false">
+        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showAddRoleModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Create New Role</h3>
-                <button type="button" @click="showAddRoleModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+                <button type="button" @click="showAddRoleModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
             </div>
             
-            <form action="/admin/roles" method="POST" class="flex flex-col overflow-hidden min-h-0">
+            <form action="/admin/roles" method="POST" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
                 @csrf
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Role Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="e.g. Content Editor">
+                        <input type="text" name="name" required :readonly="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="e.g. Content Editor">
                     </div>
                     
                     <div class="pt-2">
                         <label class="block text-gray-800 text-lg font-bold mb-2">Module Access <span class="text-sm font-normal text-gray-500 normal-case ml-1 italic">(Check features this role can manage)</span></label>
                         
-                        <div class="space-y-4 pr-2">
+                        <div class="space-y-4 pr-2" :class="{'opacity-60 pointer-events-none': isSubmitting}">
                             <template x-for="group in permissionCategories" :key="group.category">
                                 <div class="border border-gray-200 rounded-lg overflow-hidden">
                                     <div class="bg-gray-100 p-4 border-b border-gray-200">
@@ -582,8 +673,14 @@
                 </div>
 
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Save Role</button>
-                    <button type="button" @click="showAddRoleModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting">Save Role</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Saving...
+                        </span>
+                    </button>
+                    <button type="button" @click="showAddRoleModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
                 </div>
             </form>
         </div>
@@ -593,25 +690,25 @@
     {{-- MODAL: EDIT ROLE --}}
     {{-- ========================================== --}}
     <div x-show="showEditRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditRoleModal = false">
+        <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showEditRoleModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
                 <h3 class="font-bold text-2xl">Edit Role Config</h3>
-                <button type="button" @click="showEditRoleModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
+                <button type="button" @click="showEditRoleModal = false" :disabled="isSubmitting" class="hover:text-gray-200 text-4xl font-bold leading-none disabled:opacity-50">&times;</button>
             </div>
             
-            <form :action="'/admin/roles/' + editRoleData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
+            <form :action="'/admin/roles/' + editRoleData.id" method="POST" class="flex flex-col overflow-hidden min-h-0" @submit="isSubmitting = true">
                 @csrf
                 @method('PUT')
                 <div class="p-8 space-y-6 overflow-y-auto custom-scrollbar flex-1">
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Role Title <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" x-model="editRoleData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
+                        <input type="text" name="name" x-model="editRoleData.name" required :readonly="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
                     </div>
                     
                     <div class="pt-2">
                         <label class="block text-gray-800 text-lg font-bold mb-2">Module Access <span class="text-sm font-normal text-gray-500 normal-case ml-1 italic">(Check features this role can manage)</span></label>
                         
-                        <div class="space-y-4 pr-2">
+                        <div class="space-y-4 pr-2" :class="{'opacity-60 pointer-events-none': isSubmitting}">
                             <template x-for="group in permissionCategories" :key="group.category">
                                 <div class="border border-gray-200 rounded-lg overflow-hidden">
                                     <div class="bg-gray-100 p-4 border-b border-gray-200">
@@ -692,8 +789,14 @@
                 </div>
 
                 <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg">Update Config</button>
-                    <button type="button" @click="showEditRoleModal = false" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-800': !isSubmitting}" class="bg-red-700 text-white font-bold py-3.5 px-10 rounded-lg shadow-md transition-colors text-lg flex items-center justify-center min-w-[200px]">
+                        <span x-show="!isSubmitting">Update Config</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Updating...
+                        </span>
+                    </button>
+                    <button type="button" @click="showEditRoleModal = false" :disabled="isSubmitting" class="px-8 py-3.5 text-lg font-bold text-gray-600 hover:text-gray-800 transition-colors disabled:opacity-50">Cancel</button>
                 </div>
             </form>
         </div>
@@ -704,7 +807,7 @@
     <div x-data="{ showDeleteModal: false, deleteAction: '', deleteTitle: '' }" 
          @open-delete-modal.window="showDeleteModal = true; deleteAction = $event.detail.action; deleteTitle = $event.detail.title"
          x-show="showDeleteModal" class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity" x-cloak>
-        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="showDeleteModal = false">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="if (!isSubmitting) showDeleteModal = false">
             
             <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
                 <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
@@ -713,8 +816,8 @@
             </div>
             
             <div class="text-center">
-                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete User?</h3>
-                <p class="text-gray-500 text-sm mb-5">You are about to permanently delete this user</p>
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Delete Item?</h3>
+                <p class="text-gray-500 text-sm mb-5">You are about to permanently delete this item.</p>
                 
                 <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar">
                     <span class="font-bold text-gray-900 break-all text-lg block" x-text="deleteTitle"></span>
@@ -724,13 +827,17 @@
             </div>
             
             <div class="flex gap-3">
-                <button type="button" @click="showDeleteModal = false" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all">
+                <button type="button" @click="showDeleteModal = false" :disabled="isSubmitting" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all disabled:opacity-50">
                     Cancel
                 </button>
-                <form :action="deleteAction" method="POST" class="flex-1 m-0 p-0">
+                <form :action="deleteAction" method="POST" class="flex-1 m-0 p-0 flex" @submit="isSubmitting = true">
                     @csrf @method('DELETE')
-                    <button type="submit" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
-                        Yes, Delete it
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-700': !isSubmitting}" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                        <span x-show="!isSubmitting">Yes, Delete it</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Deleting...
+                        </span>
                     </button>
                 </form>
             </div>

@@ -54,6 +54,9 @@
                 ['route' => 'admin.learning-materials.index', 'color' => 'indigo', 'count' => $counts['materials'] ?? 0, 'label' => 'Learning Mats', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477-4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>'],
                 ['route' => 'admin.enrollment-statistics.index', 'color' => 'teal', 'count' => $counts['enrollment'] ?? 0, 'label' => 'Enrollment Data', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>'],
                 ['route' => 'admin.banners.index', 'color' => 'blue', 'count' => $counts['banners'] ?? 0, 'label' => 'Home Banners', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>'],
+                
+                // Added the Modules card here
+                ['route' => 'admin.modules.index', 'color' => 'fuchsia', 'count' => $counts['modules'] ?? 0, 'label' => 'ALS Modules', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>'],
             ];
         @endphp
 
