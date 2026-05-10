@@ -286,8 +286,9 @@
                 </svg>
                 <span x-show="sidebarOpen">Manage Pages</span>
             </a>
-            
-            {{-- ADDED PAGE SECTIONS / CONTENT BLOCKS BUTTON --}}
+            @endif
+
+{{--
             <a href="{{ route('admin.page-sections.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.page-sections.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
                 <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,8 +296,7 @@
                 </svg>
                 <span x-show="sidebarOpen">Page Sections</span>
             </a>
-            @endif
-
+--}}
             @if(auth()->check() && auth()->user()->hasPermission('logos'))
             <a href="{{ route('admin.logos.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.logos.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
