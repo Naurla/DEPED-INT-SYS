@@ -269,6 +269,7 @@
                 </div>
 
                 {{-- Division Data --}}
+                {{--
                 <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" 
                     class="relative flex w-full md:w-auto border-r border-gray-300 transition-all {{ request()->is('schools/map-directory*') ? 'bg-white text-[#a52a2a] font-bold' : 'hover:bg-white text-gray-800' }}">
                     <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full h-full cursor-pointer">
@@ -281,7 +282,7 @@
                         </a>
                     </div>
                 </div>
-
+--}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
                         @if($navPage->show_in_nav)
