@@ -12,10 +12,10 @@
 
     /* Custom Checkbox Styling for the Red Theme */
     input[type="checkbox"].theme-checkbox {
-        appearance: none; /* Removes the default browser styling (black square) */
+        appearance: none;
         -webkit-appearance: none;
         background-color: #fff;
-        border: 1px solid #d1d5db; /* Gray-300 border */
+        border: 1px solid #d1d5db;
         border-radius: 0.25rem;
         cursor: pointer;
         position: relative;
@@ -26,11 +26,10 @@
     }
 
     input[type="checkbox"].theme-checkbox:checked {
-        background-color: #dc2626 !important; /* Tailwind Red-600 */
+        background-color: #dc2626 !important;
         border-color: #dc2626 !important;
     }
 
-    /* Injects the white checkmark SVG when checked */
     input[type="checkbox"].theme-checkbox:checked::after {
         content: '';
         position: absolute;
@@ -42,12 +41,16 @@
         background-repeat: no-repeat;
     }
 
-    /* Custom Focus Ring */
     input[type="checkbox"].theme-checkbox:focus {
         outline: none;
         box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3) !important;
     }
 </style>
+
+{{-- Setup global var for page hierarchy to avoid html string breaks --}}
+<script>
+    window.dynamicPagesData = @json($dynamicPages ?? []);
+</script>
 
 <div x-data="{ 
     activeTab: 'users',
@@ -88,88 +91,202 @@
         permissions: []
     },
 
+    expandedFolders: [], // Tracks which parent pages are expanded
+
+    toggleFolder(slug) {
+        if (this.expandedFolders.includes(slug)) {
+            this.expandedFolders = this.expandedFolders.filter(f => f !== slug);
+        } else {
+            this.expandedFolders.push(slug);
+        }
+    },
+
+    // NEW: Function to handle parent checkbox toggles and auto-select children
+    handlePermissionToggle(perm, isChecked) {
+        if (perm.descendants && perm.descendants.length > 0) {
+            if (isChecked) {
+                // If checking the parent, check all of its descendants
+                perm.descendants.forEach(slug => {
+                    if (!this.editRoleData.permissions.includes(slug)) {
+                        this.editRoleData.permissions.push(slug);
+                    }
+                });
+            } else {
+                // If unchecking the parent, uncheck all of its descendants
+                this.editRoleData.permissions = this.editRoleData.permissions.filter(p => !perm.descendants.includes(p));
+            }
+        }
+    },
+
     openEditRole(role) {
+        let perms = typeof role.permissions === 'string' ? JSON.parse(role.permissions || '[]') : (role.permissions || []);
+        
         this.editRoleData = {
             id: role.id,
             name: role.name,
-            permissions: typeof role.permissions === 'string' ? JSON.parse(role.permissions || '[]') : (role.permissions || [])
+            permissions: perms
         };
+        
+        // Smart UX: Auto-expand folders that contain currently checked child permissions
+        let foldersToExpand = new Set();
+        this.permissionCategories.forEach(group => {
+            if (group.permissions) {
+                group.permissions.forEach(p => {
+                    if (perms.includes(p.value) && p.ancestors) {
+                        p.ancestors.forEach(a => foldersToExpand.add(a));
+                    }
+                });
+            }
+        });
+        this.expandedFolders = Array.from(foldersToExpand);
+        
         this.showEditRoleModal = true;
     },
 
-    // Categorized Permissions Array
-    permissionCategories: [
-        {
-            category: 'Core System',
-            permissions: [
-                { value: 'dashboard', label: 'Dashboard' },
-                { value: 'settings', label: 'System Settings' },
-                { value: 'users', label: 'User & Role Management' }
-            ]
-        },
-        {
-            category: 'Website Content',
-            permissions: [
-                { value: 'pages', label: 'Custom Pages' },
-                { value: 'banners', label: 'Banners' },
-                { value: 'logos', label: 'Site Logos' }
-            ]
-        },
-        {
-            category: 'About & Organization',
-            permissions: [
-                { value: 'qms', label: 'Quality Management System (QMS)' },
-                { value: 'vision_mission', label: 'Vision & Mission' },
-                { value: 'data_privacy', label: 'Data Privacy' },
-                { value: 'citizen_charter', label: 'Citizen\'s Charter' },
-                { value: 'org_chart', label: 'Organizational Chart' },
-                { value: 'division_structures', label: 'Division Structures' },
-                { value: 'sgod', label: 'SGOD' },
-                { value: 'osds', label: 'OSDS' },
-                { value: 'cid', label: 'CID' }
-            ]
-        },
-        {
-            category: 'Division Issuances',
-            permissions: [
-                { value: 'advisories', label: 'Advisories' },
-                { value: 'memoranda', label: 'Memoranda' },
-                { value: 'hrmpsb', label: 'HRMPSB' }
-            ]
-        },
-        {
-            category: 'K-12 & Curriculum',
-            permissions: [
-                { value: 'curriculum', label: 'K to 12 Basic Education' },
-                { value: 'elementary', label: 'Elementary' },
-                { value: 'junior_high', label: 'Junior High School' },
-                { value: 'senior_high', label: 'Senior High School' },
-                { value: 'materials', label: 'Learning Materials' },
-                { value: 'faq', label: 'FAQ Management' }
-            ]
-        },
-        {
-            category: 'Alternative Learning System (ALS)',
-            permissions: [
-                { value: 'enrollment_statistics', label: 'Enrollment Statistics' },
-                { value: 'als_stories', label: 'ALS Stories' },
-                { value: 'modules', label: 'Modules' },
-                { value: 'als_implementers', label: 'ALS Implementers' }
-            ]
-        },
-        {
-            category: 'Procurement',
-            permissions: [
-                { value: 'procurement_bid_opportunities', label: 'Bid Opportunities' },
-                { value: 'procurement_apcpi', label: 'APCPI' },
-                { value: 'procurement_app_cse', label: 'APP CSE' },
-                { value: 'procurement_app_non_cse', label: 'APP Non CSE' },
-                { value: 'procurement_award_notices', label: 'Award Notices' },
-                { value: 'procurement_pmr', label: 'PMR' },
-                { value: 'procurement_pre_bid_minutes', label: 'Minutes of Pre-Bid' }
-            ]
+    dynamicPages: window.dynamicPagesData,
+    permissionCategories: [],
+
+    init() {
+        // Base categories setup with `layout` configuration to handle grids properly
+        let baseCategories = [
+            {
+                category: 'Core System', layout: 'grid',
+                permissions: [
+                    { value: 'dashboard', label: 'Dashboard' },
+                    { value: 'settings', label: 'System Settings' },
+                    { value: 'users', label: 'User & Role Management' }
+                ]
+            },
+            {
+                category: 'Website Content', layout: 'grid',
+                permissions: [
+                    { value: 'pages', label: 'Custom Pages Management' },
+                    { value: 'banners', label: 'Banners' },
+                    { value: 'logos', label: 'Site Logos' }
+                ]
+            },
+            {
+                category: 'About & Organization', layout: 'grid',
+                permissions: [
+                    { value: 'qms', label: 'Quality Management System (QMS)' },
+                    { value: 'vision_mission', label: 'Vision & Mission' },
+                    { value: 'data_privacy', label: 'Data Privacy' },
+                    { value: 'citizen_charter', label: 'Citizen\'s Charter' },
+                    { value: 'org_chart', label: 'Organizational Chart' },
+                    { value: 'division_structures', label: 'Division Structures' },
+                    { value: 'sgod', label: 'SGOD' },
+                    { value: 'osds', label: 'OSDS' },
+                    { value: 'cid', label: 'CID' }
+                ]
+            },
+            {
+                category: 'Division Issuances', layout: 'list', // List view for hierarchical pages
+                permissions: [
+                    { value: 'advisories', label: 'Advisories' },
+                    { value: 'memoranda', label: 'Memoranda' },
+                    { value: 'hrmpsb', label: 'HRMPSB' }
+                ]
+            },
+            {
+                category: 'K-12 & Curriculum', layout: 'grid',
+                permissions: [
+                    { value: 'curriculum', label: 'K to 12 Basic Education' },
+                    { value: 'elementary', label: 'Elementary' },
+                    { value: 'junior_high', label: 'Junior High School' },
+                    { value: 'senior_high', label: 'Senior High School' },
+                    { value: 'materials', label: 'Learning Materials' },
+                    { value: 'faq', label: 'FAQ Management' }
+                ]
+            },
+            {
+                category: 'Alternative Learning System (ALS)', layout: 'grid',
+                permissions: [
+                    { value: 'enrollment_statistics', label: 'Enrollment Statistics' },
+                    { value: 'als_stories', label: 'ALS Stories' },
+                    { value: 'modules', label: 'Modules' },
+                    { value: 'als_implementers', label: 'ALS Implementers' }
+                ]
+            },
+            {
+                category: 'Procurement', layout: 'grid',
+                permissions: [
+                    { value: 'procurement_bid_opportunities', label: 'Bid Opportunities' },
+                    { value: 'procurement_apcpi', label: 'APCPI' },
+                    { value: 'procurement_app_cse', label: 'APP CSE' },
+                    { value: 'procurement_app_non_cse', label: 'APP Non CSE' },
+                    { value: 'procurement_award_notices', label: 'Award Notices' },
+                    { value: 'procurement_pmr', label: 'PMR' },
+                    { value: 'procurement_pre_bid_minutes', label: 'Minutes of Pre-Bid' }
+                ]
+            }
+        ];
+
+        // Custom Pages Category
+        let dynamicPagesCategory = {
+            category: 'Custom Nested Pages',
+            layout: 'list', // Force list view so hierarchy fits properly
+            permissions: []
+        };
+
+        let issuancesCategory = baseCategories.find(c => c.category === 'Division Issuances');
+
+        // NEW: Helper to recursively gather all descendant slugs of a folder
+        let getDescendantSlugs = (page) => {
+            let slugs = [];
+            if (page.children && page.children.length > 0) {
+                page.children.forEach(child => {
+                    slugs.push(child.slug);
+                    slugs = slugs.concat(getDescendantSlugs(child));
+                });
+            }
+            return slugs;
+        };
+
+        // Recursive function to flatten pages, track depths, and map descendants
+        let flattenPages = (pages, currentDepth = 0, inheritedLocation = null, currentAncestors = []) => {
+            let result = [];
+            pages.forEach(page => {
+                let location = page.menu_location || inheritedLocation;
+                let hasChildren = page.children && page.children.length > 0;
+                
+                result.push({
+                    value: page.slug,
+                    label: page.title,
+                    depth: currentDepth,
+                    menu_location: location,
+                    hasChildren: hasChildren,
+                    ancestors: currentAncestors,
+                    descendants: getDescendantSlugs(page) // Store all child slugs for auto-select
+                });
+                
+                // Recurse for children
+                if (hasChildren) {
+                    let nextAncestors = [...currentAncestors, page.slug];
+                    result = result.concat(flattenPages(page.children, currentDepth + 1, location, nextAncestors));
+                }
+            });
+            return result;
+        };
+
+        if (this.dynamicPages && this.dynamicPages.length > 0) {
+            let flatPages = flattenPages(this.dynamicPages);
+
+            flatPages.forEach(page => {
+                if (page.menu_location === 'issuances' || page.menu_location === 'Division Issuances') {
+                    if (issuancesCategory) issuancesCategory.permissions.push(page);
+                } else {
+                    dynamicPagesCategory.permissions.push(page);
+                }
+            });
         }
-    ]
+
+        // Only add Custom Pages block if it has items
+        if (dynamicPagesCategory.permissions.length > 0) {
+            baseCategories.push(dynamicPagesCategory);
+        }
+
+        this.permissionCategories = baseCategories;
+    }
 }">
 
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
@@ -184,7 +301,7 @@
                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Add New User
             </button>
-            <button x-show="activeTab === 'roles'" x-cloak @click="editRoleData.permissions = []; showAddRoleModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors flex items-center text-sm uppercase tracking-wider">
+            <button x-show="activeTab === 'roles'" x-cloak @click="editRoleData.permissions = []; expandedFolders = []; showAddRoleModal = true" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-4 rounded-lg shadow transition-colors flex items-center text-sm uppercase tracking-wider">
                 <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
                 Create New Role
             </button>
@@ -214,23 +331,16 @@
     {{-- ========================================== --}}
     <div x-show="activeTab === 'users'">
         
-        {{-- Search & Filter Section --}}
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
             <form method="GET" action="{{ url()->current() }}" class="flex flex-col xl:flex-row gap-4 items-center justify-between">
-                {{-- Search Bar --}}
                 <div class="w-full xl:w-1/4 relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
+                        <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                     </div>
                     <input type="text" name="search" value="{{ request('search') }}" placeholder="Search name or email..." class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 outline-none text-sm transition-colors">
                 </div>
 
-                {{-- Dropdown Filters --}}
                 <div class="w-full xl:w-auto flex flex-col md:flex-row gap-3 items-center">
-                    
-                    {{-- Role Filter --}}
                     <select name="role" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
                         <option value="">All Roles</option>
                         @foreach($roles as $role)
@@ -238,7 +348,6 @@
                         @endforeach
                     </select>
 
-                    {{-- Month Filter --}}
                     <select name="month" class="w-full md:w-36 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
                         <option value="">All Months</option>
                         @foreach(range(1, 12) as $m)
@@ -248,7 +357,6 @@
                         @endforeach
                     </select>
 
-                    {{-- Year Filter --}}
                     <select name="year" class="w-full md:w-32 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
                         <option value="">All Years</option>
                         @if(isset($years))
@@ -258,7 +366,6 @@
                         @endif
                     </select>
 
-                    {{-- Sort Filter --}}
                     <select name="sort" class="w-full md:w-40 py-2.5 px-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-sm bg-white text-gray-700 cursor-pointer" onchange="this.form.submit()">
                         <option value="newest" {{ request('sort') == 'newest' ? 'selected' : '' }}>Newest First</option>
                         <option value="oldest" {{ request('sort') == 'oldest' ? 'selected' : '' }}>Oldest First</option>
@@ -266,13 +373,9 @@
                         <option value="z_a" {{ request('sort') == 'z_a' ? 'selected' : '' }}>Name (Z-A)</option>
                     </select>
 
-                    {{-- Clear Filters --}}
                     @if(request('search') || request('role') || request('month') || request('year') || (request('sort') && request('sort') !== 'newest'))
-                        <a href="{{ url()->current() }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">
-                            Clear Filters
-                        </a>
+                        <a href="{{ url()->current() }}" class="text-sm font-semibold text-gray-500 hover:text-red-600 transition-colors whitespace-nowrap px-2">Clear Filters</a>
                     @endif
-                    
                     <button type="submit" class="hidden">Search</button>
                 </div>
             </form>
@@ -301,8 +404,7 @@
                                     <div class="text-xs text-gray-500 mt-0.5">{{ $user->email }}</div>
                                 </td>
                                 <td class="p-4 text-sm text-gray-600">
-                                    <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full border 
-                                        {{ $user->role && $user->role->slug == 'super-admin' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
+                                    <span class="px-3 py-1 text-[10px] font-bold uppercase rounded-full border {{ $user->role && $user->role->slug == 'super-admin' ? 'bg-red-50 text-red-700 border-red-200' : 'bg-blue-50 text-blue-700 border-blue-200' }}">
                                         {{ $user->role ? $user->role->name : 'No Role' }}
                                     </span>
                                 </td>
@@ -311,7 +413,7 @@
                                 </td>
                                 <td class="p-4 flex justify-end gap-3 items-center">
                                     @if(auth()->user()->id !== $user->id)
-                                        <button @click="openEditUser({{ $user->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                        <button @click='openEditUser(@json($user))' class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
                                         <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.users.destroy', $user) }}', title: '{{ addslashes($user->name) }} ({{ addslashes($user->email) }})' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                                     @else
                                         <span class="text-[10px] text-gray-500 font-bold bg-gray-100 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-wider">Current User</span>
@@ -327,9 +429,7 @@
         </div>
         
         @if(method_exists($users, 'hasPages') && $users->hasPages())
-            <div class="mt-4">
-                {{ $users->links() }}
-            </div>
+            <div class="mt-4">{{ $users->links() }}</div>
         @endif
     </div>
 
@@ -368,7 +468,7 @@
                                 @endif
                             </td>
                             <td class="p-4 flex justify-end gap-3 items-center">
-                                <button @click="openEditRole({{ $role->toJson() }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit Config</button>
+                                <button @click='openEditRole(@json($role))' class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit Config</button>
                                 <button @click="$dispatch('open-delete-modal', { action: '/admin/roles/{{ $role->id }}', title: 'Delete role: {{ addslashes($role->name) }}?' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                             </td>
                         </tr>
@@ -379,112 +479,6 @@
             </table>
         </div>
     </div>
-
-    {{-- ========================================== --}}
-    {{-- MODAL: ADD USER --}}
-    {{-- ========================================== --}}
-    <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showAddUserModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-2xl">Create New User</h3>
-                <button type="button" @click="showAddUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
-            </div>
-            
-            <form action="/admin/users" method="POST" class="flex flex-col overflow-hidden min-h-0">
-                @csrf
-                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
-                    <div>
-                        <label class="block text-gray-800 text-sm font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="Juan Dela Cruz">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-sm font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
-                        <input type="email" name="email" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="juan@deped.gov.ph">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-sm font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
-                        <select name="role_id" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white">
-                            <option value="">Select a role</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div>
-                            <label class="block text-gray-800 text-sm font-bold mb-2">Password <span class="text-red-500">*</span></label>
-                            <input type="password" name="password" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
-                        </div>
-                        <div>
-                            <label class="block text-gray-800 text-sm font-bold mb-2">Confirm Password <span class="text-red-500">*</span></label>
-                            <input type="password" name="password_confirmation" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors">Create User</button>
-                    <button type="button" @click="showAddUserModal = false" class="px-6 py-3 font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    {{-- ========================================== --}}
-    {{-- MODAL: EDIT USER --}}
-    {{-- ========================================== --}}
-    <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
-        <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="showEditUserModal = false">
-            <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
-                <h3 class="font-bold text-2xl">Edit User</h3>
-                <button type="button" @click="showEditUserModal = false" class="hover:text-gray-200 text-4xl font-bold">&times;</button>
-            </div>
-            
-            <form :action="'/admin/users/' + editUserData.id" method="POST" class="flex flex-col overflow-hidden min-h-0">
-                @csrf
-                @method('PUT')
-                <div class="p-8 space-y-5 overflow-y-auto custom-scrollbar flex-1">
-                    <div>
-                        <label class="block text-gray-800 text-sm font-bold mb-2">Full Name <span class="text-red-500">*</span></label>
-                        <input type="text" name="name" x-model="editUserData.name" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-sm font-bold mb-2">Email Address <span class="text-red-500">*</span></label>
-                        <input type="email" name="email" x-model="editUserData.email" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-gray-800 text-sm font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
-                        <select name="role_id" x-model="editUserData.role_id" required class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white">
-                            <option value="">Select a role</option>
-                            @foreach($roles as $role)
-                                <option value="{{ $role->id }}">{{ $role->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    
-                    <div class="pt-4 border-t border-gray-200 mt-6">
-                        <p class="text-sm text-gray-500 italic mb-4">Leave passwords blank if you do not want to change them.</p>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                            <div>
-                                <label class="block text-gray-800 text-sm font-bold mb-2">New Password</label>
-                                <input type="password" name="password" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
-                            </div>
-                            <div>
-                                <label class="block text-gray-800 text-sm font-bold mb-2">Confirm New Password</label>
-                                <input type="password" name="password_confirmation" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" minlength="8">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="bg-gray-50 px-8 py-5 flex flex-row-reverse gap-4 items-center border-t border-gray-200 flex-shrink-0">
-                    <button type="submit" class="bg-red-700 hover:bg-red-800 text-white font-bold py-3 px-8 rounded-lg shadow-md transition-colors">Update User</button>
-                    <button type="button" @click="showEditUserModal = false" class="px-6 py-3 font-bold text-gray-600 hover:text-gray-800 transition-colors">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
 
     {{-- ========================================== --}}
     {{-- MODAL: ADD ROLE --}}
@@ -504,7 +498,6 @@
                         <input type="text" name="name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all" placeholder="e.g. Content Editor">
                     </div>
                     
-                    {{-- CHECKLIST: PERMISSIONS --}}
                     <div class="pt-2">
                         <label class="block text-gray-800 text-lg font-bold mb-2">Module Access <span class="text-sm font-normal text-gray-500 normal-case ml-1 italic">(Check features this role can manage)</span></label>
                         
@@ -528,12 +521,58 @@
                                             <span x-text="group.category" class="text-[15px] uppercase tracking-wide"></span>
                                         </label>
                                     </div>
-                                    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
-                                        <template x-for="perm in group.permissions" :key="perm.value">
-                                            <label class="flex items-center space-x-3 text-base text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
-                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="theme-checkbox w-5 h-5 text-red-700 bg-gray-100 border-gray-300 rounded focus:ring-red-700 focus:ring-2 cursor-pointer transition-all">
-                                                <span x-text="perm.label"></span>
-                                            </label>
+                                    <div class="p-4 grid gap-1.5 bg-white" :class="group.layout === 'list' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'">
+                                        
+                                        <template x-if="group.permissions.length === 0">
+                                            <div class="col-span-full text-sm text-gray-400 italic py-6 text-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 mt-1">
+                                                No pages currently available in this section.
+                                            </div>
+                                        </template>
+
+                                        <template x-for="(perm, index) in group.permissions" :key="perm.value">
+                                            
+                                            <div x-show="perm.ancestors ? perm.ancestors.every(a => expandedFolders.includes(a)) : true"
+                                                 class="flex items-center text-sm w-full rounded-lg transition-colors border border-transparent group/item"
+                                                 :class="{
+                                                     'text-gray-900 font-bold bg-gray-50/80 mb-0.5 py-1': (perm.depth || 0) === 0,
+                                                     'text-gray-600 py-0.5': (perm.depth || 0) > 0,
+                                                     'text-gray-700 py-1.5 hover:bg-red-50/70 hover:border-red-100': perm.depth === undefined
+                                                 }"
+                                                 :style="'padding-left: ' + (perm.depth === undefined ? 0.5 : ((perm.depth || 0) === 0 ? 0.5 : ((perm.depth || 0) * 1.5))) + 'rem;'">
+
+                                                <span x-show="(perm.depth || 0) > 0" class="text-gray-300 mr-1 shrink-0 flex items-center">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M9 5v7a2 2 0 002 2h4"></path>
+                                                    </svg>
+                                                </span>
+
+                                                <template x-if="perm.hasChildren">
+                                                    <button type="button" @click.prevent="toggleFolder(perm.value)" class="w-6 h-6 flex items-center justify-center mr-1 rounded text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors focus:outline-none shrink-0">
+                                                        <svg x-show="!expandedFolders.includes(perm.value)" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                                                        <svg x-show="expandedFolders.includes(perm.value)" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </button>
+                                                </template>
+                                                <template x-if="perm.hasChildren !== undefined && !perm.hasChildren">
+                                                    <span class="w-6 mr-1 inline-block shrink-0"></span>
+                                                </template>
+
+                                                <label class="flex items-center flex-1 cursor-pointer p-1.5 -m-1.5 rounded hover:bg-red-50/70 transition-colors">
+                                                    <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" 
+                                                           @change="handlePermissionToggle(perm, $event.target.checked)"
+                                                           class="theme-checkbox w-4 h-4 text-red-700 bg-white border-gray-300 rounded shadow-sm focus:ring-red-700 focus:ring-2 cursor-pointer transition-all shrink-0">
+
+                                                    <span x-show="perm.depth !== undefined" class="ml-2.5 shrink-0 transition-colors" :class="(perm.depth || 0) === 0 ? 'text-gray-500 group-hover/item:text-red-600' : 'text-gray-400 group-hover/item:text-red-500'">
+                                                        <template x-if="perm.hasChildren">
+                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+                                                        </template>
+                                                        <template x-if="!perm.hasChildren">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                        </template>
+                                                    </span>
+
+                                                    <span x-text="perm.label" class="truncate" :class="perm.depth === undefined ? 'ml-3' : 'ml-2'"></span>
+                                                </label>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
@@ -569,7 +608,6 @@
                         <input type="text" name="name" x-model="editRoleData.name" required class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all">
                     </div>
                     
-                    {{-- CHECKLIST: PERMISSIONS --}}
                     <div class="pt-2">
                         <label class="block text-gray-800 text-lg font-bold mb-2">Module Access <span class="text-sm font-normal text-gray-500 normal-case ml-1 italic">(Check features this role can manage)</span></label>
                         
@@ -593,12 +631,58 @@
                                             <span x-text="group.category" class="text-[15px] uppercase tracking-wide"></span>
                                         </label>
                                     </div>
-                                    <div class="p-4 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white">
-                                        <template x-for="perm in group.permissions" :key="perm.value">
-                                            <label class="flex items-center space-x-3 text-base text-gray-700 cursor-pointer hover:bg-gray-50 p-2 rounded transition-colors">
-                                                <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" class="theme-checkbox w-5 h-5 text-red-700 bg-gray-100 border-gray-300 rounded focus:ring-red-700 focus:ring-2 cursor-pointer transition-all">
-                                                <span x-text="perm.label"></span>
-                                            </label>
+                                    <div class="p-4 grid gap-1.5 bg-white" :class="group.layout === 'list' ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2'">
+                                        
+                                        <template x-if="group.permissions.length === 0">
+                                            <div class="col-span-full text-sm text-gray-400 italic py-6 text-center border-2 border-dashed border-gray-200 rounded-xl bg-gray-50 mt-1">
+                                                No pages currently available in this section.
+                                            </div>
+                                        </template>
+
+                                        <template x-for="(perm, index) in group.permissions" :key="perm.value">
+                                            
+                                            <div x-show="perm.ancestors ? perm.ancestors.every(a => expandedFolders.includes(a)) : true"
+                                                 class="flex items-center text-sm w-full rounded-lg transition-colors border border-transparent group/item"
+                                                 :class="{
+                                                     'text-gray-900 font-bold bg-gray-50/80 mb-0.5 py-1': (perm.depth || 0) === 0,
+                                                     'text-gray-600 py-0.5': (perm.depth || 0) > 0,
+                                                     'text-gray-700 py-1.5 hover:bg-red-50/70 hover:border-red-100': perm.depth === undefined
+                                                 }"
+                                                 :style="'padding-left: ' + (perm.depth === undefined ? 0.5 : ((perm.depth || 0) === 0 ? 0.5 : ((perm.depth || 0) * 1.5))) + 'rem;'">
+
+                                                <span x-show="(perm.depth || 0) > 0" class="text-gray-300 mr-1 shrink-0 flex items-center">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M9 5v7a2 2 0 002 2h4"></path>
+                                                    </svg>
+                                                </span>
+
+                                                <template x-if="perm.hasChildren">
+                                                    <button type="button" @click.prevent="toggleFolder(perm.value)" class="w-6 h-6 flex items-center justify-center mr-1 rounded text-gray-500 hover:text-gray-800 hover:bg-gray-200 transition-colors focus:outline-none shrink-0">
+                                                        <svg x-show="!expandedFolders.includes(perm.value)" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path></svg>
+                                                        <svg x-show="expandedFolders.includes(perm.value)" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path></svg>
+                                                    </button>
+                                                </template>
+                                                <template x-if="perm.hasChildren !== undefined && !perm.hasChildren">
+                                                    <span class="w-6 mr-1 inline-block shrink-0"></span>
+                                                </template>
+
+                                                <label class="flex items-center flex-1 cursor-pointer p-1.5 -m-1.5 rounded hover:bg-red-50/70 transition-colors">
+                                                    <input type="checkbox" name="permissions[]" :value="perm.value" x-model="editRoleData.permissions" 
+                                                           @change="handlePermissionToggle(perm, $event.target.checked)"
+                                                           class="theme-checkbox w-4 h-4 text-red-700 bg-white border-gray-300 rounded shadow-sm focus:ring-red-700 focus:ring-2 cursor-pointer transition-all shrink-0">
+
+                                                    <span x-show="perm.depth !== undefined" class="ml-2.5 shrink-0 transition-colors" :class="(perm.depth || 0) === 0 ? 'text-gray-500 group-hover/item:text-red-600' : 'text-gray-400 group-hover/item:text-red-500'">
+                                                        <template x-if="perm.hasChildren">
+                                                            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"></path></svg>
+                                                        </template>
+                                                        <template x-if="!perm.hasChildren">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                                                        </template>
+                                                    </span>
+
+                                                    <span x-text="perm.label" class="truncate" :class="perm.depth === undefined ? 'ml-3' : 'ml-2'"></span>
+                                                </label>
+                                            </div>
                                         </template>
                                     </div>
                                 </div>
