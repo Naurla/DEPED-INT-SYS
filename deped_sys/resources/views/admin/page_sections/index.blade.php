@@ -7,6 +7,10 @@
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #fca5a5; border-radius: 10px; }
+    /* Cursor style for draggable items */
+    .drag-handle { cursor: grab; }
+    .drag-handle:active { cursor: grabbing; }
+    .sortable-ghost { opacity: 0.4; background-color: #fef2f2; }
 </style>
 
 <div class="w-full" x-data="{ 
@@ -35,6 +39,7 @@
         this.formTitle = '';
         this.formContent = '';
         this.formOrder = 1;
+        this.formActive = '1';
         this.modalOpen = true;
     },
 
@@ -46,7 +51,8 @@
         this.formTitle = section.title || '';
         this.formContent = section.content || '';
         this.formOrder = section.sort_order;
-        this.formActive = section.is_active ? '1' : '0';
+        // Strictly parse the boolean to handle JS strings properly
+        this.formActive = (section.is_active == 1 || section.is_active === true || section.is_active == '1') ? '1' : '0';
         this.modalOpen = true;
     },
 
@@ -64,7 +70,7 @@
     <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4 w-full">
         <div>
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Content Builder</h2>
-            <p class="text-gray-500 text-sm mt-1">Assign custom text, banners, or dynamic widgets to any page.</p>
+            <p class="text-gray-500 text-sm mt-1">Assign custom text, banners, or dynamic widgets to any page. Drag and drop rows to reorder them.</p>
         </div>
         <button @click="openAdd()" class="bg-red-700 hover:bg-red-800 text-white font-bold py-2.5 px-5 rounded-lg shadow-sm transition-colors text-sm uppercase tracking-wider flex items-center whitespace-nowrap">
             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
@@ -130,29 +136,13 @@
         </form>
     </div>
 
-    {{-- Error Block --}}
-    @if ($errors->any())
-        <div class="mb-6 bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg shadow-sm">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" /></svg>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-bold text-red-800 uppercase tracking-wide">Validation Error</h3>
-                    <div class="mt-2 text-sm text-red-700 font-medium">
-                        <ul class="list-disc pl-5 space-y-1">
-                            @foreach ($errors->all() as $error)
-                                <li>{{ $error }}</li>
-                            @endforeach
-                        </ul>
-                    </div>
-                </div>
-            </div>
-        </div>
-    @endif
-
     {{-- Data Table --}}
-    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full">
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-6 w-full relative">
+        {{-- Save Notification Toast --}}
+        <div id="save-toast" class="absolute top-4 right-4 bg-green-500 text-white px-4 py-2 rounded shadow-lg text-sm font-bold opacity-0 transition-opacity duration-300 z-50 pointer-events-none">
+            Order Saved!
+        </div>
+
         <div class="overflow-x-auto w-full">
             <table class="w-full text-left border-collapse">
                 <thead class="bg-gray-50 text-gray-600 text-xs uppercase font-bold border-b border-gray-200">
@@ -162,12 +152,13 @@
                         <th class="px-6 py-4 w-1/6">Type</th>
                         <th class="px-6 py-4">Preview / Title</th>
                         <th class="px-6 py-4 text-center w-24">Order</th>
+                        <th class="px-6 py-4 text-center w-28">Status</th>
                         <th class="px-6 py-4 text-right w-32">Actions</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100">
+                <tbody class="divide-y divide-gray-100" id="sortable-sections">
                     @forelse($sections as $index => $sec)
-                    <tr class="hover:bg-gray-50/50 transition-colors">
+                    <tr class="hover:bg-gray-50/50 transition-colors bg-white" data-id="{{ $sec->id }}">
                         <td class="px-6 py-4 text-sm text-gray-600 font-medium text-center align-middle">{{ $sections->firstItem() + $index }}</td>
                         <td class="px-6 py-4 font-bold text-red-700 align-middle">{{ strtoupper(str_replace('page:', 'Page: ', $sec->display_location)) }}</td>
                         <td class="px-6 py-4 align-middle">
@@ -183,7 +174,28 @@
                                 <span class="text-xs text-gray-500">{{ Str::limit(strip_tags($sec->content), 50) }}</span>
                             @endif
                         </td>
-                        <td class="px-6 py-4 text-center font-bold text-gray-900 align-middle">{{ $sec->sort_order }}</td>
+                        
+                        {{-- DRAG HANDLE COLUMN --}}
+                        <td class="px-6 py-4 text-center align-middle">
+                            <div class="drag-handle inline-flex items-center justify-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded-lg border border-gray-200 transition-colors">
+                                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16"></path></svg>
+                                <span class="font-bold text-gray-900 sort-number">{{ $sec->sort_order }}</span>
+                            </div>
+                        </td>
+
+                        {{-- STATUS COLUMN --}}
+                        <td class="px-6 py-4 text-center align-middle">
+                            @if($sec->is_active == 1)
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-green-50 text-green-700 border border-green-200 uppercase tracking-wider">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span> Active
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-gray-50 text-gray-600 border border-gray-200 uppercase tracking-wider">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span> Hidden
+                                </span>
+                            @endif
+                        </td>
+
                         <td class="px-6 py-4 text-right align-middle">
                             <div class="flex items-center justify-end gap-3">
                                 <button type="button" @click="openEdit({{ $sec->toJson() }})" class="text-blue-600 font-bold uppercase text-xs hover:underline transition-all">Edit</button>
@@ -193,7 +205,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="6" class="px-6 py-12 text-center">
+                        <td colspan="7" class="px-6 py-12 text-center">
                             <svg class="mx-auto h-12 w-12 text-gray-300 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
                             <p class="text-gray-500 font-medium">No content blocks found.</p>
                         </td>
@@ -226,7 +238,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Assign to Page <span class="text-red-500">*</span></label>
-                            <select name="display_location" x-model="formLocation" :disabled="isSubmitting" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm bg-white text-sm disabled:opacity-50">
+                            <select name="display_location" x-model="formLocation" :class="{'pointer-events-none opacity-60': isSubmitting}" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm bg-white text-sm">
                                 <option value="home">Home Page</option>
                                 <option value="procurement">Procurement Page</option>
                                 <optgroup label="Dynamic Pages">
@@ -238,7 +250,7 @@
                         </div>
                         <div>
                             <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Content Type <span class="text-red-500">*</span></label>
-                            <select name="type" x-model="formType" :disabled="isSubmitting" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm bg-gray-50 text-sm disabled:opacity-50">
+                            <select name="type" x-model="formType" :class="{'pointer-events-none opacity-60': isSubmitting}" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm bg-gray-50 text-sm">
                                 <optgroup label="Custom Content">
                                     <option value="rich_text">Text / HTML Box</option>
                                     <option value="banner">Banner Image</option>
@@ -275,7 +287,7 @@
                     {{-- SHOW IF BANNER --}}
                     <div x-show="formType === 'banner'" class="p-6 border-2 border-dashed border-gray-300 rounded-lg bg-white shadow-sm text-center">
                         <label class="block text-gray-700 text-sm font-bold uppercase tracking-wider mb-4">Upload Banner Image</label>
-                        <input type="file" name="image" :disabled="isSubmitting" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer transition-colors disabled:opacity-50">
+                        <input type="file" name="image" :class="{'pointer-events-none opacity-60': isSubmitting}" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer transition-colors">
                         <p class="text-xs text-gray-400 mt-4 italic">Recommended: JPG or PNG under 5MB.</p>
                     </div>
 
@@ -287,7 +299,7 @@
                         </div>
                         <div>
                             <label class="block text-gray-700 text-xs font-bold uppercase tracking-wider mb-2">Visibility Status <span class="text-red-500">*</span></label>
-                            <select name="is_active" x-model="formActive" :disabled="isSubmitting" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm bg-white text-sm disabled:opacity-50">
+                            <select name="is_active" x-model="formActive" :class="{'pointer-events-none opacity-60': isSubmitting}" class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-red-500 outline-none transition-all shadow-sm bg-white text-sm">
                                 <option value="1">Active (Visible)</option>
                                 <option value="0">Hidden (Draft)</option>
                             </select>
@@ -362,4 +374,56 @@
     @endif
 
 </div>
+
+@push('scripts')
+{{-- Drag and Drop Script --}}
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var el = document.getElementById('sortable-sections');
+        if (el) {
+            var sortable = Sortable.create(el, {
+                handle: '.drag-handle', // Only allow dragging from the grip icon
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                onEnd: function (evt) {
+                    let order = [];
+                    // Loop through all rows to get the new order
+                    document.querySelectorAll('#sortable-sections tr').forEach((row, index) => {
+                        let newPosition = index + 1;
+                        order.push({
+                            id: row.getAttribute('data-id'),
+                            position: newPosition
+                        });
+                        // Update the number visually in the table right away
+                        let numberSpan = row.querySelector('.sort-number');
+                        if(numberSpan) numberSpan.innerText = newPosition;
+                    });
+
+                    // Send AJAX request to save to database
+                    fetch('{{ route('admin.page-sections.reorder') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({ order: order })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if(data.success) {
+                            // Show success toast
+                            let toast = document.getElementById('save-toast');
+                            toast.classList.remove('opacity-0');
+                            setTimeout(() => { toast.classList.add('opacity-0'); }, 2000);
+                        }
+                    })
+                    .catch(error => console.error('Error saving order:', error));
+                }
+            });
+        }
+    });
+</script>
+@endpush
 @endsection

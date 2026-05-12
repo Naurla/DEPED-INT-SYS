@@ -341,7 +341,8 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware(['permission:pages'])->group(function () {
             Route::resource('pages', AdminPageController::class);
             
-            // <-- ADDED: Page Sections Route -->
+            // <-- ADDED: Page Sections Routes -->
+            Route::post('page-sections/reorder', [PageSectionController::class, 'reorder'])->name('page-sections.reorder');
             Route::resource('page-sections', PageSectionController::class)->except(['create', 'show', 'edit']);
         });
 
