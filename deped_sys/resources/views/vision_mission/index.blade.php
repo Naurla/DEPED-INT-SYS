@@ -41,7 +41,7 @@
     <div class="w-full mb-12">
         @if(!empty($data->sections) && count($data->sections) > 0)
             {{-- Changed from space-y-8 to space-y-5 to tightly pack the sections --}}
-            <div class="space-y-5">
+            <div class="space-y-10">
                 @foreach($data->sections as $section)
                     <div class="w-full break-words">
                         

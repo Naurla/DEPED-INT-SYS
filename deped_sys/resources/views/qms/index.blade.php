@@ -40,7 +40,7 @@
     {{-- Dynamic Sections Loop --}}
     <div class="w-full mb-12">
         @if(!empty($qms->sections) && count($qms->sections) > 0)
-            <div class="space-y-5">
+            <div class="space-y-10">
                 @foreach($qms->sections as $section)
                     <div class="w-full break-words">
                         
