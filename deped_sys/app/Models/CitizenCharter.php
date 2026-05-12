@@ -10,6 +10,7 @@ class CitizenCharter extends Model
     use HasFactory;
 
     protected $fillable = [
+        'title',
         'content',
         'file_path',
         'file_name',
