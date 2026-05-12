@@ -124,7 +124,7 @@
                 <button type="submit" class="hidden">Search</button>
             </div>
         </form>
-    </div>>
+    </div>
 
     <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden mb-6">
         <div class="overflow-x-auto">

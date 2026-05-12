@@ -9,8 +9,8 @@
         [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-gray-800 [&_h2]:mt-6 [&_h2]:mb-3 
         [&_h3]:text-lg [&_h3]:font-bold [&_h3]:text-gray-800 [&_h3]:mt-4 [&_h3]:mb-2 
         [&_p]:mb-4 
-        [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 
-        [&_ol]:list-decimal [&_ol]:pl-5 [&_ol]:mb-4 
+        [&_ul]:list-disc [&_ul]:pl-8 [&_ul]:mb-4 [&_ul]:space-y-1
+        [&_ol]:list-decimal [&_ol]:pl-8 [&_ol]:mb-4 [&_ol]:space-y-1
         [&_li]:mb-1 
         [&_strong]:font-bold [&_strong]:text-gray-900 
         [&_b]:font-bold [&_b]:text-gray-900 
@@ -38,9 +38,23 @@
 
     {{-- Content Display Section --}}
     <div class="w-full mb-12">
-        @if(!empty($data->notice))
-            <div class="{{ $richTextClasses }} w-full break-words">
-                {!! $data->notice !!}
+        @if(!empty($data->sections) && count($data->sections) > 0)
+            <div class="space-y-10"> {{-- Adds generous spacing between each section --}}
+                @foreach($data->sections as $section)
+                    <div class="w-full break-words">
+                        {{-- Optional Title --}}
+                        @if(!empty($section['title']))
+                            <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-4 border-b pb-2 border-gray-200">
+                                {{ $section['title'] }}
+                            </h2>
+                        @endif
+                        
+                        {{-- Section Content --}}
+                        <div class="{{ $richTextClasses }}">
+                            {!! $section['content'] !!}
+                        </div>
+                    </div>
+                @endforeach
             </div>
         @else
             {{-- Empty State (Matched with the other templates) --}}

@@ -10,7 +10,6 @@ class DataPrivacyController extends Controller
 {
     public function index()
     {
-        // Get the first record or create an empty one
         $data = DataPrivacy::firstOrCreate([]);
         return view('admin.data_privacy.index', compact('data'));
     }
@@ -18,12 +17,24 @@ class DataPrivacyController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'notice' => 'nullable|string',
+            'sections'   => 'nullable|array',
+            'sections.*.title'   => 'nullable|string|max:255',
+            'sections.*.content' => 'required|string',
+        ], [
+            'sections.*.content.required' => 'The content field cannot be empty.'
         ]);
 
         $data = DataPrivacy::first();
-        $data->update($request->all());
+        
+        // array_values ensures the array keys are sequential (0, 1, 2) 
+        // in case the user deletes a section in the middle of the form
+        $sections = $request->has('sections') ? array_values($request->input('sections')) : [];
 
-        return redirect()->route('admin.data_privacy.index')->with('success', 'Data Privacy Notice updated successfully.');
+        $data->update([
+            'sections' => $sections
+        ]);
+
+        return redirect()->route('admin.data_privacy.index')
+                         ->with('success', 'Data Privacy Notice updated successfully.');
     }
 }
