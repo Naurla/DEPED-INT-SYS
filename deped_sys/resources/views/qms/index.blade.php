@@ -45,7 +45,7 @@
                     <div class="w-full break-words">
                         
                         @if(!empty($section['title']))
-                            <h2 class="text-xl font-bold text-gray-800 mb-2 uppercase tracking-wide">
+                            <h2 class="text-xl font-bold text-gray-800 mb-4 uppercase tracking-wide">
                                 {{ $section['title'] }}
                             </h2>
                         @endif
