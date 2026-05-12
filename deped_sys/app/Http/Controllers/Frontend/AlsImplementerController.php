@@ -32,7 +32,7 @@ class AlsImplementerController extends Controller
         }
 
         // Paginate and retain search filters in the URL (Set to 10 for consistency)
-        $items = $query->latest()->paginate(10)->withQueryString();
+        $items = $query->latest()->paginate(5)->withQueryString();
         $type_name = 'Featured ALS Implementers';
         
         return view('frontend.als_implementers.index', compact('items', 'type_name'));

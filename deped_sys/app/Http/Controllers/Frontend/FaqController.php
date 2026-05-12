@@ -22,8 +22,9 @@ class FaqController extends Controller
             });
         }
 
-        // Fetch all matching results (using get() since FAQs are an accordion list, not paginated pages)
-        $faqs = $query->latest('created_at')->get();
+        // Fetch results with 5 items per page
+        // withQueryString() ensures search parameters stay in the URL when changing pages
+        $faqs = $query->latest('created_at')->paginate(5)->withQueryString();
 
         return view('curriculum.faq', compact('faqs'));
     }

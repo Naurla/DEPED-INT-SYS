@@ -47,7 +47,7 @@ class PageSearchController extends Controller
             ->whereDoesntHave('parent.parent.parent', function($q) {
                 $q->where('show_in_nav', 0); // Great-Grandparent cannot be inactive
             })
-            ->paginate(10)->withQueryString();
+            ->paginate(5)->withQueryString();
         }
 
         return view('frontend.pages.search-results', compact('pages', 'keyword'));
