@@ -163,13 +163,14 @@ To enable automated email notifications (such as sending account credentials to 
 
 ```env
 MAIL_MAILER=smtp
-MAIL_HOST=smtp.your-provider.com
+MAIL_SCHEME=null
+MAIL_HOST=smtp.gmail.com
 MAIL_PORT=587
-MAIL_USERNAME=your_email@example.com
-MAIL_PASSWORD=your_email_password
+MAIL_USERNAME=systemdeped@gmail.com
+MAIL_PASSWORD=bzumthkteeywuzyf
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=no-reply@deped-zamboanga.edu.ph
-MAIL_FROM_NAME="DepEd Zamboanga Portal"
+MAIL_FROM_ADDRESS="systemdeped@gmail.com"
+MAIL_FROM_NAME="${APP_NAME}"
 ```
 
 ---
