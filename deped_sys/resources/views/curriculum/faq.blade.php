@@ -103,7 +103,11 @@
             @endforelse
         </div>
     </div>
-
+    
+{{-- 🟢 PAGINATION LINKS 🟢 --}}
+    <div class="mt-10">
+        {{ $faqs->appends(request()->query())->links() }}
+    </div>
 </div>
 
 <style>
