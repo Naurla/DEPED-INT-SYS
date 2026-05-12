@@ -2,16 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Qms extends Model
 {
-    use HasFactory;
+    // Add 'sections' to your fillable array
+    protected $fillable = ['scope', 'policy', 'objective', 'sections']; 
 
-    protected $fillable = [
-        'scope',
-        'policy',
-        'objective',
+    // Cast the JSON column to an array automatically
+    protected $casts = [
+        'sections' => 'array',
     ];
 }

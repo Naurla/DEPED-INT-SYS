@@ -10,23 +10,30 @@ class QmsController extends Controller
 {
     public function index()
     {
-        // Get the first record, or create an empty one if it doesn't exist
         $qms = Qms::firstOrCreate([]);
-        
         return view('admin.qms.index', compact('qms'));
     }
 
     public function update(Request $request)
     {
         $request->validate([
-            'scope' => 'nullable|string',
-            'policy' => 'nullable|string',
-            'objective' => 'nullable|string',
+            'sections'   => 'nullable|array',
+            'sections.*.title'   => 'nullable|string|max:255',
+            'sections.*.content' => 'required|string',
+        ], [
+            'sections.*.content.required' => 'The content field cannot be empty.'
         ]);
 
         $qms = Qms::first();
-        $qms->update($request->all());
+        
+        // Ensure array keys are sequential if a section was removed
+        $sections = $request->has('sections') ? array_values($request->input('sections')) : [];
 
-        return redirect()->route('admin.qms.index')->with('success', 'QMS information updated successfully.');
+        $qms->update([
+            'sections' => $sections
+        ]);
+
+        return redirect()->route('admin.qms.index')
+                         ->with('success', 'QMS information updated successfully.');
     }
 }

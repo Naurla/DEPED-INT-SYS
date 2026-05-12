@@ -2,17 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class VisionMission extends Model
 {
-    use HasFactory;
+    // Add 'sections' to your fillable array
+    protected $fillable = ['vision', 'mission', 'core_values', 'mandate', 'sections']; 
 
-    protected $fillable = [
-        'vision',
-        'mission',
-        'core_values',
-        'mandate',
+    // Cast the JSON column to an array automatically
+    protected $casts = [
+        'sections' => 'array',
     ];
 }
