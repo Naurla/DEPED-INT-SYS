@@ -31,7 +31,7 @@ class IssuanceController extends Controller
             });
         }
 
-        $items = $query->latest('date')->paginate(10)->withQueryString();
+        $items = $query->latest('date')->paginate(5)->withQueryString();
         
         $recentAdvisories = Issuance::where('type', 'advisory')->latest('date')->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest('date')->take(5)->get();
@@ -65,7 +65,7 @@ class IssuanceController extends Controller
             });
         }
 
-        $items = $query->latest('date')->paginate(10)->withQueryString();
+        $items = $query->latest('date')->paginate(5)->withQueryString();
         
         $recentAdvisories = Issuance::where('type', 'advisory')->latest('date')->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest('date')->take(5)->get();
@@ -99,7 +99,7 @@ class IssuanceController extends Controller
             });
         }
 
-        $items = $query->latest('date')->paginate(10)->withQueryString();
+        $items = $query->latest('date')->paginate(5)->withQueryString();
         
         $recentAdvisories = Issuance::where('type', 'advisory')->latest('date')->take(5)->get();
         $recentMemoranda = Issuance::where('type', 'memorandum')->latest('date')->take(5)->get();

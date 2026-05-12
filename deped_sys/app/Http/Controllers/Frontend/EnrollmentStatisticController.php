@@ -32,7 +32,7 @@ class EnrollmentStatisticController extends Controller
         }
 
         // Paginate and retain search filters in the URL (Set to 10)
-        $items = $query->latest()->paginate(10)->withQueryString();
+        $items = $query->latest()->paginate(5)->withQueryString();
         $type_name = 'Enrollment Statistics';
         
         return view('frontend.enrollment_statistics.index', compact('items', 'type_name'));

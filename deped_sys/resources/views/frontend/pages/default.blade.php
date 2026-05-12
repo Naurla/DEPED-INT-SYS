@@ -84,49 +84,46 @@
 {{-- Main Container (Perfectly balanced left and right padding using md:px-20) --}}
 <div class="container mx-auto px-4 md:px-20 max-w-10xl py-8 md:py-12 w-full overflow-hidden min-h-screen page-content">
     
-   {{-- Header Section --}}
-    <div class="mb-8 md:mb-12 text-left w-full break-words border-b border-gray-100 pb-6">
+   {{-- 🟢 HEADER: Inline Title and Round Search Bar --}}
+    <div class="mb-8 md:mb-12 flex flex-col md:flex-row justify-between items-start md:items-center w-full border-b border-gray-200 pb-6 gap-6">
         
-        {{-- 🟢 NEW: Go Back Button --}}
-        <div class="mb-4">
-            <a href="javascript:history.back()" class="inline-flex items-center text-xs font-bold text-gray-500 hover:text-[#a52a2a] transition-colors uppercase tracking-wider cursor-pointer">
-                <svg class="w-4 h-4 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
-                </svg>
-                Go Back
-            </a>
-        </div>
-        {{-- 🔴 END Go Back Button --}}
-
-        <h1 class="text-2xl md:text-3xl font-sans font-bold text-[#a52a2a] tracking-wide uppercase">
+        {{-- Title (Black) --}}
+        <h1 class="text-2xl md:text-3xl font-sans font-bold text-gray-900 tracking-wide uppercase flex-1 break-words">
             {{ $page->title }}
         </h1>
-    </div>
 
-    {{-- 🟢 NEW: Global Page Search Bar --}}
-    <div class="mb-10 w-full bg-gray-50 p-5 rounded-lg border border-gray-200 shadow-sm">
-        <form action="{{ route('pages.search') }}" method="GET" class="flex flex-col md:flex-row gap-4 items-end">
-            <div class="w-full flex-grow">
-                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Search All Pages</label>
+        {{-- Rounded Inline Search Bar --}}
+        <div class="w-full md:w-auto md:min-w-[320px]">
+            <form action="{{ route('pages.search') }}" method="GET" class="relative flex items-center w-full shadow-sm rounded-full border border-gray-300 bg-white focus-within:border-[#003366] focus-within:ring-1 focus-within:ring-[#003366] transition-all overflow-hidden">
+                
+                {{-- Search Icon inside the bar --}}
+                <div class="pl-4 flex items-center justify-center text-gray-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                </div>
+
+                {{-- The Input Field --}}
                 <input 
                     type="text" 
                     name="q" 
-                    class="w-full border-gray-300 rounded-md shadow-sm px-4 py-3 text-sm focus:border-[#003366] focus:ring focus:ring-[#003366] focus:ring-opacity-20 transition-all" 
-                    placeholder="Search for policies, history, guidelines..." 
+                    class="w-full border-none pl-3 pr-5 py-2.5 text-sm focus:ring-0 outline-none bg-transparent text-gray-700 placeholder-gray-400" 
+                    placeholder="Search & hit enter..." 
                     required
                 >
-            </div>
-            <div class="w-full md:w-auto">
-                <button type="submit" class="w-full md:w-auto bg-[#003366] hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-md uppercase text-xs tracking-wider transition-colors shadow-sm">
-                    Search
-                </button>
-            </div>
-        </form>
+            </form>
+        </div>
+
     </div>
-    {{-- 🔴 END Search Bar --}}
+    {{-- 🔴 END HEADER --}}
 
     {{-- w-full ensures it consumes the page evenly --}}
     <div class="w-full">
+        
+        {{-- 🟢 MAIN PAGE CONTENT (Moved to the top!) 🟢 --}}
+        <div class="prose max-w-none text-gray-800 mb-10">
+            {!! $page->content !!}
+        </div>
         
         {{-- 🌟 DYNAMIC PAGE SECTIONS (WIDGETS, BANNERS, & TEXT BLOCKS) 🌟 --}}
         {{-- Renders exactly for this specific dynamic page slug --}}
@@ -151,7 +148,7 @@
                             $iframeSrc = "https://www.facebook.com/plugins/video.php?href=" . urlencode($video['url']) . "&show_text=false";
                         } elseif (str_contains($url, 'youtube.com') || str_contains($url, 'youtu.be')) {
                             $platform = 'youtube';
-                            preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $video['url'], $match);
+                            $preg_match = preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $video['url'], $match);
                             if (isset($match[1])) { $iframeSrc = "https://www.youtube.com/embed/" . $match[1]; }
                         } elseif (str_contains($url, 'tiktok.com')) {
                             $platform = 'tiktok';
@@ -180,10 +177,6 @@
             </div>
         @endif
         {{-- END SMART MULTI-VIDEO RENDERER --}}
-
-        <div class="prose max-w-none text-gray-800">
-            {!! $page->content !!}
-        </div>
         
     </div>
 </div>

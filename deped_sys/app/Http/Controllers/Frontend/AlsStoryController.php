@@ -32,7 +32,7 @@ class AlsStoryController extends Controller
         }
 
         // Paginate and retain search filters in the URL (Set to 10 for consistency)
-        $items = $query->latest()->paginate(10)->withQueryString();
+        $items = $query->latest()->paginate(5)->withQueryString();
         $type_name = 'ALS Stories';
         
         return view('frontend.als_stories.index', compact('items', 'type_name'));

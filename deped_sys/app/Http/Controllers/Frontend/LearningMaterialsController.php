@@ -32,7 +32,7 @@ class LearningMaterialsController extends Controller
         }
 
         // Paginate and retain search filters in the URL (Set to 10)
-        $materials = $query->latest()->paginate(10)->withQueryString();
+        $materials = $query->latest()->paginate(5)->withQueryString();
         
         return view('learning_materials.index', compact('materials'));
     }

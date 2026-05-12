@@ -49,7 +49,7 @@ class BidOpportunityController extends Controller
 
         // Paginate and retain search filters in the URL 
         // Note: I increased pagination to 10 (from 5) to match issuances, but you can change it back if you prefer!
-        $opportunities = $query->latest('date')->latest('id')->paginate(10)->withQueryString();
+        $opportunities = $query->latest('date')->latest('id')->paginate(5)->withQueryString();
         
         return view('/procurement/list', [
             'type_name' => $this->getCategoryTitle($category),

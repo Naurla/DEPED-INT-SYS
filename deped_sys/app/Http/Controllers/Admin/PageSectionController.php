@@ -69,7 +69,7 @@ class PageSectionController extends Controller
     {
         $request->validate([
             'display_location' => 'required|string',
-            'type' => 'required|string', // Removed strict 'in:' so it accepts any widget type
+            'type' => 'required|string',
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
@@ -77,7 +77,8 @@ class PageSectionController extends Controller
             'is_active' => 'required|boolean'
         ]);
 
-        $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order', 'is_active']);
+        $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order']);
+        $data['is_active'] = $request->boolean('is_active'); // Explicitly cast to boolean
 
         if ($request->type === 'banner' && $request->hasFile('image')) {
             $file = $request->file('image');
@@ -104,7 +105,8 @@ class PageSectionController extends Controller
             'is_active' => 'required|boolean'
         ]);
 
-        $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order', 'is_active']);
+        $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order']);
+        $data['is_active'] = $request->boolean('is_active'); // Explicitly cast to boolean
 
         // Handle Image Replacement for Banners
         if ($request->type === 'banner' && $request->hasFile('image')) {
@@ -137,5 +139,20 @@ class PageSectionController extends Controller
         
         $section->delete();
         return back()->with('success', 'Content block deleted!');
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*.id' => 'required|exists:page_sections,id',
+            'order.*.position' => 'required|integer',
+        ]);
+
+        foreach ($request->order as $item) {
+            PageSection::where('id', $item['id'])->update(['sort_order' => $item['position']]);
+        }
+
+        return response()->json(['success' => true, 'message' => 'Order updated successfully.']);
     }
 }

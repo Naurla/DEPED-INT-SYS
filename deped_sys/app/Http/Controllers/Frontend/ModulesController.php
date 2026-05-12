@@ -31,7 +31,7 @@ class ModulesController extends Controller {
         }
 
         // Paginate and retain search filters in the URL (Increased to 10 for consistency)
-        $items = $query->latest()->paginate(10)->withQueryString();
+        $items = $query->latest()->paginate(5)->withQueryString();
         
         return view('modules.index', compact('items'));
     }
