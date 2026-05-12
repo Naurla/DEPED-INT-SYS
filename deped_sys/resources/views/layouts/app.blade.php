@@ -24,7 +24,7 @@
         qrModal: false
     }">
 
-    {{-- RESPONSIVE HEADER --}}
+    {{-- RESPONSIVE HEADER (Not Sticky) --}}
     <header class="bg-[#a52a2a] text-white py-2 md:py-4 px-2 md:px-10 shadow-lg relative z-50">
         @php 
             $leftLogos = isset($site_logos) ? $site_logos->where('position', 'left') : collect(); 
@@ -66,7 +66,8 @@
         </div>
     </header>
 
-    <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-sm relative z-40">
+    {{-- STICKY NAVIGATION --}}
+    <nav class="bg-[#f2f2f2] border-b border-gray-300 shadow-md sticky top-0 z-[60] w-full max-h-screen overflow-y-auto md:overflow-visible transition-all">
         <div class="flex lg:hidden items-center justify-between px-6 py-3">
             <span class="font-bold text-gray-800">MENU</span>
             <button @click="mobileMenu = !mobileMenu" class="text-gray-600 focus:outline-none">
@@ -268,21 +269,6 @@
                     </div>
                 </div>
 
-                {{-- Division Data --}}
-                {{--
-                <div x-data="{ open: false }" @click.outside="open = false" @mouseenter="if(window.innerWidth >= 768) open = true" @mouseleave="if(window.innerWidth >= 768) open = false" 
-                    class="relative flex w-full md:w-auto border-r border-gray-300 transition-all {{ request()->is('schools/map-directory*') ? 'bg-white text-[#a52a2a] font-bold' : 'hover:bg-white text-gray-800' }}">
-                    <div @click="open = !open" class="flex items-center justify-center px-6 py-[14px] w-full h-full cursor-pointer">
-                        <span>Division Data</span>
-                        <svg :class="open ? 'rotate-180 md:rotate-0' : ''" class="w-3 h-3 ml-2 text-gray-400 flex-shrink-0 transition-transform" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"/></svg>
-                    </div>
-                    <div x-show="open" x-transition.opacity.duration.200ms x-cloak class="md:absolute md:left-0 md:top-full w-full md:w-max min-w-[250px] bg-white md:shadow-2xl border-t md:border border-gray-200 py-2 md:z-50 font-normal">
-                        <a href="{{ url('schools/map-directory') }}" class="block px-6 py-3 hover:bg-gray-100 border-b border-gray-50 text-gray-700 transition-colors whitespace-nowrap {{ request()->is('schools/map-directory') ? 'text-[#a52a2a] font-bold bg-gray-100' : '' }}">
-                            Interactive School Map
-                        </a>
-                    </div>
-                </div>
---}}
                 @if(isset($navPages) && $navPages->isNotEmpty())
                     @foreach($navPages as $navPage)
                         @if($navPage->show_in_nav)
