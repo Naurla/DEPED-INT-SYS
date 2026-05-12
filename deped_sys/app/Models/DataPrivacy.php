@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class DataPrivacy extends Model
 {
-    use HasFactory;
+    protected $fillable = ['notice', 'sections']; // Add sections
 
-    protected $fillable = [
-        'notice',
+    // Cast the JSON column to an array automatically
+    protected $casts = [
+        'sections' => 'array',
     ];
 }
