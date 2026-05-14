@@ -157,6 +157,7 @@
                 category: 'Website Content', layout: 'grid',
                 permissions: [
                     { value: 'pages', label: 'Custom Pages Management' },
+                    { value: 'page_sections', label: 'Page Sections' }, // Added Page Sections here
                     { value: 'banners', label: 'Banners' },
                     { value: 'logos', label: 'Site Logos' }
                 ]
