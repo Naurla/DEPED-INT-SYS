@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Role;
-use App\Models\Page; // Imported Page model
+use App\Models\Page; 
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserCreatedMail;
 
@@ -18,7 +18,6 @@ class UserController extends Controller
     {
         $query = User::with('role');
 
-        // Search Filter (by name or email)
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -27,22 +26,18 @@ class UserController extends Controller
             });
         }
 
-        // Role Filter
         if ($request->filled('role')) {
             $query->where('role_id', $request->role);
         }
 
-        // Year Filter
         if ($request->filled('year')) {
             $query->whereYear('created_at', $request->year);
         }
 
-        // Month Filter
         if ($request->filled('month')) {
             $query->whereMonth('created_at', $request->month);
         }
 
-        // Sort Filter
         if ($request->filled('sort')) {
             switch ($request->sort) {
                 case 'oldest':
@@ -66,13 +61,13 @@ class UserController extends Controller
         $users = $query->paginate(10)->withQueryString();
         $roles = Role::all();
         
-        // Get unique years for the dropdown filter
-        $years = User::selectRaw('YEAR(created_at) as year')
-            ->distinct()
-            ->orderBy('year', 'desc')
-            ->pluck('year');
+        $years = User::pluck('created_at')
+            ->filter()
+            ->map(fn($date) => $date->format('Y'))
+            ->unique()
+            ->sortDesc()
+            ->values();
 
-        // Fetch hierarchical dynamic pages 
         $dynamicPages = Page::with('children')->whereNull('parent_id')->get();
 
         return view('admin.users.index', compact('users', 'roles', 'years', 'dynamicPages'));
@@ -80,6 +75,12 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
+        // Automatically clean before validating so the unique check works correctly
+        $request->merge([
+            'email' => strtolower(trim($request->email)),
+            'name' => trim($request->name)
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users',
@@ -88,19 +89,16 @@ class UserController extends Controller
             'email.unique' => 'A user with this email address already exists in the system.'
         ]);
 
-        // Generate temporary password
         $tempPassword = Str::random(10);
 
-        // Create the user
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($tempPassword),
-            'role_id' => $request->role_id,
-            'requires_password_change' => true,
-        ]);
+        $user = new User();
+        $user->name = $request->name; // Already trimmed above
+        $user->email = $request->email; // Already lowercase and trimmed above
+        $user->role_id = $request->role_id;
+        $user->password = Hash::make($tempPassword); 
+        $user->requires_password_change = true;
+        $user->save();
 
-        // Send the email with the temporary password
         Mail::to($user->email)->send(new UserCreatedMail($user, $tempPassword));
 
         return back()->with('success', 'User created successfully! An email with their temporary password has been sent.');
@@ -108,6 +106,12 @@ class UserController extends Controller
 
     public function update(Request $request, User $user)
     {
+        // Clean inputs here too, to prevent spaces sneaking in during edits
+        $request->merge([
+            'email' => strtolower(trim($request->email)),
+            'name' => trim($request->name)
+        ]);
+
         $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id, 
@@ -129,5 +133,22 @@ class UserController extends Controller
     {
         $user->delete();
         return back()->with('success', 'User deleted successfully.');
+    }
+
+    public function resetPassword(Request $request, User $user)
+    {
+        if (auth()->user()->role && auth()->user()->role->slug !== 'super-admin') {
+            return back()->withErrors(['error' => 'Unauthorized action. Only super admins can manually reset user passwords.']);
+        }
+
+        $tempPassword = Str::random(10);
+
+        $user->password = Hash::make($tempPassword);
+        $user->requires_password_change = true;
+        $user->save();
+
+        Mail::to($user->email)->send(new UserCreatedMail($user, $tempPassword));
+
+        return back()->with('success', "Password successfully reset for {$user->name}. An email with the new temporary password has been sent to their inbox.");
     }
 }

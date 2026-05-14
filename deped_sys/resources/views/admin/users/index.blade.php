@@ -47,7 +47,6 @@
     }
 </style>
 
-{{-- Setup global var for page hierarchy to avoid html string breaks --}}
 <script>
     window.dynamicPagesData = @json($dynamicPages ?? []);
 </script>
@@ -55,13 +54,13 @@
 <div x-data="{ 
     activeTab: 'users',
     
-    // Global Modals
     successModal: {{ session('success') ? 'true' : 'false' }},
     errorModal: {{ $errors->any() ? 'true' : 'false' }},
     
-    // User Modals
     showAddUserModal: false, 
     showEditUserModal: false,
+    showResetPasswordModal: false,
+    resetPasswordUser: null,
     selectedRole: null,
     isSubmitting: false,
     
@@ -82,7 +81,11 @@
         this.showEditUserModal = true;
     },
 
-    // Role Modals
+    openResetPassword(user) {
+        this.resetPasswordUser = user;
+        this.showResetPasswordModal = true;
+    },
+
     showAddRoleModal: false,
     showEditRoleModal: false,
 
@@ -145,85 +148,16 @@
 
     init() {
         let baseCategories = [
-            {
-                category: 'Core System', layout: 'grid',
-                permissions: [
-                    { value: 'dashboard', label: 'Dashboard' },
-                    { value: 'settings', label: 'System Settings' },
-                    { value: 'users', label: 'User & Role Management' }
-                ]
-            },
-            {
-                category: 'Website Content', layout: 'grid',
-                permissions: [
-                    { value: 'pages', label: 'Custom Pages Management' },
-                    { value: 'page_sections', label: 'Page Sections' }, // Added Page Sections here
-                    { value: 'banners', label: 'Banners' },
-                    { value: 'logos', label: 'Site Logos' }
-                ]
-            },
-            {
-                category: 'About & Organization', layout: 'grid',
-                permissions: [
-                    { value: 'qms', label: 'Quality Management System (QMS)' },
-                    { value: 'vision_mission', label: 'Vision & Mission' },
-                    { value: 'data_privacy', label: 'Data Privacy' },
-                    { value: 'citizen_charter', label: 'Citizen\'s Charter' },
-                    { value: 'org_chart', label: 'Organizational Chart' },
-                    { value: 'division_structures', label: 'Division Structures' },
-                    { value: 'sgod', label: 'SGOD' },
-                    { value: 'osds', label: 'OSDS' },
-                    { value: 'cid', label: 'CID' }
-                ]
-            },
-            {
-                category: 'Division Issuances', layout: 'list',
-                permissions: [
-                    { value: 'advisories', label: 'Advisories' },
-                    { value: 'memoranda', label: 'Memoranda' },
-                    { value: 'hrmpsb', label: 'HRMPSB' }
-                ]
-            },
-            {
-                category: 'K-12 & Curriculum', layout: 'grid',
-                permissions: [
-                    { value: 'curriculum', label: 'K to 12 Basic Education' },
-                    { value: 'elementary', label: 'Elementary' },
-                    { value: 'junior_high', label: 'Junior High School' },
-                    { value: 'senior_high', label: 'Senior High School' },
-                    { value: 'materials', label: 'Learning Materials' },
-                    { value: 'faq', label: 'FAQ Management' }
-                ]
-            },
-            {
-                category: 'Alternative Learning System (ALS)', layout: 'grid',
-                permissions: [
-                    { value: 'enrollment_statistics', label: 'Enrollment Statistics' },
-                    { value: 'als_stories', label: 'ALS Stories' },
-                    { value: 'modules', label: 'Modules' },
-                    { value: 'als_implementers', label: 'ALS Implementers' }
-                ]
-            },
-            {
-                category: 'Procurement', layout: 'grid',
-                permissions: [
-                    { value: 'procurement_bid_opportunities', label: 'Bid Opportunities' },
-                    { value: 'procurement_apcpi', label: 'APCPI' },
-                    { value: 'procurement_app_cse', label: 'APP CSE' },
-                    { value: 'procurement_app_non_cse', label: 'APP Non CSE' },
-                    { value: 'procurement_award_notices', label: 'Award Notices' },
-                    { value: 'procurement_pmr', label: 'PMR' },
-                    { value: 'procurement_pre_bid_minutes', label: 'Minutes of Pre-Bid' }
-                ]
-            }
+            { category: 'Core System', layout: 'grid', permissions: [ { value: 'dashboard', label: 'Dashboard' }, { value: 'settings', label: 'System Settings' }, { value: 'users', label: 'User & Role Management' } ] },
+            { category: 'Website Content', layout: 'grid', permissions: [ { value: 'pages', label: 'Custom Pages Management' }, { value: 'page_sections', label: 'Page Sections' }, { value: 'banners', label: 'Banners' }, { value: 'logos', label: 'Site Logos' } ] },
+            { category: 'About & Organization', layout: 'grid', permissions: [ { value: 'qms', label: 'Quality Management System (QMS)' }, { value: 'vision_mission', label: 'Vision & Mission' }, { value: 'data_privacy', label: 'Data Privacy' }, { value: 'citizen_charter', label: 'Citizen\'s Charter' }, { value: 'org_chart', label: 'Organizational Chart' }, { value: 'division_structures', label: 'Division Structures' }, { value: 'sgod', label: 'SGOD' }, { value: 'osds', label: 'OSDS' }, { value: 'cid', label: 'CID' } ] },
+            { category: 'Division Issuances', layout: 'list', permissions: [ { value: 'advisories', label: 'Advisories' }, { value: 'memoranda', label: 'Memoranda' }, { value: 'hrmpsb', label: 'HRMPSB' } ] },
+            { category: 'K-12 & Curriculum', layout: 'grid', permissions: [ { value: 'curriculum', label: 'K to 12 Basic Education' }, { value: 'elementary', label: 'Elementary' }, { value: 'junior_high', label: 'Junior High School' }, { value: 'senior_high', label: 'Senior High School' }, { value: 'materials', label: 'Learning Materials' }, { value: 'faq', label: 'FAQ Management' } ] },
+            { category: 'Alternative Learning System (ALS)', layout: 'grid', permissions: [ { value: 'enrollment_statistics', label: 'Enrollment Statistics' }, { value: 'als_stories', label: 'ALS Stories' }, { value: 'modules', label: 'Modules' }, { value: 'als_implementers', label: 'ALS Implementers' } ] },
+            { category: 'Procurement', layout: 'grid', permissions: [ { value: 'procurement_bid_opportunities', label: 'Bid Opportunities' }, { value: 'procurement_apcpi', label: 'APCPI' }, { value: 'procurement_app_cse', label: 'APP CSE' }, { value: 'procurement_app_non_cse', label: 'APP Non CSE' }, { value: 'procurement_award_notices', label: 'Award Notices' }, { value: 'procurement_pmr', label: 'PMR' }, { value: 'procurement_pre_bid_minutes', label: 'Minutes of Pre-Bid' } ] }
         ];
 
-        let dynamicPagesCategory = {
-            category: 'Custom Nested Pages',
-            layout: 'list',
-            permissions: []
-        };
-
+        let dynamicPagesCategory = { category: 'Custom Nested Pages', layout: 'list', permissions: [] };
         let issuancesCategory = baseCategories.find(c => c.category === 'Division Issuances');
 
         let getDescendantSlugs = (page) => {
@@ -263,7 +197,6 @@
 
         if (this.dynamicPages && this.dynamicPages.length > 0) {
             let flatPages = flattenPages(this.dynamicPages);
-
             flatPages.forEach(page => {
                 if (page.menu_location === 'issuances' || page.menu_location === 'Division Issuances') {
                     if (issuancesCategory) issuancesCategory.permissions.push(page);
@@ -299,7 +232,6 @@
         </div>
     </div>
 
-    {{-- NAVIGATION TABS --}}
     <div class="border-b border-gray-200 mb-6">
         <nav class="-mb-px flex space-x-8">
             <button @click="activeTab = 'users'" 
@@ -317,9 +249,7 @@
         </nav>
     </div>
 
-    {{-- ========================================== --}}
     {{-- TAB 1: USER MANAGEMENT --}}
-    {{-- ========================================== --}}
     <div x-show="activeTab === 'users'">
         
         <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
@@ -404,7 +334,12 @@
                                 </td>
                                 <td class="p-4 flex justify-end gap-3 items-center">
                                     @if(auth()->user()->id !== $user->id)
-                                        <button @click='openEditUser(@json($user))' class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                        <button @click="openEditUser({{ \Illuminate\Support\Js::from($user) }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit</button>
+                                        
+                                        @if(auth()->user()->role && auth()->user()->role->slug === 'super-admin')
+                                            <button @click="openResetPassword({{ \Illuminate\Support\Js::from($user) }})" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Reset PW</button>
+                                        @endif
+                                        
                                         <button @click="$dispatch('open-delete-modal', { action: '{{ route('admin.users.destroy', $user) }}', title: '{{ addslashes($user->name) }} ({{ addslashes($user->email) }})' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                                     @else
                                         <span class="text-[10px] text-gray-500 font-bold bg-gray-100 border border-gray-200 px-3 py-1 rounded-full uppercase tracking-wider">Current User</span>
@@ -424,9 +359,7 @@
         @endif
     </div>
 
-    {{-- ========================================== --}}
     {{-- TAB 2: ROLE MANAGEMENT --}}
-    {{-- ========================================== --}}
     <div x-show="activeTab === 'roles'" x-cloak class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden transition-opacity">
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -459,7 +392,7 @@
                                 @endif
                             </td>
                             <td class="p-4 flex justify-end gap-3 items-center">
-                                <button @click='openEditRole(@json($role))' class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit Config</button>
+                                <button @click="openEditRole({{ \Illuminate\Support\Js::from($role) }})" class="text-blue-600 hover:text-blue-800 font-bold text-xs uppercase hover:underline">Edit Config</button>
                                 <button @click="$dispatch('open-delete-modal', { action: '/admin/roles/{{ $role->id }}', title: 'Delete role: {{ addslashes($role->name) }}?' })" class="text-red-600 hover:text-red-800 font-bold text-xs uppercase hover:underline">Delete</button>
                             </td>
                         </tr>
@@ -472,9 +405,7 @@
     </div>
 
 
-    {{-- ========================================== --}}
     {{-- MODAL: ADD USER --}}
-    {{-- ========================================== --}}
     <div x-show="showAddUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showAddUserModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
@@ -501,7 +432,7 @@
                     </div>
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
-                        <select name="role_id" required :disabled="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white cursor-pointer disabled:opacity-50">
+                        <select name="role_id" required :class="{'opacity-50 pointer-events-none': isSubmitting}" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white cursor-pointer">
                             <option value="">Select a Role...</option>
                             @foreach($roles as $role)
                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
@@ -524,9 +455,7 @@
     </div>
 
 
-    {{-- ========================================== --}}
     {{-- MODAL: EDIT USER --}}
-    {{-- ========================================== --}}
     <div x-show="showEditUserModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showEditUserModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
@@ -549,7 +478,7 @@
                     
                     <div>
                         <label class="block text-gray-800 text-lg font-bold mb-2">Assign Role <span class="text-red-500">*</span></label>
-                        <select name="role_id" x-model="editUserData.role_id" required :disabled="isSubmitting" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white cursor-pointer disabled:opacity-50">
+                        <select name="role_id" x-model="editUserData.role_id" required :class="{'opacity-50 pointer-events-none': isSubmitting}" class="w-full border border-gray-300 p-4 text-lg rounded-lg focus:ring-2 focus:ring-red-700 outline-none transition-all bg-white cursor-pointer">
                             <option value="">Select a Role...</option>
                             @foreach($roles as $role)
                                 <option value="{{ $role->id }}">{{ $role->name }}</option>
@@ -572,9 +501,7 @@
     </div>
 
 
-    {{-- ========================================== --}}
     {{-- MODAL: ADD ROLE --}}
-    {{-- ========================================== --}}
     <div x-show="showAddRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showAddRoleModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
@@ -687,9 +614,8 @@
         </div>
     </div>
 
-    {{-- ========================================== --}}
+
     {{-- MODAL: EDIT ROLE --}}
-    {{-- ========================================== --}}
     <div x-show="showEditRoleModal" x-cloak class="fixed inset-0 z-[90] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
         <div class="bg-white rounded-xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col max-h-[95vh]" @click.away="if (!isSubmitting) showEditRoleModal = false">
             <div class="bg-red-700 px-8 py-5 flex justify-between items-center text-white flex-shrink-0">
@@ -838,6 +764,40 @@
                         <span x-show="isSubmitting" x-cloak class="flex items-center">
                             <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                             Deleting...
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    {{-- MODERNIZED GLOBAL MODAL: Reset Password Confirmation --}}
+    <div x-show="showResetPasswordModal" x-cloak class="fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-60 px-4 backdrop-blur-sm transition-opacity">
+        <div class="bg-white rounded-3xl shadow-2xl z-50 w-full max-w-md transform transition-all relative overflow-hidden p-8" @click.away="if (!isSubmitting) showResetPasswordModal = false">
+            <div class="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-red-50 mb-6">
+                <div class="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                    <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                </div>
+            </div>
+            <div class="text-center">
+                <h3 class="text-2xl font-bold text-gray-900 mb-2">Reset Password?</h3>
+                <p class="text-gray-500 text-sm mb-5">You are about to reset the password for this user. A new temporary password will be auto-generated and emailed to them immediately.</p>
+                <div class="mb-8 max-h-32 overflow-y-auto custom-scrollbar bg-gray-50 p-4 rounded-xl border border-gray-100">
+                    <span class="font-bold text-gray-900 break-all text-lg block" x-text="resetPasswordUser ? resetPasswordUser.name : ''"></span>
+                    <span class="text-gray-500 text-sm block" x-text="resetPasswordUser ? resetPasswordUser.email : ''"></span>
+                </div>
+            </div>
+            <div class="flex gap-3">
+                <button type="button" @click="showResetPasswordModal = false" :disabled="isSubmitting" class="flex-1 inline-flex justify-center rounded-xl border border-gray-300 bg-white px-5 py-3 text-sm font-bold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:ring-offset-1 transition-all disabled:opacity-50">
+                    Cancel
+                </button>
+                <form :action="resetPasswordUser ? '/admin/users/' + resetPasswordUser.id + '/reset-password' : '#'" method="POST" class="flex-1 m-0 p-0 flex" @submit="isSubmitting = true">
+                    @csrf
+                    <button type="submit" :disabled="isSubmitting" :class="{'opacity-75 cursor-wait': isSubmitting, 'hover:bg-red-700': !isSubmitting}" class="w-full inline-flex justify-center rounded-xl border border-transparent bg-red-600 px-5 py-3 text-sm font-bold text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 transition-all">
+                        <span x-show="!isSubmitting">Yes, Reset</span>
+                        <span x-show="isSubmitting" x-cloak class="flex items-center">
+                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                            Resetting...
                         </span>
                     </button>
                 </form>

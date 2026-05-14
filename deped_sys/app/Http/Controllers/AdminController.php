@@ -10,7 +10,7 @@ use App\Models\User;
 use App\Models\Page;     
 use App\Models\LearningMaterial; 
 use App\Models\BidOpportunity;
-use App\Models\Modules; // <-- Added Modules Model
+use App\Models\Modules;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash; 
 use Illuminate\Support\Facades\Mail; 
@@ -21,7 +21,6 @@ class AdminController extends Controller
 {
     public function index()
     {
-        // 1. Get accurate records
         $counts = [
             'users'       => \App\Models\User::count(),
             'issuances'   => \App\Models\Issuance::count(),
@@ -30,35 +29,29 @@ class AdminController extends Controller
             'procurement' => \App\Models\BidOpportunity::count(),
             'enrollment'  => \App\Models\EnrollmentStatistic::count(),
             'banners'     => \App\Models\Banner::count(),
-            'modules'     => \App\Models\Modules::count(), // <-- ADDED THIS SO THE DASHBOARD CAN SEE IT
+            'modules'     => \App\Models\Modules::count(), 
         ];
 
-        // 2. Fetch Recent Activity 
         $recentProcurements = \App\Models\BidOpportunity::latest()->take(5)->get();
         $recentIssuances = \App\Models\Issuance::latest()->take(5)->get();
 
-        // 3. Prepare Chart Data (DYNAMIC REAL DATA FOR THE LAST 6 MONTHS)
         $months = [];
         $procurementData = [];
         $issuancesData = [];
 
-        // Loop backwards from 5 months ago to the current month
         for ($i = 5; $i >= 0; $i--) {
             $date = Carbon::now()->subMonths($i);
-            $months[] = $date->format('M'); // e.g., 'Oct', 'Nov', 'Dec'
+            $months[] = $date->format('M'); 
 
-            // Count real Procurement records for that specific month & year
             $procurementData[] = \App\Models\BidOpportunity::whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->count();
 
-            // Count real Issuance records for that specific month & year
             $issuancesData[] = \App\Models\Issuance::whereYear('created_at', $date->year)
                 ->whereMonth('created_at', $date->month)
                 ->count();
         }
 
-        // Pack the real data into the array
         $chartData = [
             'months' => $months,
             'procurement' => $procurementData,
@@ -75,10 +68,20 @@ class AdminController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             'email' => ['required', 'email'], 
             'password' => ['required'],
         ]);
+
+        // FIX: Clean the inputs to remove invisible trailing spaces 
+        // and force email to lowercase for reliable matching.
+        $email = strtolower(trim($request->email));
+        $password = trim($request->password);
+
+        $credentials = [
+            'email' => $email,
+            'password' => $password,
+        ];
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
@@ -96,12 +99,11 @@ class AdminController extends Controller
         return redirect('/');
     }
 
-    // ==========================================
-    // PASSWORD RESET LOGIC
-    // ==========================================
-
     public function sendResetCode(Request $request)
     {
+        // Also clean the email here before validating
+        $request->merge(['email' => strtolower(trim($request->email))]);
+
         $request->validate([
             'email' => 'required|email|exists:users,email'
         ], [
@@ -125,6 +127,8 @@ class AdminController extends Controller
 
     public function resetPassword(Request $request)
     {
+        $request->merge(['email' => strtolower(trim($request->email))]);
+
         $request->validate([
             'email' => 'required|email|exists:users,email',
             'code' => 'required|string',
@@ -133,7 +137,7 @@ class AdminController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user->remember_token || $user->remember_token !== $request->code) {
+        if (!$user->remember_token || $user->remember_token !== trim($request->code)) {
             return back()->withErrors(['code' => 'The reset code is invalid.'])->withInput();
         }
 
@@ -143,7 +147,7 @@ class AdminController extends Controller
             return back()->withErrors(['code' => 'The reset code has expired. Please request a new one.'])->withInput();
         }
 
-        $user->password = Hash::make($request->password);
+        $user->password = Hash::make(trim($request->password));
         $user->remember_token = null; 
         $user->save();
 

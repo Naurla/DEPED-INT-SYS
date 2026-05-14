@@ -11,7 +11,6 @@ class ProfileController extends Controller
 {
     public function edit()
     {
-        // Check if the user has been verified in this session
         $isVerified = session()->get('profile_verified', false);
         return view('admin.profile.edit', compact('isVerified'));
     }
@@ -23,7 +22,6 @@ class ProfileController extends Controller
         ]);
 
         if (Hash::check($request->current_password, auth()->user()->password)) {
-            // Store verification in session. It will persist until logout or session expiry.
             session()->put('profile_verified', true);
             return redirect()->route('admin.profile.edit')->with('success', 'Password verified. You can now edit your profile.');
         }
@@ -33,7 +31,6 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-        // Ensure they didn't bypass the UI
         if (!session()->get('profile_verified')) {
             return redirect()->route('admin.profile.edit');
         }
@@ -49,7 +46,11 @@ class ProfileController extends Controller
         $user->name = $request->name;
 
         if ($request->filled('password')) {
+            // FIX: Explicitly hash the new password
             $user->password = Hash::make($request->password);
+            
+            // FIX: Clear the requirement flag since they changed it successfully
+            $user->requires_password_change = false;
         }
 
         if ($request->hasFile('photo')) {
@@ -60,9 +61,6 @@ class ProfileController extends Controller
         }
 
         $user->save();
-
-        // REMOVED: session()->forget('profile_verified'); 
-        // Now the user stays verified until they log out!
 
         return redirect()->route('admin.profile.edit')->with('success', 'Profile updated successfully!');
     }
