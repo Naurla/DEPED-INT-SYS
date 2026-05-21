@@ -14,6 +14,7 @@
         "laravel/tinker": "^2.10.1",
         "phpoffice/phpspreadsheet": "*",
         "simplesoftwareio/simple-qrcode": "*",
+        "spatie/laravel-activitylog": "*",
         "yajra/laravel-datatables-oracle": "*"
     },
     "require-dev": {

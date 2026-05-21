@@ -3,9 +3,13 @@
 namespace App\Models;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class Issuance extends Model
 {
+    use LogsActivity;
+
     protected $fillable = ['title', 'description', 'type', 'pdf_path', 'image_path', 'date', 'link'];// Added 'date'
 
     public function getDisplayTitleAttribute()
@@ -15,5 +19,14 @@ class Issuance extends Model
         $formattedDate = Carbon::parse($dateToFormat)->format('F d, Y');
         
         return "{$formattedDate} - {$this->title}";
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty() 
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "User has been {$eventName}");
     }
 }

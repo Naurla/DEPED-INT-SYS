@@ -34,6 +34,7 @@
           sidebarOpen: true, 
           mobileOpen: false,
           maintenanceModalOpen: false,
+          logoutModalOpen: false,
           siteDisabled: {{ $isMaintenance ? 'true' : 'false' }},
           disabledPages: {{ json_encode($disabledPages) }},
           
@@ -135,6 +136,7 @@
 
     <div x-show="mobileOpen" x-cloak class="fixed inset-0 bg-black bg-opacity-50 z-20 md:hidden" @click="mobileOpen = false" x-transition.opacity></div>
 
+    {{-- Maintenance Modal --}}
     <div x-show="maintenanceModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60" x-transition.opacity>
         <div class="bg-white rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden" @click.away="maintenanceModalOpen = false" x-transition.scale>
             <div class="bg-[#a52a2a] p-4 text-white flex justify-between items-center">
@@ -201,6 +203,29 @@
         </div>
     </div>
 
+    {{-- Logout Confirmation Modal (Upsized!) --}}
+    <div x-show="logoutModalOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60" x-transition.opacity>
+        <div class="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden" @click.away="logoutModalOpen = false" x-transition.scale>
+            <div class="p-8 text-center">
+                <svg class="mx-auto mb-4 text-[#a52a2a] w-14 h-14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
+                <h3 class="mb-6 text-xl font-bold text-gray-800">Are you sure you want to logout?</h3>
+                <div class="flex justify-center space-x-4">
+                    <button @click="logoutModalOpen = false" class="px-6 py-2.5 text-sm font-semibold text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors border border-gray-200">
+                        Cancel
+                    </button>
+                    <form action="{{ route('logout') }}" method="POST" class="inline">
+                        @csrf
+                        <button type="submit" class="px-6 py-2.5 text-sm font-semibold text-white bg-[#a52a2a] hover:bg-red-800 rounded-lg transition-colors shadow-sm">
+                            Yes, Logout
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <aside class="bg-[#a52a2a] text-white transition-all duration-300 flex flex-col shadow-xl z-30 h-screen fixed md:relative top-0 left-0 shrink-0 transform md:translate-x-0" 
            :class="[sidebarOpen ? 'w-64' : 'w-20', mobileOpen ? 'translate-x-0' : '-translate-x-full']">
         
@@ -259,15 +284,6 @@
             </a>
             @endif
 
-          {{--  @if(auth()->check() && auth()->user()->hasPermission('advisories'))
-            <a href="{{ route('admin.advisory.index') }}" 
-               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.advisory.index') || request()->is('admin/advisories*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
-                <span x-show="sidebarOpen">Public Advisories</span>
-            </a>
-            @endif
-            --}}
-            
             @if(auth()->check() && auth()->user()->hasPermission('settings'))
             <a href="{{ route('admin.settings.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.settings.*') ? 'bg-red-800 font-bold shadow-inner' : 'hover:bg-red-700' }}">
@@ -276,6 +292,18 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
                 </svg>
                 <span x-show="sidebarOpen">Site Settings</span>
+            </a>
+            @endif
+
+            {{-- STRICT CHECK: Only render this button if the user is the Super Admin (Role ID 1) --}}
+            @if(auth()->check() && auth()->user()->role_id === 1)
+            <a href="{{ route('admin.activity_logs.index') }}" 
+               class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.activity_logs.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span x-show="sidebarOpen">Activity Logs</span>
             </a>
             @endif
 
@@ -289,7 +317,6 @@
                 <span x-show="sidebarOpen">Manage Pages</span>
             </a>
             @endif
-
 
             <a href="{{ route('admin.page-sections.index') }}" 
                class="flex items-center space-x-3 px-4 py-3 rounded-lg transition-colors {{ request()->routeIs('admin.page-sections.*') ? 'bg-red-800 font-bold shadow-inner border border-red-700/50' : 'hover:bg-red-700' }}">
@@ -527,25 +554,12 @@
                 </div>
             @endif
         </nav>
-{{--
-        <div class="p-4 border-t border-red-800 shrink-0 bg-red-900/30 hover:bg-red-800/50 transition-colors cursor-pointer" @click="maintenanceModalOpen = true">
-            <div class="flex items-center space-x-3 text-white">
-                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                <div x-show="sidebarOpen">
-                    <span class="font-bold tracking-wider text-xs uppercase block text-red-200">Site Status</span>
-                    <span class="text-[10px] text-gray-300 block" x-text="siteDisabled ? 'Globally Disabled' : (disabledPages.length > 0 ? disabledPages.length + ' Pages Disabled' : 'All Systems Active')"></span>
-                </div>
-            </div>
-        </div>
---}}
+
         <div class="p-4 border-t border-red-800 shrink-0">
-            <form action="{{ route('logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-all text-white text-left">
-                    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span x-show="sidebarOpen" class="font-bold uppercase tracking-widest text-xs">Logout</span>
-                </button>
-            </form>
+            <button @click="logoutModalOpen = true" class="w-full flex items-center space-x-3 px-4 py-3 hover:bg-red-700 rounded-lg transition-all text-white text-left">
+                <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span x-show="sidebarOpen" class="font-bold uppercase tracking-widest text-xs">Logout</span>
+            </button>
         </div>
     </aside>
 
