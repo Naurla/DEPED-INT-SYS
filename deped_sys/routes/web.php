@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\RoleController; 
 use App\Http\Controllers\Admin\ProfileController; 
 use App\Http\Controllers\Admin\ProcurementController;
+use App\Http\Controllers\Admin\ActivityLogController; // <-- ADDED: Activity Logs Controller
 use App\Http\Controllers\Frontend\BidOpportunityController;
 use App\Http\Controllers\Frontend\FileAccessController;
 use App\Http\Controllers\Frontend\FaqController as FrontendFaqController;
@@ -282,6 +283,9 @@ Route::middleware(['auth'])->group(function () {
         Route::middleware(['permission:dashboard'])->group(function () {
             Route::get('/dashboard', [AdminController::class, 'index'])->name('dashboard');
         });
+
+        // --- ACTIVITY LOGS (SUPER ADMIN ONLY) ---
+        Route::get('/activity-logs', [ActivityLogController::class, 'index'])->name('activity_logs.index');
 
         // ADDED: Global Maintenance Toggle Route (Placed here so the bottom-left sidebar toggle works for admins)
         Route::post('/settings/toggle-maintenance', [SiteSettingController::class, 'toggleMaintenance'])->name('settings.toggle-maintenance');

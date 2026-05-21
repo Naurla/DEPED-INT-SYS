@@ -5,10 +5,12 @@ namespace App\Models;
 use Carbon\Carbon; // Ensure Carbon is imported
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 class BidOpportunity extends Model
 {
-    use HasFactory;
+    use HasFactory, LogsActivity;
 
     protected $fillable = [
         'title',
@@ -27,5 +29,14 @@ class BidOpportunity extends Model
         $formattedDate = Carbon::parse($dateToFormat)->format('F d, Y');
         
         return "{$formattedDate} - {$this->title}";
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable()
+            ->logOnlyDirty() 
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(fn(string $eventName) => "User has been {$eventName}");
     }
 }
