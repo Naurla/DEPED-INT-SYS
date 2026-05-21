@@ -151,6 +151,8 @@ class AdminController extends Controller
         $user->remember_token = null; 
         $user->save();
 
-       return redirect('/')->with('reset_success', 'Your password has been successfully reset. You can now log in.');
+       // FIXED: Redirect directly to the login route. The Blade template 
+       // handles the 'reset_success' session variable and triggers the success modal.
+       return redirect()->route('login')->with('reset_success', 'Your password has been successfully reset. You can now log in.');
     }
 }
