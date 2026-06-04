@@ -11,8 +11,6 @@ return new class extends Migration
        Schema::create('banners', function (Blueprint $table) {
             $table->id();
             $table->string('image_path'); 
-            $table->integer('sort_order')->default(0); // Added for ordering
-            $table->boolean('is_active')->default(true); // Added for status
             $table->timestamps();
         });
     }
