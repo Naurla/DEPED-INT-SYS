@@ -21,7 +21,8 @@
 <body class="bg-gray-100 font-['Inter'] flex flex-col min-h-screen relative" 
     x-data="{ 
         mobileMenu: false,
-        qrModal: false
+        qrModal: false,
+        devModal: false
     }">
 
     {{-- RESPONSIVE HEADER (Not Sticky) --}}
@@ -331,8 +332,8 @@
         </div>
     </div>
 
-    <footer class="bg-[#f2f2f2] text-gray-700 pt-8 pb-12 md:pt-12 md:pb-16 border-t border-gray-300 mt-auto relative">
-        <div class="container mx-auto px-4 md:px-6 lg:px-20 flex flex-col md:flex-row flex-wrap lg:flex-nowrap items-center md:items-start gap-6 md:gap-8 justify-between">
+    <footer class="bg-[#f2f2f2] text-gray-700 pt-8 mt-auto relative">
+        <div class="container mx-auto px-4 md:px-6 lg:px-20 pb-4 flex flex-col md:flex-row flex-wrap lg:flex-nowrap items-center md:items-start gap-6 md:gap-8 justify-between">
             <div class="w-full lg:w-auto flex flex-row justify-center md:flex-col items-center md:items-start gap-4 flex-shrink-0">
                 @php $footerLeftLogos = isset($site_logos) ? $site_logos->where('position', 'footer_left') : collect(); @endphp
                 @if($footerLeftLogos->isNotEmpty())
@@ -422,12 +423,99 @@
             </div>
         </div>
 
-        <a href="/admin/login" class="absolute bottom-4 right-4 text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-            </svg>
-        </a>
+        {{-- Separator and Copyrights Bottom Bar --}}
+        <div class="border-t border-gray-300">
+            <div class="container mx-auto px-4 md:px-6 lg:px-20 py-5 flex flex-col lg:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-500 font-medium tracking-wide">
+                
+                {{-- Left Side Copyright (Pushed right to clear the survey button) --}}
+                <div class="text-center lg:text-left lg:pl-[280px] xl:pl-[320px]">
+                    © 2026 Western Mindanao State University. All rights reserved.
+                </div>
+                
+                {{-- Right Side Links --}}
+                <div class="flex items-center gap-4 sm:gap-6">
+                    <button @click="devModal = true" class="flex items-center text-gray-400 hover:text-[#a52a2a] transition-colors focus:outline-none" title="About the Developer">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
+                        </svg>
+                    </button>
+                    <a href="{{ route('data_privacy.index') ?? '#' }}" class="hover:text-[#a52a2a] transition-colors">Privacy Policy</a>
+                    <a href="#" class="hover:text-[#a52a2a] transition-colors">Terms of Service</a>
+                    
+                    {{-- Admin Lock Icon (Moved to the very end of the links) --}}
+                    <a href="/admin/login" class="text-gray-400 hover:text-[#a52a2a] transition-colors ml-2 focus:outline-none" title="Admin Login">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
     </footer>
+
+    {{-- SYSTEM DEVELOPMENT TEAM MODAL --}}
+    <div class="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm px-4" x-show="devModal" x-cloak x-transition.opacity>
+        <div class="bg-white w-full max-w-lg rounded-xl shadow-2xl overflow-hidden relative" @click.away="devModal = false" x-show="devModal" x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0 scale-95" x-transition:enter-end="opacity-100 scale-100">
+            
+            {{-- Header --}}
+            <div class="bg-[#8b2323] py-4 px-5 flex justify-between items-center">
+                <h3 class="text-white font-bold text-lg">About the Developer</h3>
+                <button @click="devModal = false" class="text-white hover:text-gray-200 transition-colors focus:outline-none">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            {{-- Body --}}
+            <div class="p-6 flex flex-col gap-6 bg-white text-left">
+                
+                {{-- Item 1 --}}
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-md bg-red-50 border border-red-100 flex items-center justify-center text-red-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0010.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0M12 12.75h.008v.008H12v-.008z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-[15px]">Sir Salimar B. Tahil, MEnggED ICT</h4>
+                        <p class="text-gray-500 text-sm mt-0.5">WMSU-CCS - Project Manager</p>
+                    </div>
+                </div>
+
+                {{-- Item 2 --}}
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-md bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-[15px]">Joebert S. Sintoy<br>Jose Nolan Gamaliel B. Iglesia</h4>
+                        <p class="text-gray-500 text-sm mt-1">WMSU-CCS Student Intern / Systems Developers</p>
+                    </div>
+                </div>
+
+                {{-- Item 3 --}}
+                <div class="flex items-start gap-4">
+                    <div class="flex-shrink-0 w-10 h-10 rounded-md bg-green-50 border border-green-100 flex items-center justify-center text-green-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-gray-900 text-[15px]">Genevieve G. Kulong</h4>
+                        <p class="text-gray-500 text-sm mt-0.5">DepEd - Division of Zamboanga City - ITO III / Project Adviser</p>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Footer --}}
+            <div class="bg-gray-50 py-3 px-5 flex justify-end border-t border-gray-100">
+                <button @click="devModal = false" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-6 rounded-md transition-colors text-sm">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 
     {{-- CUSTOMER SATISFACTION SURVEY MODAL --}}
     @if(request()->is('/') && !empty($site_settings->qr_link))
