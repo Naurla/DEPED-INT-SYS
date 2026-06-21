@@ -27,7 +27,65 @@
             </div>
         </div>
 
-    {{-- 3. If it's the ADVISORY WIDGET --}}
+    {{-- 3. VIDEO EMBED (YouTube / Facebook / TikTok) --}}
+    @elseif($block->type == 'video')
+        @php
+            $vUrl      = $block->video_url ?? '';
+            $vLower    = strtolower($vUrl);
+            $iframeSrc = '';
+            $platform  = '';
+            $isPortrait = ($block->video_shape === 'portrait');
+
+            if (str_contains($vLower, 'facebook.com') || str_contains($vLower, 'fb.watch') || str_contains($vLower, 'fb.me')) {
+                $platform  = 'Facebook';
+                $iframeSrc = 'https://www.facebook.com/plugins/video.php?href=' . urlencode($vUrl) . '&show_text=false';
+            } elseif (str_contains($vLower, 'youtube.com') || str_contains($vLower, 'youtu.be')) {
+                $platform = 'YouTube';
+                preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $vUrl, $match);
+                if (isset($match[1])) {
+                    $iframeSrc = 'https://www.youtube.com/embed/' . $match[1];
+                }
+            } elseif (str_contains($vLower, 'tiktok.com')) {
+                $platform = 'TikTok';
+                preg_match('/video\/(\d+)/i', $vUrl, $match);
+                $videoId   = $match[1] ?? explode('?', basename($vUrl))[0];
+                $iframeSrc = 'https://www.tiktok.com/embed/v2/' . $videoId;
+            }
+
+            $maxBoxWidth = $isPortrait ? '400px' : '900px';
+            $aspectRatio = $isPortrait ? '9/16'  : '16/9';
+        @endphp
+
+        @if($iframeSrc)
+            <div class="w-full mb-8">
+                {{-- Optional Title --}}
+                @if($block->title)
+                    <h2 class="text-xl font-bold text-gray-900 mb-3">{{ $block->title }}</h2>
+                @endif
+
+                {{-- Responsive Video Wrapper --}}
+                <div class="w-full flex justify-center">
+                    <div style="position:relative; width:100%; max-width:{{ $maxBoxWidth }}; aspect-ratio:{{ $aspectRatio }}; border-radius:12px; overflow:hidden; box-shadow:0 6px 24px rgba(0,0,0,0.14);">
+                        <iframe
+                            src="{{ $iframeSrc }}"
+                            style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+                            scrolling="no"
+                            frameborder="0"
+                            allowtransparency="true"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen="true">
+                        </iframe>
+                    </div>
+                </div>
+
+                {{-- Optional Caption --}}
+                @if($block->video_caption)
+                    <p class="text-center text-sm text-gray-500 mt-3 italic">{{ $block->video_caption }}</p>
+                @endif
+            </div>
+        @endif
+
+    {{-- 4. ADVISORY WIDGET --}}
     @elseif($block->type == 'widget_advisories')
         @php $widgetAdvisories = \App\Models\Issuance::where('type', 'advisory')->latest()->take(5)->get(); @endphp
         <div class="bg-white p-8 rounded-xl shadow-sm border border-red-100 mb-8">
@@ -41,7 +99,7 @@
             </ul>
         </div>
 
-    {{-- 4. If it's the MEMORANDA WIDGET --}}
+    {{-- 5. MEMORANDA WIDGET --}}
     @elseif($block->type == 'widget_memoranda')
         @php $widgetMemos = \App\Models\Issuance::where('type', 'memorandum')->latest()->take(5)->get(); @endphp
         <div class="bg-white p-8 rounded-xl shadow-sm border border-blue-100 mb-8">
@@ -55,7 +113,7 @@
             </ul>
         </div>
 
-    {{-- 5. If it's the FAQ WIDGET --}}
+    {{-- 6. FAQ WIDGET --}}
     @elseif($block->type == 'widget_faqs')
         @php $widgetFaqs = \App\Models\Faq::where('is_active', true)->get(); @endphp
         <div class="bg-white p-8 rounded-xl shadow-sm border border-gray-100 mb-8" x-data="{ activeAccordion: null }">
@@ -75,7 +133,7 @@
             </div>
         </div>
 
-    {{-- 6. If it's the MATERIALS WIDGET --}}
+    {{-- 7. MATERIALS WIDGET --}}
     @elseif($block->type == 'widget_materials')
         @php $widgetMaterials = \App\Models\LearningMaterial::latest()->take(5)->get(); @endphp
         <div class="bg-white p-8 rounded-xl shadow-sm border border-green-100 mb-8">

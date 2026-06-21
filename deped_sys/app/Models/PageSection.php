@@ -12,6 +12,9 @@ class PageSection extends Model
         'title', 
         'content', 
         'image_path', 
+        'video_url',
+        'video_shape',
+        'video_caption',
         'sort_order', 
         'is_active'
     ];

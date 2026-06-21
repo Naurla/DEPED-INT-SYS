@@ -13,24 +13,31 @@
     .sortable-ghost { opacity: 0.4; background-color: #fef2f2; }
 </style>
 
-<div class="w-full" x-data="{ 
-    modalOpen: false, 
+<div class="w-full" x-data="{
+    modalOpen: false,
     editMode: false,
     sectionId: null,
     isSubmitting: false,
-    
-    // Delete Modal Data
+
+    // Delete Modal
     deleteModal: false,
     deleteAction: '',
     deleteTitle: '',
-    
-    // Form Data
+
+    // General form fields
     formLocation: 'home',
     formType: 'rich_text',
     formTitle: '',
     formContent: '',
     formOrder: 1,
     formActive: '1',
+
+    // Video-specific fields
+    formVideoUrl: '',
+    formVideoShape: 'landscape',
+    formVideoCaption: '',
+    videoPreviewSrc: '',
+    videoPreviewPortrait: false,
 
     openAdd() {
         this.editMode = false;
@@ -40,6 +47,11 @@
         this.formContent = '';
         this.formOrder = 1;
         this.formActive = '1';
+        this.formVideoUrl = '';
+        this.formVideoShape = 'landscape';
+        this.formVideoCaption = '';
+        this.videoPreviewSrc = '';
+        this.videoPreviewPortrait = false;
         this.modalOpen = true;
     },
 
@@ -51,9 +63,16 @@
         this.formTitle = section.title || '';
         this.formContent = section.content || '';
         this.formOrder = section.sort_order;
-        // Strictly parse the boolean to handle JS strings properly
         this.formActive = (section.is_active == 1 || section.is_active === true || section.is_active == '1') ? '1' : '0';
+        this.formVideoUrl = section.video_url || '';
+        this.formVideoShape = section.video_shape || 'landscape';
+        this.formVideoCaption = section.video_caption || '';
+        this.videoPreviewSrc = '';
+        this.videoPreviewPortrait = (this.formVideoShape === 'portrait');
         this.modalOpen = true;
+        if (section.type === 'video' && section.video_url) {
+            this.$nextTick(() => this.buildVideoPreview(section.video_url, section.video_shape));
+        }
     },
 
     confirmDelete(action, title) {
@@ -64,6 +83,26 @@
 
     isWidget() {
         return this.formType.startsWith('widget_');
+    },
+
+    buildVideoPreview(rawUrl, shape) {
+        const url = (rawUrl || '').toLowerCase();
+        let src = '';
+        this.videoPreviewPortrait = (shape === 'portrait');
+        if (url.includes('facebook.com') || url.includes('fb.watch') || url.includes('fb.me')) {
+            src = 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(rawUrl) + '&show_text=false';
+        } else if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            let id = '';
+            if (url.includes('watch?v='))       id = rawUrl.split('watch?v=')[1].split('&')[0];
+            else if (url.includes('youtu.be/')) id = rawUrl.split('youtu.be/')[1].split('?')[0];
+            else if (url.includes('/shorts/'))  id = rawUrl.split('/shorts/')[1].split('?')[0];
+            if (id) src = 'https://www.youtube.com/embed/' + id;
+        } else if (url.includes('tiktok.com')) {
+            const m = rawUrl.match(/video\/(\d+)/i);
+            const id = m && m[1] ? m[1] : rawUrl.split('/').pop().split('?')[0];
+            if (id) src = 'https://www.tiktok.com/embed/v2/' + id;
+        }
+        this.videoPreviewSrc = src;
     }
 }">
 
@@ -167,6 +206,26 @@
                         <td class="px-6 py-4 text-sm text-gray-600 align-middle">
                             @if($sec->type == 'banner')
                                 <img src="{{ asset('storage/'.$sec->image_path) }}" class="h-12 w-auto object-cover rounded shadow-sm border border-gray-200">
+                            @elseif($sec->type == 'video')
+                                @php
+                                    $vThumb = '';
+                                    $vUrl = strtolower($sec->video_url ?? '');
+                                    preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/i', $sec->video_url ?? '', $ytMatch);
+                                    if (isset($ytMatch[1])) $vThumb = "https://img.youtube.com/vi/{$ytMatch[1]}/mqdefault.jpg";
+                                @endphp
+                                <div class="flex items-center gap-3">
+                                    @if($vThumb)
+                                        <img src="{{ $vThumb }}" class="h-10 w-16 object-cover rounded shadow-sm border border-gray-200">
+                                    @else
+                                        <div class="h-10 w-16 bg-gray-800 rounded flex items-center justify-center">
+                                            <svg class="w-5 h-5 text-red-400" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <strong class="text-gray-900 block text-xs">{{ $sec->title ?? 'Video Block' }}</strong>
+                                        <span class="text-xs text-gray-400">{{ Str::limit($sec->video_url, 40) }}</span>
+                                    </div>
+                                </div>
                             @elseif(str_starts_with($sec->type, 'widget_'))
                                 <span class="italic text-gray-400 font-medium">Dynamic Widget Feed</span>
                             @else
@@ -174,6 +233,7 @@
                                 <span class="text-xs text-gray-500">{{ Str::limit(strip_tags($sec->content), 50) }}</span>
                             @endif
                         </td>
+
                         
                         {{-- DRAG HANDLE COLUMN --}}
                         <td class="px-6 py-4 text-center align-middle">
@@ -254,6 +314,7 @@
                                 <optgroup label="Custom Content">
                                     <option value="rich_text">Text / HTML Box</option>
                                     <option value="banner">Banner Image</option>
+                                    <option value="video">&#x1F4F9; Video Embed (YouTube / Facebook / TikTok)</option>
                                 </optgroup>
                                 <optgroup label="Dynamic Widgets (Auto-updates)">
                                     <option value="widget_advisories">Recent Advisories List</option>
@@ -290,6 +351,122 @@
                         <input type="file" name="image" :class="{'pointer-events-none opacity-60': isSubmitting}" class="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-6 file:rounded-lg file:border-0 file:text-sm file:font-bold file:bg-red-50 file:text-red-700 hover:file:bg-red-100 cursor-pointer transition-colors">
                         <p class="text-xs text-gray-400 mt-4 italic">Recommended: JPG or PNG under 5MB.</p>
                     </div>
+
+                    {{-- SHOW IF VIDEO --}}
+                    <div x-show="formType === 'video'" class="space-y-4">
+                        {{-- Panel wrapper — red/maroon themed to match site --}}
+                        <div class="rounded-xl overflow-hidden border border-red-200 shadow-md">
+
+                            {{-- Panel header strip --}}
+                            <div class="bg-[#a52a2a] px-5 py-3 flex items-center gap-2">
+                                <svg class="w-4 h-4 text-red-200" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                                <span class="text-white font-bold text-sm uppercase tracking-wider">Video Embed Settings</span>
+                            </div>
+
+                            {{-- Panel body --}}
+                            <div class="bg-red-50 p-5 space-y-4">
+
+                                {{-- Block Title --}}
+                                <div>
+                                    <label class="block text-[#a52a2a] text-xs font-bold uppercase tracking-wider mb-1.5">Block Title <span class="text-gray-400 font-normal normal-case">(optional)</span></label>
+                                    <input
+                                        type="text"
+                                        name="title"
+                                        x-model="formTitle"
+                                        :readonly="isSubmitting"
+                                        placeholder="e.g. Watch Our Latest Activities"
+                                        class="w-full border border-red-200 bg-white text-gray-800 placeholder-gray-400 p-3 rounded-lg focus:ring-2 focus:ring-[#a52a2a] focus:border-[#a52a2a] outline-none text-sm transition-all shadow-sm"
+                                    >
+                                </div>
+
+                                {{-- Video URL --}}
+                                <div>
+                                    <label class="block text-[#a52a2a] text-xs font-bold uppercase tracking-wider mb-1.5">Video URL <span class="text-red-600">*</span></label>
+                                    <div class="relative">
+                                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                            <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/></svg>
+                                        </div>
+                                        <input
+                                            type="url"
+                                            name="video_url"
+                                            x-model="formVideoUrl"
+                                            @input="buildVideoPreview(formVideoUrl, formVideoShape)"
+                                            :readonly="isSubmitting"
+                                            placeholder="Paste YouTube, Facebook, or TikTok link..."
+                                            class="w-full pl-10 border border-red-200 bg-white text-gray-800 placeholder-gray-400 p-3 rounded-lg focus:ring-2 focus:ring-[#a52a2a] focus:border-[#a52a2a] outline-none text-sm transition-all shadow-sm"
+                                        >
+                                    </div>
+                                    <p class="text-[10px] text-gray-500 mt-1.5 flex items-center gap-1">
+                                        <span class="inline-flex items-center gap-1 bg-red-100 text-red-700 px-1.5 py-0.5 rounded font-bold">YT</span>
+                                        <span class="inline-flex items-center gap-1 bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded font-bold">FB</span>
+                                        <span class="inline-flex items-center gap-1 bg-gray-900 text-white px-1.5 py-0.5 rounded font-bold">TikTok</span>
+                                        <span class="ml-1">links are supported</span>
+                                    </p>
+                                </div>
+
+                                {{-- Shape + Caption side-by-side --}}
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[#a52a2a] text-xs font-bold uppercase tracking-wider mb-1.5">Video Shape</label>
+                                        <select
+                                            name="video_shape"
+                                            x-model="formVideoShape"
+                                            @change="buildVideoPreview(formVideoUrl, formVideoShape)"
+                                            :class="{'pointer-events-none opacity-60': isSubmitting}"
+                                            class="w-full border border-red-200 bg-white text-gray-800 p-3 rounded-lg focus:ring-2 focus:ring-[#a52a2a] focus:border-[#a52a2a] outline-none text-sm shadow-sm"
+                                        >
+                                            <option value="landscape">&#x1F5A5; Landscape (Wide 16:9)</option>
+                                            <option value="portrait">&#x1F4F1; Portrait / Reel (9:16)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[#a52a2a] text-xs font-bold uppercase tracking-wider mb-1.5">Caption <span class="text-gray-400 font-normal normal-case">(optional)</span></label>
+                                        <input
+                                            type="text"
+                                            name="video_caption"
+                                            x-model="formVideoCaption"
+                                            :readonly="isSubmitting"
+                                            placeholder="e.g. Brigada Eskwela 2024"
+                                            class="w-full border border-red-200 bg-white text-gray-800 placeholder-gray-400 p-3 rounded-lg focus:ring-2 focus:ring-[#a52a2a] focus:border-[#a52a2a] outline-none text-sm transition-all shadow-sm"
+                                        >
+                                    </div>
+                                </div>
+
+                                {{-- Live Preview area --}}
+                                <div x-show="videoPreviewSrc" class="mt-1">
+                                    <div class="flex items-center gap-2 mb-3">
+                                        <div class="flex-1 h-px bg-red-200"></div>
+                                        <span class="text-[10px] font-bold text-[#a52a2a] uppercase tracking-widest px-2">Live Preview</span>
+                                        <div class="flex-1 h-px bg-red-200"></div>
+                                    </div>
+                                    <div class="bg-white rounded-xl border border-red-100 p-4 shadow-sm">
+                                        <div class="flex justify-center">
+                                            <div
+                                                :style="videoPreviewPortrait
+                                                    ? 'position:relative;width:100%;max-width:240px;aspect-ratio:9/16;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(165,42,42,0.25);'
+                                                    : 'position:relative;width:100%;max-width:560px;aspect-ratio:16/9;border-radius:10px;overflow:hidden;box-shadow:0 4px 20px rgba(165,42,42,0.25);'"
+                                            >
+                                                <iframe
+                                                    :src="videoPreviewSrc"
+                                                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"
+                                                    allowfullscreen
+                                                ></iframe>
+                                            </div>
+                                        </div>
+                                        <p x-show="formVideoCaption" x-text="formVideoCaption" class="text-center text-xs text-[#a52a2a] mt-3 font-medium italic"></p>
+                                    </div>
+                                </div>
+
+                                {{-- Invalid URL warning --}}
+                                <div x-show="!videoPreviewSrc && formVideoUrl" class="flex items-center gap-2 bg-yellow-50 border border-yellow-200 text-yellow-700 text-xs rounded-lg px-4 py-3">
+                                    <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                    <span>Could not parse this URL. Make sure it is a valid YouTube, Facebook, or TikTok link.</span>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                         <div>

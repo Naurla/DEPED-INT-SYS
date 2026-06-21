@@ -69,21 +69,30 @@ class PageSectionController extends Controller
     {
         $request->validate([
             'display_location' => 'required|string',
-            'type' => 'required|string',
-            'title' => 'nullable|string|max:255',
-            'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'sort_order' => 'required|integer|min:1',
-            'is_active' => 'required|boolean'
+            'type'             => 'required|string',
+            'title'            => 'nullable|string|max:255',
+            'content'          => 'nullable|string',
+            'image'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'video_url'        => 'nullable|url',
+            'video_shape'      => 'nullable|in:landscape,portrait',
+            'video_caption'    => 'nullable|string|max:255',
+            'sort_order'       => 'required|integer|min:1',
+            'is_active'        => 'required|boolean',
         ]);
 
         $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order']);
-        $data['is_active'] = $request->boolean('is_active'); // Explicitly cast to boolean
+        $data['is_active'] = $request->boolean('is_active');
 
         if ($request->type === 'banner' && $request->hasFile('image')) {
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
             $data['image_path'] = $file->storeAs('page_sections', $filename, 'public');
+        }
+
+        if ($request->type === 'video') {
+            $data['video_url']     = $request->video_url;
+            $data['video_shape']   = $request->video_shape ?? 'landscape';
+            $data['video_caption'] = $request->video_caption;
         }
 
         PageSection::create($data);
@@ -97,18 +106,21 @@ class PageSectionController extends Controller
 
         $request->validate([
             'display_location' => 'required|string',
-            'type' => 'required|string',
-            'title' => 'nullable|string|max:255',
-            'content' => 'nullable|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'sort_order' => 'required|integer|min:1',
-            'is_active' => 'required|boolean'
+            'type'             => 'required|string',
+            'title'            => 'nullable|string|max:255',
+            'content'          => 'nullable|string',
+            'image'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'video_url'        => 'nullable|url',
+            'video_shape'      => 'nullable|in:landscape,portrait',
+            'video_caption'    => 'nullable|string|max:255',
+            'sort_order'       => 'required|integer|min:1',
+            'is_active'        => 'required|boolean',
         ]);
 
         $data = $request->only(['display_location', 'type', 'title', 'content', 'sort_order']);
-        $data['is_active'] = $request->boolean('is_active'); // Explicitly cast to boolean
+        $data['is_active'] = $request->boolean('is_active');
 
-        // Handle Image Replacement for Banners
+        // Handle Banner image upload / replacement
         if ($request->type === 'banner' && $request->hasFile('image')) {
             if ($section->image_path) {
                 Storage::disk('public')->delete($section->image_path);
@@ -118,10 +130,22 @@ class PageSectionController extends Controller
             $data['image_path'] = $file->storeAs('page_sections', $filename, 'public');
         }
 
-        // If they changed a Banner to Text or a Widget, delete the old image
+        // If switching away from Banner, remove the stored image
         if ($request->type !== 'banner' && $section->image_path) {
             Storage::disk('public')->delete($section->image_path);
             $data['image_path'] = null;
+        }
+
+        // Handle Video fields
+        if ($request->type === 'video') {
+            $data['video_url']     = $request->video_url;
+            $data['video_shape']   = $request->video_shape ?? 'landscape';
+            $data['video_caption'] = $request->video_caption;
+        } else {
+            // Clear video fields when switching away from Video type
+            $data['video_url']     = null;
+            $data['video_shape']   = 'landscape';
+            $data['video_caption'] = null;
         }
 
         $section->update($data);
