@@ -332,6 +332,7 @@
         </div>
     </div>
 
+    {{-- UPDATED FOOTER SECTION --}}
     <footer class="bg-[#f2f2f2] text-gray-700 pt-8 mt-auto relative">
         <div class="container mx-auto px-4 md:px-6 lg:px-20 pb-4 flex flex-col md:flex-row flex-wrap lg:flex-nowrap items-center md:items-start gap-6 md:gap-8 justify-between">
             <div class="w-full lg:w-auto flex flex-row justify-center md:flex-col items-center md:items-start gap-4 flex-shrink-0">
@@ -423,17 +424,26 @@
             </div>
         </div>
 
+        {{-- Admin Lock Icon (Now aligned right, above the separator) --}}
+        <div class="container mx-auto px-4 md:px-6 lg:px-20 flex justify-end pb-2">
+            <a href="/admin/login" class="text-gray-400 hover:text-[#a52a2a] transition-colors p-2 focus:outline-none" title="Admin Login">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </a>
+        </div>
+
         {{-- Separator and Copyrights Bottom Bar --}}
         <div class="border-t border-gray-300">
-            <div class="container mx-auto px-4 md:px-6 lg:px-20 py-5 flex flex-col lg:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-500 font-medium tracking-wide">
+            <div class="container mx-auto px-4 md:px-6 lg:px-20 py-5 flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-500 font-medium tracking-wide">
                 
-                {{-- Left Side Copyright (Pushed right to clear the survey button) --}}
-                <div class="text-center lg:text-left lg:pl-[280px] xl:pl-[320px]">
+                {{-- Left Side Copyright --}}
+                <div class="text-center md:text-left">
                     © 2026 Western Mindanao State University. All rights reserved.
                 </div>
                 
                 {{-- Right Side Links --}}
-                <div class="flex items-center gap-4 sm:gap-6">
+                <div class="flex items-center gap-4">
                     <button @click="devModal = true" class="flex items-center text-gray-400 hover:text-[#a52a2a] transition-colors focus:outline-none" title="About the Developer">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-5 h-5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 11.25l.041-.02a.75.75 0 011.063.852l-.708 2.836a.75.75 0 001.063.853l.041-.021M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-9-3.75h.008v.008H12V8.25z" />
@@ -441,13 +451,6 @@
                     </button>
                     <a href="{{ route('data_privacy.index') ?? '#' }}" class="hover:text-[#a52a2a] transition-colors">Privacy Policy</a>
                     <a href="#" class="hover:text-[#a52a2a] transition-colors">Terms of Service</a>
-                    
-                    {{-- Admin Lock Icon (Moved to the very end of the links) --}}
-                    <a href="/admin/login" class="text-gray-400 hover:text-[#a52a2a] transition-colors ml-2 focus:outline-none" title="Admin Login">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                        </svg>
-                    </a>
                 </div>
             </div>
         </div>
